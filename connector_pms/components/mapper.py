@@ -5,12 +5,12 @@ from odoo.addons.component.core import AbstractComponent
 
 
 class ChannelImportMapper(AbstractComponent):
-    _name = 'channel.import.mapper'
-    _inherit = ['base.hotel.channel.connector', 'base.import.mapper']
-    _usage = 'import.mapper'
+    _name = "channel.import.mapper"
+    _inherit = ["base.hotel.channel.connector", "base.import.mapper"]
+    _usage = "import.mapper"
 
 
 class ChannelExportMapper(AbstractComponent):
-    _name = 'channel.export.mapper'
-    _inherit = ['base.hotel.channel.connector', 'base.export.mapper']
-    _usage = 'export.mapper'
+    _name = "channel.export.mapper"
+    _inherit = ["base.hotel.channel.connector", "base.export.mapper"]
+    _usage = "export.mapper"

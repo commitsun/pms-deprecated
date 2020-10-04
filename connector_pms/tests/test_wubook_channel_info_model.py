@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,19 +19,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from datetime import timedelta
-from odoo.addons.hotel import date_utils
+
 from .common import TestHotelWubook
 
 
 class TestWubookChannelInfo(TestHotelWubook):
-
     def test_import_channels_info(self):
-        now_utc_dt = date_utils.now()
-        day_utc_dt = now_utc_dt + timedelta(days=20)
-        info_channel = self.env['wubook.channel.info'].create({
-            'wid': 1234,
-            'name': 'Test Channel',
-        })
+        info_channel = self.env["wubook.channel.info"].create(
+            {"wid": 1234, "name": "Test Channel"}
+        )
         self.assertTrue(info_channel, "Can't create test channel info")
         info_channel.import_channels_info()

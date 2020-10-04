@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,81 +19,69 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from .common import TestHotelWubook
 import logging
+
+from .common import TestHotelWubook
+
 _logger = logging.getLogger(__name__)
 
 
 class TestReservationRestriction(TestHotelWubook):
-
     def test_get_wubook_restrictions(self):
-        wrests = self.restriction_1.with_user(self.user_hotel_manager).\
-            get_wubook_restrictions()
+        wrests = self.restriction_1.with_user(
+            self.user_hotel_manager
+        ).get_wubook_restrictions()
         self.assertTrue(any(wrests), "Any restriction found")
 
     def test_create(self):
-        vroo_restriction_obj = self.env['hotel.room.type.restriction']
+        vroo_restriction_obj = self.env["hotel.room.type.restriction"]
         # Restriction Plan
-        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).\
-            create({
-                'name': 'Restriction Test #1',
-                'active': True
-            })
+        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).create(
+            {"name": "Restriction Test #1", "active": True}
+        )
         self.assertTrue(restriction, "Can't create new restriction")
 
     def test_write(self):
-        vroo_restriction_obj = self.env['hotel.room.type.restriction']
+        vroo_restriction_obj = self.env["hotel.room.type.restriction"]
         # Restriction Plan
-        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).\
-            create({
-                'name': 'Restriction Test #1',
-                'active': True
-            })
+        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).create(
+            {"name": "Restriction Test #1", "active": True}
+        )
         self.assertTrue(restriction, "Can't create new restriction")
-        restriction.with_user(self.user_hotel_manager).write({
-            'name': 'Restriction Test Modif #1'
-        })
+        restriction.with_user(self.user_hotel_manager).write(
+            {"name": "Restriction Test Modif #1"}
+        )
         self.assertEqual(
-            restriction.name,
-            'Restriction Test Modif #1',
-            "Can't modif restriction")
+            restriction.name, "Restriction Test Modif #1", "Can't modif restriction"
+        )
 
     def test_unlink(self):
-        vroo_restriction_obj = self.env['hotel.room.type.restriction']
+        vroo_restriction_obj = self.env["hotel.room.type.restriction"]
         # Restriction Plan
-        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).\
-            create({
-                'name': 'Restriction Test #1',
-                'active': True,
-                'wpid': 1234,
-            })
+        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).create(
+            {"name": "Restriction Test #1", "active": True, "wpid": 1234}
+        )
         self.assertTrue(restriction, "Can't create new restriction")
         restriction.with_user(self.user_hotel_manager).unlink()
 
     def test_import_restriction_plans(self):
-        vroo_restriction_obj = self.env['hotel.room.type.restriction']
+        vroo_restriction_obj = self.env["hotel.room.type.restriction"]
         # Restriction Plan
-        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).\
-            create({
-                'name': 'Restriction Test #1',
-                'active': True,
-                'wpid': 1234,
-            })
+        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).create(
+            {"name": "Restriction Test #1", "active": True, "wpid": 1234}
+        )
         self.assertTrue(restriction, "Can't create new restriction")
-        restriction.with_user(
-            self.user_hotel_manager).import_restriction_plans()
+        restriction.with_user(self.user_hotel_manager).import_restriction_plans()
 
     def test_name_get(self):
-        vroo_restriction_obj = self.env['hotel.room.type.restriction']
+        vroo_restriction_obj = self.env["hotel.room.type.restriction"]
         # Restriction Plan
-        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).\
-            create({
-                'name': 'Restriction Test #1',
-                'active': True,
-            })
+        restriction = vroo_restriction_obj.with_user(self.user_hotel_manager).create(
+            {"name": "Restriction Test #1", "active": True}
+        )
         self.assertTrue(restriction, "Can't create new restriction")
         rest_name = restriction.with_user(self.user_hotel_manager).name_get()
-        self.assertTrue('WuBook' in rest_name[0][1], 'Invalid Name')
-        restriction.with_user(self.user_hotel_manager).write({'wpid': ''})
+        self.assertTrue("WuBook" in rest_name[0][1], "Invalid Name")
+        restriction.with_user(self.user_hotel_manager).write({"wpid": ""})
         rest_name = restriction.with_user(self.user_hotel_manager).name_get()
-        self.assertFalse('WuBook' in rest_name[0][1], 'Invalid Name')
+        self.assertFalse("WuBook" in rest_name[0][1], "Invalid Name")

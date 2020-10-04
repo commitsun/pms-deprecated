@@ -5,6 +5,6 @@ from odoo.addons.component.core import AbstractComponent
 
 
 class HotelChannelConnectorImporter(AbstractComponent):
-    _name = 'hotel.channel.importer'
-    _inherit = ['base.importer', 'base.hotel.channel.connector']
-    _usage = 'channel.importer'
+    _name = "hotel.channel.importer"
+    _inherit = ["base.importer", "base.hotel.channel.connector"]
+    _usage = "channel.importer"
