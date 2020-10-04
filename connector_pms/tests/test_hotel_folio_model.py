@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -21,105 +20,102 @@
 #
 ##############################################################################
 from datetime import timedelta
-from openerp.tools import (
-    DEFAULT_SERVER_DATETIME_FORMAT,
-    DEFAULT_SERVER_DATE_FORMAT)
+
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
 from odoo.addons.hotel import date_utils
+
 from .common import TestHotelWubook
 
 
 class TestHotelFolio(TestHotelWubook):
-
     def test_has_wubook_reservations(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
-        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt,
-                                               self.tz_hotel)
-        checkout_utc_dt = checkin_utc_dt + timedelta(days=2)
-        date_diff = date_utils.date_diff(checkin_utc_dt, checkout_utc_dt,
-                                         hours=False) + 1
+        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
 
-        wbooks = [self.create_wubook_booking(
-            self.user_hotel_manager,
-            checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
-            self.partner_2,
-            {
-                self.hotel_room_type_budget.wrid: {
-                    'occupancy': [1],
-                    'dayprices': [15.0, 15.0]
-                }
-            }
-        )]
-        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = \
-            self.env['wubook'].sudo().generate_reservations(wbooks)
+        wbooks = [
+            self.create_wubook_booking(
+                self.user_hotel_manager,
+                checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+                self.partner_2,
+                {
+                    self.hotel_room_type_budget.wrid: {
+                        "occupancy": [1],
+                        "dayprices": [15.0, 15.0],
+                    }
+                },
+            )
+        ]
+        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = (
+            self.env["wubook"].sudo().generate_reservations(wbooks)
+        )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env['hotel.reservation'].search([
-            ('wrid', '=', processed_rids[0])
-        ], order='id ASC', limit=1)
+        nreserv = self.env["hotel.reservation"].search(
+            [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
+        )
         self.assertTrue(nreserv, "Can't found reservation")
-        self.assertTrue(nreserv.folio_id.has_channel_reservations,
-                        "Can't found reservations from channel")
+        self.assertTrue(
+            nreserv.folio_id.has_channel_reservations,
+            "Can't found reservations from channel",
+        )
 
     def test_import_reservations(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
-        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt,
-                                               self.tz_hotel)
-        checkout_utc_dt = checkin_utc_dt + timedelta(days=2)
-        date_diff = date_utils.date_diff(checkin_utc_dt, checkout_utc_dt,
-                                         hours=False) + 1
+        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
 
-        wbooks = [self.create_wubook_booking(
-            self.user_hotel_manager,
-            checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
-            self.partner_2,
-            {
-                self.hotel_room_type_budget.wrid: {
-                    'occupancy': [1],
-                    'dayprices': [15.0, 15.0]
-                }
-            }
-        )]
-        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = \
-            self.env['wubook'].sudo().generate_reservations(wbooks)
+        wbooks = [
+            self.create_wubook_booking(
+                self.user_hotel_manager,
+                checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+                self.partner_2,
+                {
+                    self.hotel_room_type_budget.wrid: {
+                        "occupancy": [1],
+                        "dayprices": [15.0, 15.0],
+                    }
+                },
+            )
+        ]
+        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = (
+            self.env["wubook"].sudo().generate_reservations(wbooks)
+        )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env['hotel.reservation'].search([
-            ('wrid', '=', processed_rids[0])
-        ], order='id ASC', limit=1)
+        nreserv = self.env["hotel.reservation"].search(
+            [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
+        )
         self.assertTrue(nreserv, "Can't found reservation")
         nreserv.folio_id.import_reservations()
 
     def test_action_confirm(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
-        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt,
-                                               self.tz_hotel)
-        checkout_utc_dt = checkin_utc_dt + timedelta(days=2)
-        date_diff = date_utils.date_diff(checkin_utc_dt, checkout_utc_dt,
-                                         hours=False) + 1
+        checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
 
-        wbooks = [self.create_wubook_booking(
-            self.user_hotel_manager,
-            checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
-            self.partner_2,
-            {
-                self.hotel_room_type_budget.wrid: {
-                    'occupancy': [1],
-                    'dayprices': [15.0, 15.0]
-                }
-            }
-        )]
-        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = \
-            self.env['wubook'].sudo().generate_reservations(wbooks)
+        wbooks = [
+            self.create_wubook_booking(
+                self.user_hotel_manager,
+                checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+                self.partner_2,
+                {
+                    self.hotel_room_type_budget.wrid: {
+                        "occupancy": [1],
+                        "dayprices": [15.0, 15.0],
+                    }
+                },
+            )
+        ]
+        processed_rids, errors, checkin_utc_dt, checkout_utc_dt = (
+            self.env["wubook"].sudo().generate_reservations(wbooks)
+        )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env['hotel.reservation'].search([
-            ('wrid', '=', processed_rids[0])
-        ], order='id ASC', limit=1)
+        nreserv = self.env["hotel.reservation"].search(
+            [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
+        )
         self.assertTrue(nreserv, "Can't found reservation")
         nreserv.folio_id.action_confirm()
-        self.assertEqual(nreserv.folio_id.state,
-                         'sale',
-                         "Reservation not confirmed")
+        self.assertEqual(nreserv.folio_id.state, "sale", "Reservation not confirmed")

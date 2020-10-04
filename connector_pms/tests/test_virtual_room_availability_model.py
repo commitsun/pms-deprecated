@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,24 +19,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from datetime import timedelta
-from .common import TestHotelWubook
-from openerp.exceptions import ValidationError
-from odoo.addons.hotel import date_utils
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+
+from odoo.addons.hotel import date_utils
+
+from .common import TestHotelWubook
 
 
 class TestVirtualRoomAvailability(TestHotelWubook):
-
     def test_write(self):
         now_utc_dt = date_utils.now()
-        day_utc_dt = now_utc_dt + timedelta(days=1)
-        room_type_avail_obj = self.env['hotel.room.type.availability']
-        avail = room_type_avail_obj.search([
-            ('room_type_id', '=', self.hotel_room_type_budget.id),
-            ('date', '=', now_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT))
-        ], limit=1)
-        avail.write({
-            'avail': 1,
-        })
+        room_type_avail_obj = self.env["hotel.room.type.availability"]
+        avail = room_type_avail_obj.search(
+            [
+                ("room_type_id", "=", self.hotel_room_type_budget.id),
+                ("date", "=", now_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT)),
+            ],
+            limit=1,
+        )
+        avail.write({"avail": 1})
         self.assertEqual(avail.avail, 1, "Invalid avail")

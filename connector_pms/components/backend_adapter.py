@@ -5,9 +5,9 @@ from odoo.addons.component.core import AbstractComponent
 
 
 class HotelChannelInterfaceAdapter(AbstractComponent):
-    _name = 'hotel.channel.adapter'
-    _inherit = ['base.backend.adapter', 'base.hotel.channel.connector']
-    _usage = 'backend.adapter'
+    _name = "hotel.channel.adapter"
+    _inherit = ["base.backend.adapter", "base.hotel.channel.connector"]
+    _usage = "backend.adapter"
 
     def push_activation(self, base_url, security_token):
         raise NotImplementedError
@@ -33,9 +33,21 @@ class HotelChannelInterfaceAdapter(AbstractComponent):
     def corporate_fetch(self):
         raise NotImplementedError
 
-    def create_reservation(self, channel_room_id, customer_name, email, city,
-                           phone, address, country_code, checkin, checkout,
-                           adults, children, notes=''):
+    def create_reservation(
+        self,
+        channel_room_id,
+        customer_name,
+        email,
+        city,
+        phone,
+        address,
+        country_code,
+        checkin,
+        checkout,
+        adults,
+        children,
+        notes="",
+    ):
         raise NotImplementedError
 
     def cancel_reservation(self, channel_reservation_id, reason=""):
@@ -83,7 +95,9 @@ class HotelChannelInterfaceAdapter(AbstractComponent):
     def rplan_rplans(self):
         raise NotImplementedError
 
-    def wired_rplan_get_rplan_values(self, date_from, date_to, channel_restriction_plan_id):
+    def wired_rplan_get_rplan_values(
+        self, date_from, date_to, channel_restriction_plan_id
+    ):
         raise NotImplementedError
 
     def update_rplan_values(self, channel_restriction_plan_id, date_from, values):
@@ -104,23 +118,23 @@ class HotelChannelInterfaceAdapter(AbstractComponent):
     @property
     def _server(self):
         try:
-            channel_server = getattr(self.work, 'channel_api')
+            channel_server = self.work.channel_api
         except AttributeError:
             raise AttributeError(
-                'You must provide a channel_api attribute with a '
-                'ChannelServer instance to be able to use the '
-                'Backend Adapter.'
+                "You must provide a channel_api attribute with a "
+                "ChannelServer instance to be able to use the "
+                "Backend Adapter."
             )
         return channel_server.server
 
     @property
     def _session_info(self):
         try:
-            channel_server = getattr(self.work, 'channel_api')
+            channel_server = self.work.channel_api
         except AttributeError:
             raise AttributeError(
-                'You must provide a channel_api attribute with a '
-                'ChannelServer instance to be able to use the '
-                'Backend Adapter.'
+                "You must provide a channel_api attribute with a "
+                "ChannelServer instance to be able to use the "
+                "Backend Adapter."
             )
         return (channel_server.session_token, channel_server._login_data.lcode)

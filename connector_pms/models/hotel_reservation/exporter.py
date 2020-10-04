@@ -1,15 +1,16 @@
 # Copyright 2018 Alexandre Díaz <dev@redneboa.es>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.addons.component.core import Component
 from odoo import api
+
+from odoo.addons.component.core import Component
 
 
 class HotelReservationExporter(Component):
-    _name = 'channel.hotel.reservation.exporter'
-    _inherit = 'hotel.channel.exporter'
-    _apply_on = ['channel.hotel.reservation']
-    _usage = 'hotel.reservation.exporter'
+    _name = "channel.hotel.reservation.exporter"
+    _inherit = "hotel.channel.exporter"
+    _apply_on = ["channel.hotel.reservation"]
+    _usage = "hotel.reservation.exporter"
 
     @api.model
     def cancel_reservation(self, binding):
