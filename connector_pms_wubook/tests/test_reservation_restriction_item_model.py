@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -21,25 +20,22 @@
 #
 ##############################################################################
 from datetime import timedelta
-from openerp.tools import (
-    DEFAULT_SERVER_DATETIME_FORMAT,
-    DEFAULT_SERVER_DATE_FORMAT)
+
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+
 from odoo.addons.hotel import date_utils
+
 from .common import TestHotelWubook
 
 
 class TestReservationRestrictionItem(TestHotelWubook):
-
     def test_write(self):
         now_utc_dt = date_utils.now()
         day_utc_dt = now_utc_dt + timedelta(days=20)
         day_utc_str = day_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
-        rest_item_obj = self.env['hotel.room.type.restriction.item']
+        rest_item_obj = self.env["hotel.room.type.restriction.item"]
         restriction = rest_item_obj.search([], limit=1)
         self.assertTrue(restriction, "Can't found restriction for test")
-        restriction.write({
-            'min_stay': 3,
-            'date_start': day_utc_str
-        })
+        restriction.write({"min_stay": 3, "date_start": day_utc_str})
         self.assertEqual(restriction.min_stay, 3, "Invalid Max Avail")
         self.assertEqual(restriction.date_start, day_utc_str, "Invalid Date")

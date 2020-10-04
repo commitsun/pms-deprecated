@@ -1,9 +1,8 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2017 Solucións Aloxa S.L. <info@aloxa.eu>
-#                       Alexandre Díaz <dev@redneboa.es>
-#
+#    Copyright (C) 2018-2020  Alda Hotels <informatica@aldahotels.com>
+#                             Jose Luis Algara <osotranquilo@gmail.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from openerp import fields, models
 
-from .common import TestHotelWubook
 
+class Company(models.Model):
+    _inherit = "res.company"
 
-class TestWubookChannelInfo(TestHotelWubook):
-    def test_import_channels_info(self):
-        info_channel = self.env["wubook.channel.info"].create(
-            {"wid": 1234, "name": "Test Channel"}
-        )
-        self.assertTrue(info_channel, "Can't create test channel info")
-        info_channel.import_channels_info()
+    wu_journal_id = fields.Many2one(
+        "account.journal",
+        string="Payment journal",
+        help="Wubook card payment journal.",
+        default=0,
+    )

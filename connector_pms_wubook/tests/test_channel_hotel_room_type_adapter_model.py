@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,15 +19,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from odoo.tools import (
-    DEFAULT_SERVER_DATETIME_FORMAT,
-    DEFAULT_SERVER_DATE_FORMAT)
-from odoo.exceptions import AccessError
+
 from .common import TestHotelWubook
 
 
 class TestChannelRoomType(TestHotelWubook):
-
     def test_create_room(self):
         return True
 
@@ -81,4 +76,5 @@ class TestChannelRoomType(TestHotelWubook):
 
     # def test_unlink(self):
     #     with self.assertRaises(AccessError):
-    #         self.hotel_room_type_simple.with_user(self.manager_hotel_demo).unlink()
+    #         self.hotel_room_type_simple.with_user(
+    #         self.manager_hotel_demo).unlink()

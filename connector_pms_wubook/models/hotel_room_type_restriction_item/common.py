@@ -5,12 +5,13 @@ from odoo.addons.component.core import Component
 
 
 class HotelRoomTypeRestrictionItemAdapter(Component):
-    _name = 'channel.hotel.room.type.restriction.item.adapter'
-    _inherit = 'wubook.adapter'
-    _apply_on = 'channel.hotel.room.type.restriction.item'
+    _name = "channel.hotel.room.type.restriction.item.adapter"
+    _inherit = "wubook.adapter"
+    _apply_on = "channel.hotel.room.type.restriction.item"
 
-    def wired_rplan_get_rplan_values(self, date_from, date_to, channel_restriction_plan_id):
-        return super(HotelRoomTypeRestrictionItemAdapter, self).wired_rplan_get_rplan_values(
-            date_from,
-            date_to,
-            channel_restriction_plan_id)
+    def wired_rplan_get_rplan_values(
+        self, date_from, date_to, channel_restriction_plan_id
+    ):
+        return super(
+            HotelRoomTypeRestrictionItemAdapter, self
+        ).wired_rplan_get_rplan_values(date_from, date_to, channel_restriction_plan_id)
