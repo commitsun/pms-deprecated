@@ -2,12 +2,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from contextlib import contextmanager
-from odoo import models, api, fields
+
+from odoo import api, fields, models
+
 from ...components.backend_adapter import WuBookLogin, WuBookServer
 
 
 class ChannelBackend(models.Model):
-    _inherit = 'channel.backend'
+    _inherit = "channel.backend"
 
     @api.model
     def select_versions(self):
@@ -17,31 +19,34 @@ class ChannelBackend(models.Model):
         to redefine the ``version`` field in the ``_inherit`` model.
         """
         super(ChannelBackend, self).select_versions()
-        return [('1.1', '1.1')]
+        return [("1.1", "1.1")]
 
     def _get_default_server(self):
-        return 'https://wired.wubook.net/xrws/'
+        return "https://wired.wubook.net/xrws/"
 
     def _get_default_wubook_parity(self):
-        return self.env['ir.default'].sudo().get('res.config.settings', 'default_pricelist_id')
+        return (
+            self.env["ir.default"]
+            .sudo()
+            .get("res.config.settings", "default_pricelist_id")
+        )
 
-    lcode = fields.Char('Channel Service lcode')
-    pkey = fields.Char('Channel Service PKey')
-    server = fields.Char('Channel Service Server',
-                         default=_get_default_server)
-    wubook_parity_pricelist_id = fields.Many2one('product.pricelist', 'WuBook Parity Pricelist',
-                                                 required=True,
-                                                 default=_get_default_wubook_parity)
+    lcode = fields.Char("Channel Service lcode")
+    pkey = fields.Char("Channel Service PKey")
+    server = fields.Char("Channel Service Server", default=_get_default_server)
+    wubook_parity_pricelist_id = fields.Many2one(
+        "product.pricelist",
+        "WuBook Parity Pricelist",
+        required=True,
+        default=_get_default_wubook_parity,
+    )
 
     @contextmanager
     def work_on(self, model_name, **kwargs):
         self.ensure_one()
         wubook_login = WuBookLogin(
-            self.server,
-            self.username,
-            self.passwd,
-            self.lcode,
-            self.pkey)
+            self.server, self.username, self.passwd, self.lcode, self.pkey
+        )
         with WuBookServer(wubook_login) as channel_api:
             _super = super(ChannelBackend, self)
             with _super.work_on(model_name, channel_api=channel_api, **kwargs) as work:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,21 +19,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from datetime import timedelta
+import logging
+
 from odoo import api
-from odoo.addons.hotel.tests.common import TestHotel
+
+from odoo.addons.pms.tests.common import TestHotel
+
 # from odoo.addons.hotel_wubook_proto.wubook import (
 #     DEFAULT_WUBOOK_DATE_FORMAT,
 #     DEFAULT_WUBOOK_TIME_FORMAT,
 #     WUBOOK_STATUS_CONFIRMED,
 #     WUBOOK_STATUS_CANCELLED)
-from random import randint
-import logging
+
 _logger = logging.getLogger(__name__)
 
 
 class TestHotelWubook(TestHotel):
-
     @classmethod
     def _init_mock_hotel(cls):
         super()._init_mock_hotel()
@@ -43,8 +43,9 @@ class TestHotelWubook(TestHotel):
             return True
 
         @api.model
-        def wubook_create_channel_connector_issue(self, section, message, wmessage,
-                                                  wid=False, dfrom=False, dto=False):
+        def wubook_create_channel_connector_issue(
+            self, section, message, wmessage, wid=False, dfrom=False, dto=False
+        ):
             _logger.info("ISSUE CREATED:\n\t- %s\n\t--- %s", section, message)
 
         # cls.env['wubook']._patch_method('create_channel_connector_issue',
@@ -103,17 +104,18 @@ class TestHotelWubook(TestHotel):
     #     checkin_utc_dt = date_utils.get_datetime(checkin)
     #     checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
     #     numdays = 0
-    #     for k_room, v_room in rinfo.iteritems():
+    #     for k_room, v_room in rinfo.items():
     #         numdays = max(len(v_room['dayprices']), numdays)
     #     checkout_utc_dt = checkin_utc_dt + timedelta(days=numdays)
-    #     checkout_dt = date_utils.dt_as_timezone(checkout_utc_dt, self.tz_hotel)
+    #     checkout_dt = date_utils.dt_as_timezone(checkout_utc_dt,
+    #     self.tz_hotel)
     #     date_diff = date_utils.date_diff(checkin_utc_dt, checkout_utc_dt,
     #                                      hours=False)
     #
     #     # Generate Day Prices
     #     dayprices = {}
     #     total_amount = 0.0
-    #     for k_room, v_room in rinfo.iteritems():
+    #     for k_room, v_room in rinfo.items():
     #         for price in v_room['dayprices']:
     #             dayprices.setdefault(k_room, []).append(price)
     #             total_amount += price
@@ -123,7 +125,7 @@ class TestHotelWubook(TestHotel):
     #     booked_rooms = []
     #     room_type_obj = self.env['hotel.room.type']
     #     max_persons = 0
-    #     for k_room, v_room in rinfo.iteritems():
+    #     for k_room, v_room in rinfo.items():
     #         room_type = room_type_obj.search([
     #             ('wrid', '=', k_room)
     #         ], limit=1)
@@ -174,7 +176,8 @@ class TestHotelWubook(TestHotel):
     #         'payment_gateway_fee': '',
     #         'modified_reservations': [],
     #         'customer_surname': ' '.join(partner.name.split(' ')[1:]),
-    #         'date_departure': checkout_dt.strftime(DEFAULT_WUBOOK_DATE_FORMAT),
+    #         'date_departure': checkout_dt.strftime(
+    #         DEFAULT_WUBOOK_DATE_FORMAT),
     #         'amount_reason': '',
     #         'customer_city': partner.city,
     #         'opportunities': 0,
@@ -237,17 +240,18 @@ class TestHotelWubook(TestHotel):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.manager_hotel_demo = cls.env.ref('base.user_demo')
-        cls.manager_hotel_demo.groups_id += cls.env.ref(
-            'hotel.group_hotel_manager')
+        cls.manager_hotel_demo = cls.env.ref("base.user_demo")
+        cls.manager_hotel_demo.groups_id += cls.env.ref("hotel.group_hotel_manager")
 
         # Create a fake channel connector with WuBook
-        cls.channel_connector_wubook = cls.env['channel.backend'].create({
-            'version': '1.1',
-            'lcode': 123456789,
-            'pkey': 'YourProviderKey',
-            'server': 'https://wired.wubook.net/xrws/'
-        })
+        cls.channel_connector_wubook = cls.env["channel.backend"].create(
+            {
+                "version": "1.1",
+                "lcode": 123456789,
+                "pkey": "YourProviderKey",
+                "server": "https://wired.wubook.net/xrws/",
+            }
+        )
 
         # Update Hotel Test Room Type Records
         # cls.room_type_0.write({

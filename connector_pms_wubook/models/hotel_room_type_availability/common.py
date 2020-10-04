@@ -5,16 +5,16 @@ from odoo.addons.component.core import Component
 
 
 class HotelRoomTypeAvailabilityAdapter(Component):
-    _name = 'channel.hotel.room.type.availability.adapter'
-    _inherit = 'wubook.adapter'
-    _apply_on = 'channel.hotel.room.type.availability'
+    _name = "channel.hotel.room.type.availability.adapter"
+    _inherit = "wubook.adapter"
+    _apply_on = "channel.hotel.room.type.availability"
 
     def fetch_rooms_values(self, date_from, date_to, rooms=False):
         return super(HotelRoomTypeAvailabilityAdapter, self).fetch_rooms_values(
-            date_from,
-            date_to,
-            rooms)
+            date_from, date_to, rooms
+        )
 
     def update_availability(self, rooms_avail):
         return super(HotelRoomTypeAvailabilityAdapter, self).update_availability(
-            rooms_avail)
+            rooms_avail
+        )

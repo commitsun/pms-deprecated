@@ -5,9 +5,9 @@ from odoo.addons.component.core import Component
 
 
 class HotelRoomTypeRestrictionAdapter(Component):
-    _name = 'channel.hotel.room.type.restriction.adapter'
-    _inherit = 'wubook.adapter'
-    _apply_on = 'channel.hotel.room.type.restriction'
+    _name = "channel.hotel.room.type.restriction.adapter"
+    _inherit = "wubook.adapter"
+    _apply_on = "channel.hotel.room.type.restriction"
 
     def rplan_rplans(self):
         return super(HotelRoomTypeRestrictionAdapter, self).rplan_rplans()
@@ -19,4 +19,6 @@ class HotelRoomTypeRestrictionAdapter(Component):
         return super(HotelRoomTypeRestrictionAdapter, self).delete_rplan(external_id)
 
     def rename_rplan(self, external_id, new_name):
-        return super(HotelRoomTypeRestrictionAdapter, self).rename_rplan(external_id, new_name)
+        return super(HotelRoomTypeRestrictionAdapter, self).rename_rplan(
+            external_id, new_name
+        )
