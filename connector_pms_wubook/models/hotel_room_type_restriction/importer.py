@@ -4,7 +4,6 @@
 from odoo import api
 
 from odoo.addons.component.core import Component
-from odoo.addons.connector.components.mapper import mapping
 from odoo.addons.connector_pms.components.core import ChannelConnectorError
 
 
@@ -47,18 +46,3 @@ class HotelRoomTypeRestrictionImporter(Component):
                 self.binder.bind(str(plan["id"]), plan_bind)
                 count = count + 1
         return count
-
-
-class HotelRoomTypeRestrictionImportMapper(Component):
-    _name = "channel.hotel.room.type.restriction.import.mapper"
-    _inherit = "channel.import.mapper"
-    _apply_on = "channel.hotel.room.type.restriction"
-
-    direct = [
-        ("name", "name"),
-        ("id", "external_id"),
-    ]
-
-    @mapping
-    def backend_id(self, record):
-        return {"backend_id": self.backend_record.id}
