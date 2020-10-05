@@ -8,9 +8,3 @@ class ChannelImportMapper(AbstractComponent):
     _name = "channel.import.mapper"
     _inherit = ["base.hotel.channel.connector", "base.import.mapper"]
     _usage = "import.mapper"
-
-
-class ChannelExportMapper(AbstractComponent):
-    _name = "channel.export.mapper"
-    _inherit = ["base.hotel.channel.connector", "base.export.mapper"]
-    _usage = "export.mapper"
