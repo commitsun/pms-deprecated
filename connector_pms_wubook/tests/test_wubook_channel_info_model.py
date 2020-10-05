@@ -20,10 +20,10 @@
 #
 ##############################################################################
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestWubookChannelInfo(TestHotelWubook):
+class TestWubookChannelInfo(TestPmsWubook):
     def test_import_channels_info(self):
         info_channel = self.env["wubook.channel.info"].create(
             {"wid": 1234, "name": "Test Channel"}

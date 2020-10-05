@@ -43,7 +43,7 @@ class WubookPushURL(http.Controller):
         if not backend:
             raise ValidationError(_("Can't found a backend!"))
 
-        request.env["channel.hotel.reservation"].import_reservation(rcode)
+        request.env["channel.pms.reservation"].import_reservation(rcode)
 
         return request.make_response("200 OK", [("Content-Type", "text/plain")])
 
@@ -80,12 +80,12 @@ class WubookPushURL(http.Controller):
             DEFAULT_SERVER_DATE_FORMAT
         )
 
-        request.env["channel.hotel.room.type.availability"].import_availability(
+        request.env["channel.pms.room.type.availability"].import_availability(
             backend, odoo_dfrom, odoo_dto
         )
-        request.env[
-            "channel.hotel.room.type.restriction.item"
-        ].import_restriction_values(backend, odoo_dfrom, odoo_dto, False)
+        request.env["channel.pms.room.type.restriction.item"].import_restriction_values(
+            backend, odoo_dfrom, odoo_dto, False
+        )
         request.env["channel.product.pricelist.item"].import_pricelist_values(
             backend, odoo_dfrom, odoo_dto, False
         )

@@ -101,7 +101,7 @@ class WuBookServer(object):
 
 class WuBookAdapter(AbstractComponent):
     _name = "wubook.adapter"
-    _inherit = "hotel.channel.adapter"
+    _inherit = "pms.channel.adapter"
 
     # === GENERAL
     def push_activation(self, base_url, security_token):

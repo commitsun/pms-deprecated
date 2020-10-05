@@ -1,6 +1,6 @@
-==============================
-HOTEL CHANNEL CONNECTOR WUBOOK
-==============================
+============================
+PMS CHANNEL CONNECTOR WUBOOK
+============================
 
 The following list define the test to be covered by this module.
 
@@ -26,7 +26,7 @@ Test TC101
 
 :Procedure:
  1. Install the ``connector_pms_wubook`` module.
- 2. Create a new Hotel Channel Backend with your WuBook Account Credentials.
+ 2. Create a new Pms Channel Backend with your WuBook Account Credentials.
  3. Generate a new Channel Service Security Token.
 
 :Result:
@@ -42,11 +42,11 @@ Test TC101
 Test TC102
 ----------
 
-:Summary: Bind **Room Types** to the Hotel Channel Connector Backend.
+:Summary: Bind **Room Types** to the Pms Channel Connector Backend.
 
 :Requirement: TC101
 
-:Procedure: Add the Hotel Channel Connector Backend to the Room Type.
+:Procedure: Add the Pms Channel Connector Backend to the Room Type.
 
 :Result:
  - The Room Type is created in WuBook.
@@ -62,11 +62,11 @@ Test TC102
 Test TC103
 ----------
 
-:Summary: Bind **Restriction Plans** to the Hotel Channel Connector Backend.
+:Summary: Bind **Restriction Plans** to the Pms Channel Connector Backend.
 
 :Requirement: TC101
 
-:Procedure: Add the Hotel Channel Connector Backend to the Restriction Plan.
+:Procedure: Add the Pms Channel Connector Backend to the Restriction Plan.
 
 :Result:
  - The Restriction Plan is created in WuBook.
@@ -88,7 +88,7 @@ Test TC104
 
 :Result: The Restriction Plan is updated in WuBook.
 
-:Remarks: For this test you need Push Restrictions in the Hotel Channel Backends Export form.
+:Remarks: For this test you need Push Restrictions in the Pms Channel Backends Export form.
 
 :Status: Test Passed.
 
@@ -103,7 +103,7 @@ Test TC105
 
 :Result: The Restriction Plan is updated in WuBook.
 
-:Remarks: For this test you need Push Restrictions in the Hotel Channel Backends Export form.
+:Remarks: For this test you need Push Restrictions in the Pms Channel Backends Export form.
 
 :Status: Test Failed.
 
@@ -112,11 +112,11 @@ Test TC105
 Test TC106
 ----------
 
-:Summary: Bind **Product Pricelist** to the Hotel Channel Connector Backend.
+:Summary: Bind **Product Pricelist** to the Pms Channel Connector Backend.
 
 :Requirement: TC101
 
-:Procedure: Add the Hotel Channel Connector Backend to the Product Pricelist.
+:Procedure: Add the Pms Channel Connector Backend to the Product Pricelist.
 
 :Result:
  - The Product Pricelist is created in WuBook.
@@ -145,11 +145,11 @@ Test TC107
 Test TC108
 ----------
 
-:Summary: Add **Availability** to the Hotel Room Type.
+:Summary: Add **Availability** to the Pms Room Type.
 
 :Requirement: TC101, TC102, T103
 
-:Procedure: Add the availability to the Room Type using a Hotel Channel Connector Backend.
+:Procedure: Add the availability to the Room Type using a Pms Channel Connector Backend.
 
 :Result: The Availability is created in WuBook.
 
@@ -160,7 +160,7 @@ Test TC108
 Test TC109
 ----------
 
-:Summary: Delete **Availability** from the Hotel Room Type.
+:Summary: Delete **Availability** from the Pms Room Type.
 
 :Requirement: TC101, TC102, T103
 
@@ -175,12 +175,12 @@ Test TC109
 Test TC110
 ----------
 
-:Summary: Bind the **Restriction Plan** in Odoo to the Hotel Channel Connector Backend
+:Summary: Bind the **Restriction Plan** in Odoo to the Pms Channel Connector Backend
  using ``ID on Channel=0`` will start its **parity** with the default Restriction Plan **in WuBook**.
 
 :Requirement: TC101
 
-:Procedure: Add the Hotel Channel Connector Backend to the Restriction Plan using **``ID on Channel=0``**.
+:Procedure: Add the Pms Channel Connector Backend to the Restriction Plan using **``ID on Channel=0``**.
 
 :Result: The Odoo Restriction Plan will be in parity with the
  default WuBook Restrictions Plan with ``rpid=0`` named **WuBook Restrictions**.
@@ -190,12 +190,12 @@ Test TC110
 Test TC111
 ----------
 
-:Summary: Bind the **Product Pricelist** in Odoo to the Hotel Channel Connector Backend
+:Summary: Bind the **Product Pricelist** in Odoo to the Pms Channel Connector Backend
  will start its **parity** with the default Price Plan **in WuBook**.
 
 :Requirement: TC101
 
-:Procedure: Add the Hotel Channel Connector Backend to the Product Pricelis using **``ID on Channel=0``**.
+:Procedure: Add the Pms Channel Connector Backend to the Product Pricelis using **``ID on Channel=0``**.
 
 :Result: The Product Pricelist created in WuBook is in parity with the
  default WuBook Restrictions Plan with ``rpid=0``.
@@ -215,7 +215,7 @@ Test TC112
 
 :Status: Failed.
 
-:Reason: Some fields (``name``, ``list_price``) are updated `only` if the Hotel Channel Connector Binding is updated.
+:Reason: Some fields (``name``, ``list_price``) are updated `only` if the Pms Channel Connector Binding is updated.
 
 
 Scenario 2 (TS002)
@@ -229,7 +229,7 @@ Test TC201
 
 :Summary: **Create** a Reservation **decreases** the Room Type Availability in one in the corresponding Plan in Wubook.
 
-:Procedure: Create a reservation with a room type binded to the Hotel Channel Connector Backend.
+:Procedure: Create a reservation with a room type binded to the Pms Channel Connector Backend.
 
 :Result: The availability is decreased by one.
 
@@ -242,7 +242,7 @@ Test TC202
 
 :Summary: **Cancel** a Reservation **increases** the Room Type Availability in one in the corresponding Plan in Wubook.
 
-:Procedure: Cancel a reservation with a room type binded to the Hotel Channel Connector Backend.
+:Procedure: Cancel a reservation with a room type binded to the Pms Channel Connector Backend.
 
 :Result: The availability is increased by one.
 
@@ -254,7 +254,7 @@ Test TC203
 :Summary: **Change** the Room Type in a Reservation **modifies** the Room Type Availability
  in the corresponding Plan in Wubook.
 
-:Procedure: Change the Room Type in a reservation to any room type binded to the Hotel Channel Connector Backend.
+:Procedure: Change the Room Type in a reservation to any room type binded to the Pms Channel Connector Backend.
 
 :Result: The availability is modified according to the change done.
 
@@ -266,7 +266,7 @@ Test TC204
 :Summary: **Change** Checkin/Checkout dates in a Reservation **modifies** the Room Type Availability
  in the corresponding Plan in Wubook.
 
-:Procedure: Change the Checkin/Checkout in a reservation with a room type binded to the Hotel Channel Connector Backend.
+:Procedure: Change the Checkin/Checkout in a reservation with a room type binded to the Pms Channel Connector Backend.
 
 :Result: The availability is modified according to the change done.
 
@@ -278,7 +278,7 @@ Test TC205
 :Summary: **Reselling** state in a Reservation **increases** the Room Type Availability
  in the corresponding Plan in Wubook.
 
-:Procedure: Mark a reservation as `reselling` with a room type binded to the Hotel Channel Connector Backend.
+:Procedure: Mark a reservation as `reselling` with a room type binded to the Pms Channel Connector Backend.
 
 :Result: The availability is increased by one.
 

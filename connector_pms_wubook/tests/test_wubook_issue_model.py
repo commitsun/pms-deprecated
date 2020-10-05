@@ -20,17 +20,17 @@
 #
 ##############################################################################
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestWubookIssue(TestHotelWubook):
+class TestWubookIssue(TestPmsWubook):
     def test_mark_readed(self):
         wubook_issue_obj = self.env["wubook.issue"]
         issue_a = wubook_issue_obj.create(
             {"section": "wubook", "message": "Testing #1"}
         )
         self.assertTrue(issue_a, "Can't create issues")
-        issue_a.with_user(self.user_hotel_manager).mark_readed()
+        issue_a.with_user(self.user_pms_manager).mark_readed()
         self.assertFalse(issue_a.to_read, "Can't mark issue as readed")
 
     def test_toggle_to_read(self):
@@ -39,7 +39,7 @@ class TestWubookIssue(TestHotelWubook):
             {"section": "wubook", "message": "Testing #1"}
         )
         self.assertTrue(issue_a, "Can't create issues")
-        issue_a.with_user(self.user_hotel_manager).toggle_to_read()
+        issue_a.with_user(self.user_pms_manager).toggle_to_read()
         self.assertFalse(issue_a.to_read, "Can't toggle read status")
 
     def test_mark_as_read(self):
@@ -48,4 +48,4 @@ class TestWubookIssue(TestHotelWubook):
             {"section": "reservation", "message": "Testing #1", "wid": "test"}
         )
         self.assertTrue(issue_a, "Can't create issues")
-        issue_a.with_user(self.user_hotel_manager).mark_as_read()
+        issue_a.with_user(self.user_pms_manager).mark_as_read()

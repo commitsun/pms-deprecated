@@ -27,7 +27,7 @@ class ProductPricelistItemImporter(Component):
             date_to,
         )
         _logger.info(plan_prices)
-        channel_hotel_room_type_obj = self.env["channel.hotel.room.type"]
+        channel_pms_room_type_obj = self.env["channel.pms.room.type"]
         pricelist_bind = self.env["channel.product.pricelist"].search(
             [
                 ("backend_id", "=", self.backend_record.id),
@@ -46,7 +46,7 @@ class ProductPricelistItemImporter(Component):
             for i in range(0, days_diff):
                 ndate_dt = dfrom_dt + timedelta(days=i)
                 for k_rid, _ in plan_prices.items():
-                    channel_room_type = channel_hotel_room_type_obj.search(
+                    channel_room_type = channel_pms_room_type_obj.search(
                         [
                             ("backend_id", "=", self.backend_record.id),
                             ("external_id", "=", k_rid),

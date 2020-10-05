@@ -24,12 +24,12 @@ from datetime import timedelta
 from openerp.exceptions import UserError
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestHotelReservation(TestHotelWubook):
+class TestPmsReservation(TestPmsWubook):
     def test_is_from_ota(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
@@ -37,11 +37,11 @@ class TestHotelReservation(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],  # 1 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -57,8 +57,8 @@ class TestHotelReservation(TestHotelWubook):
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
 
-        hotel_reserv_obj = self.env["hotel.reservation"]
-        nreserv = hotel_reserv_obj.with_user(self.user_hotel_manager).search(
+        pms_reserv_obj = self.env["pms.reservation"]
+        nreserv = pms_reserv_obj.with_user(self.user_pms_manager).search(
             [("wrid", "in", processed_rids)]
         )
         self.assertTrue(nreserv, "Reservation not found")
@@ -73,11 +73,11 @@ class TestHotelReservation(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],  # 1 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -92,8 +92,8 @@ class TestHotelReservation(TestHotelWubook):
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
 
-        hotel_reserv_obj = self.env["hotel.reservation"]
-        nreserv = hotel_reserv_obj.with_user(self.user_hotel_manager).search(
+        pms_reserv_obj = self.env["pms.reservation"]
+        nreserv = pms_reserv_obj.with_user(self.user_pms_manager).search(
             [("wrid", "in", processed_rids)]
         )
         self.assertTrue(nreserv, "Reservation not found")
@@ -113,11 +113,11 @@ class TestHotelReservation(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],  # 1 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -132,14 +132,14 @@ class TestHotelReservation(TestHotelWubook):
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
 
-        hotel_reserv_obj = self.env["hotel.reservation"]
-        nreserv = hotel_reserv_obj.with_user(self.user_hotel_manager).search(
+        pms_reserv_obj = self.env["pms.reservation"]
+        nreserv = pms_reserv_obj.with_user(self.user_pms_manager).search(
             [("wrid", "in", processed_rids)]
         )
         self.assertTrue(nreserv, "Reservation not found")
 
         with self.assertRaises(UserError):
-            nreserv.with_user(self.user_hotel_manager).unlink()
+            nreserv.with_user(self.user_pms_manager).unlink()
 
     def test_action_cancel(self):
         now_utc_dt = date_utils.now()
@@ -148,11 +148,11 @@ class TestHotelReservation(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],  # 1 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -167,10 +167,10 @@ class TestHotelReservation(TestHotelWubook):
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
 
-        hotel_reserv_obj = self.env["hotel.reservation"]
-        nreserv = hotel_reserv_obj.with_user(self.user_hotel_manager).search(
+        pms_reserv_obj = self.env["pms.reservation"]
+        nreserv = pms_reserv_obj.with_user(self.user_pms_manager).search(
             [("wrid", "in", processed_rids)]
         )
         self.assertTrue(nreserv, "Reservation not found")
-        nreserv.with_user(self.user_hotel_manager).action_cancel()
+        nreserv.with_user(self.user_pms_manager).action_cancel()
         self.assertEqual(nreserv.state, "cancelled", "Rervation don't cancelled")

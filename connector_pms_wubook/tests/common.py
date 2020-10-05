@@ -23,9 +23,9 @@ import logging
 
 from odoo import api
 
-from odoo.addons.pms.tests.common import TestHotel
+from odoo.addons.pms.tests.common import TestPms
 
-# from odoo.addons.hotel_wubook_proto.wubook import (
+# from odoo.addons.pms_wubook_proto.wubook import (
 #     DEFAULT_WUBOOK_DATE_FORMAT,
 #     DEFAULT_WUBOOK_TIME_FORMAT,
 #     WUBOOK_STATUS_CONFIRMED,
@@ -34,7 +34,7 @@ from odoo.addons.pms.tests.common import TestHotel
 _logger = logging.getLogger(__name__)
 
 
-class TestHotelWubook(TestHotel):
+class TestPmsWubook(TestPms):
     @classmethod
     def _init_mock_hotel(cls):
         super()._init_mock_hotel()
@@ -123,7 +123,7 @@ class TestHotelWubook(TestHotel):
     #     rooms = []
     #     rooms_occu = []
     #     booked_rooms = []
-    #     room_type_obj = self.env['hotel.room.type']
+    #     room_type_obj = self.env['pms.room.type']
     #     max_persons = 0
     #     for k_room, v_room in rinfo.items():
     #         room_type = room_type_obj.search([
@@ -240,8 +240,8 @@ class TestHotelWubook(TestHotel):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.manager_hotel_demo = cls.env.ref("base.user_demo")
-        cls.manager_hotel_demo.groups_id += cls.env.ref("hotel.group_hotel_manager")
+        cls.manager_pms_demo = cls.env.ref("base.user_demo")
+        cls.manager_pms_demo.groups_id += cls.env.ref("pms.group_pms_manager")
 
         # Create a fake channel connector with WuBook
         cls.channel_connector_wubook = cls.env["channel.backend"].create(
@@ -253,25 +253,25 @@ class TestHotelWubook(TestHotel):
             }
         )
 
-        # Update Hotel Test Room Type Records
+        # Update Pms Test Room Type Records
         # cls.room_type_0.write({
         #     'ota_capacity': 2,
         #     'wrid': 3000,
         #     'shortname': 'T000',
-        # # }) # formerly named hotel_room_type_budget
+        # # }) # formerly named pms_room_type_budget
         # cls.room_type_0.write({
         #     'ota_capacity': 1,
         #     'wrid': 3001,
         #     'shortname': 'T001',
-        # }) # formerly named hotel_room_type_budget
+        # }) # formerly named pms_room_type_budget
         # cls.room_type_0.write({
         #     'ota_capacity': 2,
         #     'wrid': 3002,
         #     'shortname': 'T002',
-        # }) # formerly named hotel_room_type_special
+        # }) # formerly named pms_room_type_special
 
         # Update Restriction
-        # room_type_restr_obj = cls.env['hotel.room.type.restriction']
+        # room_type_restr_obj = cls.env['pms.room.type.restriction']
         # default_restriction = room_type_restr_obj.search([
         #     ('wpid', '=', '0')
         # ], limit=1)

@@ -3,10 +3,10 @@
 
 import logging
 
+from odoo import fields
+
 from odoo.addons.component.core import Component
 from odoo.addons.connector.components.mapper import mapping, only_create
-
-from odoo import fields
 
 _logger = logging.getLogger(__name__)
 
@@ -40,8 +40,7 @@ class ProductPricelistItemImportMapper(Component):
     @mapping
     def product_tmpl_id(self, record):
         return {
-            "product_tmpl_id": record[
-                "channel_room_type"].product_id.product_tmpl_id.id
+            "product_tmpl_id": record["channel_room_type"].product_id.product_tmpl_id.id
         }
 
     @mapping
