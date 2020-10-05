@@ -25,15 +25,15 @@ from datetime import timedelta
 from openerp.exceptions import ValidationError
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 
-from odoo.addons.hotel import date_utils
-from odoo.addons.hotel_wubook_proto.wubook import DEFAULT_WUBOOK_DATE_FORMAT
+from odoo.addons.pms import date_utils
+from odoo.addons.pms_wubook_proto.wubook import DEFAULT_WUBOOK_DATE_FORMAT
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 _logger = logging.getLogger(__name__)
 
 
-class TestWubook(TestHotelWubook):
+class TestWubook(TestPmsWubook):
     def test_simple_booking(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
@@ -45,11 +45,11 @@ class TestWubook(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],  # 1 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -63,12 +63,12 @@ class TestWubook(TestHotelWubook):
         # Check Creation
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env["hotel.reservation"].search(
+        nreserv = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
         self.assertTrue(nreserv, "Reservation not found")
         self.assertEqual(nreserv.state, "draft", "Invalid reservation state")
-        nfolio = self.env["hotel.folio"].search(
+        nfolio = self.env["pms.folio"].search(
             [("id", "=", nreserv.folio_id.id)], limit=1
         )
         self.assertTrue(nfolio, "Folio not found")
@@ -108,11 +108,11 @@ class TestWubook(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1, 1],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -126,7 +126,7 @@ class TestWubook(TestHotelWubook):
         # Check Creation
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreservs = self.env["hotel.reservation"].search(
+        nreservs = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
         self.assertEqual(len(nreservs), 2, "Reservations not found")
@@ -165,37 +165,37 @@ class TestWubook(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 (checkin_dt - timedelta(days=3)).strftime(
                     DEFAULT_SERVER_DATETIME_FORMAT
                 ),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 (checkin_dt + timedelta(days=3)).strftime(
                     DEFAULT_SERVER_DATETIME_FORMAT
                 ),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -214,20 +214,18 @@ class TestWubook(TestHotelWubook):
         checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
 
         def check_state(wrids, state):
-            reservs = (
-                self.env["hotel.reservation"].sudo().search([("wrid", "in", wrids)])
-            )
+            reservs = self.env["pms.reservation"].sudo().search([("wrid", "in", wrids)])
             self.assertTrue(any(reservs), "Reservations not found")
             for reserv in reservs:
                 self.assertEqual(reserv.state, state, "Reservation state invalid")
 
         # Create Reservation
         nbook = self.create_wubook_booking(
-            self.user_hotel_manager,
+            self.user_pms_manager,
             checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
             self.partner_2,
             {
-                self.hotel_room_type_special.wrid: {
+                self.pms_room_type_special.wrid: {
                     "occupancy": [2],  # 2 Reservation Line
                     "dayprices": [15.0, 15.0],  # 2 Days
                 }
@@ -251,7 +249,7 @@ class TestWubook(TestHotelWubook):
         check_state(processed_rids, "cancelled")
         # Can't confirm cancelled bookings
         reserv = (
-            self.env["hotel.reservation"]
+            self.env["pms.reservation"]
             .sudo()
             .search([("wrid", "in", processed_rids)], limit=1)
         )
@@ -260,11 +258,11 @@ class TestWubook(TestHotelWubook):
 
         # Create Reservation and Cancel It
         nbook = self.create_wubook_booking(
-            self.user_hotel_manager,
+            self.user_pms_manager,
             checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
             self.partner_2,
             {
-                self.hotel_room_type_special.wrid: {
+                self.pms_room_type_special.wrid: {
                     "occupancy": [2],  # 2 Reservation Line
                     "dayprices": [15.0, 15.0],  # 2 Days
                 }
@@ -285,22 +283,22 @@ class TestWubook(TestHotelWubook):
         checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
 
         book_a = self.create_wubook_booking(
-            self.user_hotel_manager,
+            self.user_pms_manager,
             checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
             self.partner_2,
             {
-                self.hotel_room_type_budget.wrid: {
+                self.pms_room_type_budget.wrid: {
                     "occupancy": [1],
                     "dayprices": [15.0, 15.0],
                 }
             },
         )
         book_b = self.create_wubook_booking(
-            self.user_hotel_manager,
+            self.user_pms_manager,
             (checkin_dt + timedelta(days=2)).strftime(DEFAULT_SERVER_DATETIME_FORMAT),
             self.partner_2,
             {
-                self.hotel_room_type_budget.wrid: {
+                self.pms_room_type_budget.wrid: {
                     "occupancy": [1],
                     "dayprices": [15.0, 15.0],
                 }
@@ -312,24 +310,24 @@ class TestWubook(TestHotelWubook):
         )
         self.assertEqual(len(processed_rids), 2, "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        reserv = self.env["hotel.reservation"].search(
+        reserv = self.env["pms.reservation"].search(
             [("wrid", "=", book_b["reservation_code"])], order="id ASC", limit=1
         )
         self.assertTrue(reserv, "Rervation doesn't exists")
         self.assertEqual(
             reserv.product_id.id,
-            self.hotel_room_simple_100.product_id.id,
+            self.pms_room_simple_100.product_id.id,
             "Unexpected room assigned",
         )
-        reserv.product_id = self.hotel_room_simple_101.product_id.id
+        reserv.product_id = self.pms_room_simple_101.product_id.id
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0, 20.0, 17.0],
                     }
@@ -343,7 +341,7 @@ class TestWubook(TestHotelWubook):
         self.assertFalse(errors, "Reservation errors")
 
         # Check Splitted Integrity
-        nreservs = self.env["hotel.reservation"].search(
+        nreservs = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
         _logger.info(nreservs)
@@ -369,12 +367,12 @@ class TestWubook(TestHotelWubook):
         )
         self.assertEqual(
             nreservs[0].product_id.id,
-            self.hotel_room_simple_101.product_id.id,
+            self.pms_room_simple_101.product_id.id,
             "Invalid room assigned",
         )
         self.assertEqual(
             nreservs[1].product_id.id,
-            self.hotel_room_simple_100.product_id.id,
+            self.pms_room_simple_100.product_id.id,
             "Invalid room assigned",
         )
 
@@ -386,11 +384,11 @@ class TestWubook(TestHotelWubook):
         # Invalid Occupancy
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [3],
                         "dayprices": [15.0, 15.0],
                     }
@@ -406,11 +404,11 @@ class TestWubook(TestHotelWubook):
         # No Real Rooms Avail
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2, 1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -423,7 +421,7 @@ class TestWubook(TestHotelWubook):
         self.assertFalse(errors, "Invalid reservation created")
         self.assertTrue(any(processed_rids), "Invalid reservation created")
 
-        nreservs = self.env["hotel.reservation"].search(
+        nreservs = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
 
@@ -433,37 +431,37 @@ class TestWubook(TestHotelWubook):
         # No Real Rooms Avail
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 (checkin_dt - timedelta(days=1)).strftime(
                     DEFAULT_SERVER_DATETIME_FORMAT
                 ),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 (checkin_dt + timedelta(days=1)).strftime(
                     DEFAULT_SERVER_DATETIME_FORMAT
                 ),
                 self.partner_2,
                 {
-                    self.hotel_room_type_special.wrid: {
+                    self.pms_room_type_special.wrid: {
                         "occupancy": [2],  # 2 Reservation Line
                         "dayprices": [15.0, 15.0],  # 2 Days
                     }
@@ -476,7 +474,7 @@ class TestWubook(TestHotelWubook):
         )
         self.assertEqual(len(processed_rids), 3, "Invalid Reservation created")
         self.assertFalse(errors, "Invalid Reservation created")
-        nreservs = self.env["hotel.reservation"].search(
+        nreservs = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
         for nreserv in nreservs:
@@ -490,11 +488,11 @@ class TestWubook(TestHotelWubook):
         # Create Reservation
         num_issues = self.env["wubook.issue"].search_count([])
         nbook = self.create_wubook_booking(
-            self.user_hotel_manager,
+            self.user_pms_manager,
             checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
             self.partner_2,
             {
-                self.hotel_room_type_special.wrid: {
+                self.pms_room_type_special.wrid: {
                     "occupancy": [2],  # 2 Reservation Line
                     "dayprices": [15.0, 15.0],  # 2 Days
                 }
@@ -518,33 +516,33 @@ class TestWubook(TestHotelWubook):
         # Invalid Occupancy
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -556,7 +554,7 @@ class TestWubook(TestHotelWubook):
         )
         self.assertFalse(errors, "Overbooking don't handled")
         self.assertTrue(any(processed_rids), "Overbooking don't handled")
-        nreservs = self.env["hotel.reservation"].search(
+        nreservs = self.env["pms.reservation"].search(
             [("wrid", "in", processed_rids)], order="id ASC"
         )
         self.assertFalse(nreservs[0].overbooking, "Overbooking don't handled")
@@ -569,9 +567,9 @@ class TestWubook(TestHotelWubook):
         checkin_dt = date_utils.dt_as_timezone(checkin_utc_dt, self.tz_hotel)
         checkout_utc_dt = checkin_utc_dt + timedelta(days=1)
         checkout_dt = date_utils.dt_as_timezone(checkout_utc_dt, self.tz_hotel)
-        room_type_restr_item_obj = self.env["hotel.room.type.restriction.item"]
+        room_type_restr_item_obj = self.env["pms.room.type.restriction.item"]
 
-        room_types = [self.hotel_room_type_budget, self.hotel_room_type_special]
+        room_types = [self.pms_room_type_budget, self.pms_room_type_special]
         values = self.create_wubook_rooms_values(
             room_types,
             [
@@ -626,11 +624,11 @@ class TestWubook(TestHotelWubook):
                     ("restriction_id", "=", self.restriction_default_id),
                 ]
             )
-            self.assertTrue(any(items), "Hotel Wubook Invalid fetch room values")
+            self.assertTrue(any(items), "Pms Wubook Invalid fetch room values")
             for item in items:
                 self.assertTrue(
-                    item.closed_departure, "Hotel Wubook Invalid fetch room values"
+                    item.closed_departure, "Pms Wubook Invalid fetch room values"
                 )
                 self.assertEqual(
-                    item.max_stay_arrival, 9, "Hotel Wubook Invalid fetch room values"
+                    item.max_stay_arrival, 9, "Pms Wubook Invalid fetch room values"
                 )

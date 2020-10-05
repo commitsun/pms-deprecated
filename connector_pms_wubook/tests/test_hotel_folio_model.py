@@ -23,12 +23,12 @@ from datetime import timedelta
 
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestHotelFolio(TestHotelWubook):
+class TestPmsFolio(TestPmsWubook):
     def test_has_wubook_reservations(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
@@ -36,11 +36,11 @@ class TestHotelFolio(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -52,7 +52,7 @@ class TestHotelFolio(TestHotelWubook):
         )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env["hotel.reservation"].search(
+        nreserv = self.env["pms.reservation"].search(
             [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
         )
         self.assertTrue(nreserv, "Can't found reservation")
@@ -68,11 +68,11 @@ class TestHotelFolio(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -84,7 +84,7 @@ class TestHotelFolio(TestHotelWubook):
         )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env["hotel.reservation"].search(
+        nreserv = self.env["pms.reservation"].search(
             [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
         )
         self.assertTrue(nreserv, "Can't found reservation")
@@ -97,11 +97,11 @@ class TestHotelFolio(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -113,7 +113,7 @@ class TestHotelFolio(TestHotelWubook):
         )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        nreserv = self.env["hotel.reservation"].search(
+        nreserv = self.env["pms.reservation"].search(
             [("wrid", "=", processed_rids[0])], order="id ASC", limit=1
         )
         self.assertTrue(nreserv, "Can't found reservation")

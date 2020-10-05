@@ -1,7 +1,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2018-2020  Alda Hotels <informatica@aldahotels.com>
+#    Copyright (C) 2018-2020  Alda Hoteles <informatica@aldahotels.com>
 #                             Jose Luis Algara <osotranquilo@gmail.com>
 #
 #    This program is free software: you can redistribute it and/or modify

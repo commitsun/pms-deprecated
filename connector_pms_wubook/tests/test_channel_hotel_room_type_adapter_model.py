@@ -20,10 +20,10 @@
 #
 ##############################################################################
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestChannelRoomType(TestHotelWubook):
+class TestChannelRoomType(TestPmsWubook):
     def test_create_room(self):
         return True
 
@@ -43,30 +43,30 @@ class TestChannelRoomType(TestHotelWubook):
 
     # def test_check_wcapacity(self):
     #     with self.assertRaises(ValidationError):
-    #         self.room_type_0.with_user(self.user_hotel_manager).write({
+    #         self.room_type_0.with_user(self.user_pms_manager).write({
     #             'wcapacity': 0
     #         })
 
     # def test_check_wscode(self):
     #     with self.assertRaises(ValidationError):
-    #         self.room_type_0.with_user(self.user_hotel_manager).write({
+    #         self.room_type_0.with_user(self.user_pms_manager).write({
     #             'wscode': 'abcdefg'
     #         })
 
     # def test_get_restrictions(self):
     #     now_utc_dt = date_utils.now()
-    #     rests = self.hotel_room_type_budget.with_user(
-    #                                 self.user_hotel_manager).get_restrictions(
+    #     rests = self.pms_room_type_budget.with_user(
+    #                                 self.user_pms_manager).get_restrictions(
     #                                     now_utc_dt.strftime(
     #                                         DEFAULT_SERVER_DATE_FORMAT))
     #     self.assertTrue(any(rests), "Restrictions not found")
 
     # def test_import_rooms(self):
-    #     self.room_type_0.with_user(self.user_hotel_manager).import_rooms()
+    #     self.room_type_0.with_user(self.user_pms_manager).import_rooms()
 
     # def test_create(self):
-    #     room_type_obj = self.env['hotel.room.type']
-    #     room_type = room_type_obj.with_user(self.user_hotel_manager).create({
+    #     room_type_obj = self.env['pms.room.type']
+    #     room_type = room_type_obj.with_user(self.user_pms_manager).create({
     #         'name': 'Budget Room',
     #         'virtual_code': '001',
     #         'list_price': 50,
@@ -76,5 +76,5 @@ class TestChannelRoomType(TestHotelWubook):
 
     # def test_unlink(self):
     #     with self.assertRaises(AccessError):
-    #         self.hotel_room_type_simple.with_user(
-    #         self.manager_hotel_demo).unlink()
+    #         self.pms_room_type_simple.with_user(
+    #         self.manager_pms_demo).unlink()

@@ -20,7 +20,7 @@ class ProductPricelistItemExporter(Component):
     def push_pricelist(self):
         channel_product_pricelist_item_obj = self.env["channel.product.pricelist.item"]
         channel_product_pricelist_obj = self.env["channel.product.pricelist"]
-        channel_room_type_obj = self.env["channel.hotel.room.type"]
+        channel_room_type_obj = self.env["channel.pms.room.type"]
         channel_unpushed = channel_product_pricelist_item_obj.search(
             [
                 ("backend_id", "=", self.backend_record.id),

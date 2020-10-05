@@ -23,19 +23,19 @@ from datetime import timedelta
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestHotelCalendarManagement(TestHotelWubook):
+class TestPmsCalendarManagement(TestPmsWubook):
     def test_save_changes(self):
         now_utc_dt = date_utils.now()
         adv_utc_dt = now_utc_dt + timedelta(days=3)
-        room_types = (self.hotel_room_type_budget,)
+        room_types = (self.pms_room_type_budget,)
 
-        hotel_cal_mngt_obj = self.env["hotel.calendar.management"].with_user(
-            self.user_hotel_manager
+        pms_cal_mngt_obj = self.env["pms.calendar.management"].with_user(
+            self.user_pms_manager
         )
 
         # Generate new prices
@@ -43,7 +43,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
         cprices = {}
         for k_item, v_item in enumerate(prices):
             ndate_utc_dt = now_utc_dt + timedelta(days=k_item)
-            cprices.setdefault(self.hotel_room_type_budget.id, []).append(
+            cprices.setdefault(self.pms_room_type_budget.id, []).append(
                 {
                     "date": ndate_utc_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                     "price": v_item,
@@ -63,7 +63,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
         crestrictions = {}
         for i in range(0, 4):
             ndate_utc_dt = now_utc_dt + timedelta(days=i)
-            crestrictions.setdefault(self.hotel_room_type_budget.id, []).append(
+            crestrictions.setdefault(self.pms_room_type_budget.id, []).append(
                 {
                     "date": ndate_utc_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                     "closed_arrival": restrictions["closed_arrival"][i],
@@ -82,7 +82,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
         for k_item, v_item in enumerate(avails):
             ndate_utc_dt = now_utc_dt + timedelta(days=k_item)
             ndate_dt = date_utils.dt_as_timezone(ndate_utc_dt, self.tz_hotel)
-            cavails.setdefault(self.hotel_room_type_budget.id, []).append(
+            cavails.setdefault(self.pms_room_type_budget.id, []).append(
                 {
                     "date": ndate_dt.strftime(DEFAULT_SERVER_DATE_FORMAT),
                     "avail": v_item,
@@ -91,7 +91,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
             )
 
         # Save new values
-        hotel_cal_mngt_obj.save_changes(
+        pms_cal_mngt_obj.save_changes(
             self.default_pricelist_id,
             self.default_restriction_id,
             cprices,
@@ -100,7 +100,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
         )
 
         # Check data integrity
-        hcal_data = hotel_cal_mngt_obj.get_hcalendar_all_data(
+        hcal_data = pms_cal_mngt_obj.get_hcalendar_all_data(
             now_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT),
             adv_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT),
             self.default_pricelist_id,
@@ -115,7 +115,7 @@ class TestHotelCalendarManagement(TestHotelWubook):
                         self.assertEqual(
                             v_info["avail"],
                             avails[k_info],
-                            "Hotel Calendar Management \
+                            "Pms Calendar Management \
                                                 Availability doesn't match!",
                         )
             for k_pr, v_pr in hcal_data["restrictions"].items():
@@ -124,43 +124,43 @@ class TestHotelCalendarManagement(TestHotelWubook):
                         self.assertEqual(
                             v_info["min_stay"],
                             restrictions["min_stay"][k_info],
-                            "Hotel Calendar Management \
+                            "Pms Calendar Management \
                                                 Restrictions doesn't match!",
                         )
                         self.assertEqual(
                             v_info["max_stay"],
                             restrictions["max_stay"][k_info],
-                            "Hotel Calendar Management \
+                            "Pms Calendar Management \
                                                 Restrictions doesn't match!",
                         )
                         self.assertEqual(
                             v_info["min_stay_arrival"],
                             restrictions["min_stay_arrival"][k_info],
-                            "Hotel Calendar Management Restrictions \
+                            "Pms Calendar Management Restrictions \
                                                             doesn't match!",
                         )
                         self.assertEqual(
                             v_info["max_stay_arrival"],
                             restrictions["max_stay_arrival"][k_info],
-                            "Hotel Calendar Management Restrictions \
+                            "Pms Calendar Management Restrictions \
                                                             doesn't match!",
                         )
                         self.assertEqual(
                             v_info["closed_departure"],
                             restrictions["closed_departure"][k_info],
-                            "Hotel Calendar Management Restrictions \
+                            "Pms Calendar Management Restrictions \
                                                             doesn't match!",
                         )
                         self.assertEqual(
                             v_info["closed_arrival"],
                             restrictions["closed_arrival"][k_info],
-                            "Hotel Calendar Management Restrictions \
+                            "Pms Calendar Management Restrictions \
                                                             doesn't match!",
                         )
                         self.assertEqual(
                             v_info["closed"],
                             restrictions["closed"][k_info],
-                            "Hotel Calendar Management Restrictions \
+                            "Pms Calendar Management Restrictions \
                                                             doesn't match!",
                         )
             for k_pr, v_pr in hcal_data["prices"].items():
@@ -169,6 +169,6 @@ class TestHotelCalendarManagement(TestHotelWubook):
                         self.assertEqual(
                             v_info["price"],
                             prices[k_info],
-                            "Hotel Calendar \
+                            "Pms Calendar \
                                             Management Prices doesn't match!",
                         )

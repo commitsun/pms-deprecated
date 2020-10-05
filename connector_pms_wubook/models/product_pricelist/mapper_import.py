@@ -1,11 +1,11 @@
 # Copyright 2018 Alexandre Díaz <dev@redneboa.es>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from odoo import _
+
 from odoo.addons.component.core import Component
 from odoo.addons.connector.components.mapper import mapping
 from odoo.addons.connector_pms.components.core import ChannelConnectorError
-
-from odoo import _
 
 
 class ProductPricelistImportMapper(Component):

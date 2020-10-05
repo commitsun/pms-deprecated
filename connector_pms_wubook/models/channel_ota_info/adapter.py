@@ -12,15 +12,13 @@ class ChannelOtaInfo(models.Model):
     ical = fields.Boolean("ical", default=False)
 
 
-class HotelRoomTypeAdapter(Component):
+class PmsRoomTypeAdapter(Component):
     _name = "channel.ota.info.adapter"
     _inherit = "wubook.adapter"
     _apply_on = "channel.ota.info"
 
     def fetch_rooms(self):
-        return super(HotelRoomTypeAdapter, self).fetch_rooms()
+        return super(PmsRoomTypeAdapter, self).fetch_rooms()
 
     def push_activation(self, base_url, security_token):
-        return super(HotelRoomTypeAdapter, self).push_activation(
-            base_url, security_token
-        )
+        return super(PmsRoomTypeAdapter, self).push_activation(base_url, security_token)

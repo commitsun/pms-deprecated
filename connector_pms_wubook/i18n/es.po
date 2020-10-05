@@ -18,7 +18,7 @@ msgstr ""
 "X-Generator: Poedit 2.3\n"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_hotel_board_service_room_type
+#: model:ir.model,name:connector_pms_wubook.model_pms_board_service_room_type
 msgid "Board Service included in Room"
 msgstr "BoardServices incluidos en la habitación"
 
@@ -64,13 +64,13 @@ msgid "Can't cancel reservation in WuBook"
 msgstr "No se puede cancelar la reserva en Wubook"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_reservation/common.py:59
+#: code:addons/connector_pms_wubook/models/pms_reservation/common.py:59
 #, python-format
 msgid "Can't cancel reservations from OTA's"
 msgstr "No se puede cancelar reservas de OTAa"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_reservation/common.py:73
+#: code:addons/connector_pms_wubook/models/pms_reservation/common.py:73
 #, python-format
 msgid "Can't confirm OTA's cancelled reservations"
 msgstr "No se puede confirmar reservas canceladas de OTAa"
@@ -100,7 +100,7 @@ msgid "Can't create room in WuBook"
 msgstr "No se puede crear la habitación en Wubook"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/inherited_hotel_room_type_class.py:24
+#: code:addons/connector_pms_wubook/models/inherited_pms_room_type_class.py:24
 #, python-format
 msgid "Can't delete channel room type class"
 msgstr "No se puede eliminar la categoría de habitación"
@@ -175,7 +175,7 @@ msgid "Can't mark as readed a reservation in wubook"
 msgstr "No se puede marcar como leída la reserva en Wubook"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/inherited_hotel_room_type_class.py:17
+#: code:addons/connector_pms_wubook/models/inherited_pms_room_type_class.py:17
 #, python-format
 msgid "Can't modify channel room type class"
 msgstr "No se puede modificar la categoría de habitación"
@@ -237,7 +237,7 @@ msgid "Can't update rooms availability in WuBook"
 msgstr "No se puede actualizar la disponibilidad en Wubook"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_reservation/exporter.py:20
+#: code:addons/connector_pms_wubook/models/pms_reservation/exporter.py:20
 #, python-format
 msgid "Cancelled by %s"
 msgstr "Cancelada por %s"
@@ -257,13 +257,13 @@ msgid "Channel Connector Push Changes"
 msgstr "Exportar Cambios al Channel"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_channel_hotel_reservation
-msgid "Channel Hotel Reservation"
+#: model:ir.model,name:connector_pms_wubook.model_channel_pms_reservation
+msgid "Channel Pms Reservation"
 msgstr "Reserva del Channel"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_channel_hotel_room_type
-msgid "Channel Hotel Room"
+#: model:ir.model,name:connector_pms_wubook.model_channel_pms_room_type
+msgid "Channel Pms Room"
 msgstr "Habitación del Channel"
 
 #. module: connector_pms_wubook
@@ -282,13 +282,13 @@ msgid "Channel Service lcode"
 msgstr "Channel lcode"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_room_type_availability/importer.py:76
+#: code:addons/connector_pms_wubook/models/pms_room_type_availability/importer.py:76
 #, python-format
 msgid "Channel try to change availiability!                                         Updating channel values for Room Type %s...                                         (Odoo: %d -- Channel: %d)"
 msgstr "Channel try to change availiability!                                         Updating channel values for Room Type %s...                                         (Odoo: %d -- Channel: %d)"
 
 #. module: connector_pms_wubook
-#: model:ir.model.fields,field_description:connector_pms_wubook.field_channel_hotel_reservation_modified_reservations
+#: model:ir.model.fields,field_description:connector_pms_wubook.field_channel_pms_reservation_modified_reservations
 msgid "Code Modifications"
 msgstr "Code Modifications"
 
@@ -299,17 +299,17 @@ msgstr "Compañías"
 
 #. module: connector_pms_wubook
 #: model:ir.model,name:connector_pms_wubook.model_channel_backend
-msgid "Hotel Channel Backend"
-msgstr "Hotel Channel Backend"
+msgid "Pms Channel Backend"
+msgstr "Pms Channel Backend"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_hotel_folio
-msgid "Hotel Folio"
+#: model:ir.model,name:connector_pms_wubook.model_pms_folio
+msgid "Pms Folio"
 msgstr "Ficha de reservas"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_hotel_reservation
-msgid "Hotel Reservation"
+#: model:ir.model,name:connector_pms_wubook.model_pms_reservation
+msgid "Pms Reservation"
 msgstr "Reserva del hotel"
 
 #. module: connector_pms_wubook
@@ -331,18 +331,18 @@ msgid "Payment journal"
 msgstr "Diario pagos"
 
 #. module: connector_pms_wubook
-#: model:ir.model,name:connector_pms_wubook.model_hotel_room_type_class
+#: model:ir.model,name:connector_pms_wubook.model_pms_room_type_class
 msgid "Room Type Class"
 msgstr "Room Type Class"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_room_type/common.py:39
+#: code:addons/connector_pms_wubook/models/pms_room_type/common.py:39
 #, python-format
 msgid "The channel manager limits the minimum value of min price and max price to 5."
 msgstr "El Channel Manager limita los valores mín y máx del precio a 5."
 
 #. module: connector_pms_wubook
-#: model:ir.ui.view,arch_db:connector_pms_wubook.channel_hotel_room_type_restriction_view_form
+#: model:ir.ui.view,arch_db:connector_pms_wubook.channel_pms_room_type_restriction_view_form
 msgid "Use restriction plan ID = 0 for the Channel default Restriction Plan."
 msgstr "Usa el ID = 0  en el plan de restruccuibes para el plan de restricciones por defecto del Channel"
 
@@ -357,7 +357,7 @@ msgid "Wubook Payments"
 msgstr "Wubook Payments"
 
 #. module: connector_pms_wubook
-#: model:ir.model.fields,field_description:connector_pms_wubook.field_hotel_folio_wseed
+#: model:ir.model.fields,field_description:connector_pms_wubook.field_pms_folio_wseed
 msgid "Wubook Session Seed"
 msgstr "Wubook Session Seed"
 
@@ -372,12 +372,12 @@ msgid "ical"
 msgstr "ical"
 
 #. module: connector_pms_wubook
-#: code:addons/connector_pms_wubook/models/hotel_room_type/deleter.py:22
-#: code:addons/connector_pms_wubook/models/hotel_room_type/exporter.py:48
-#: code:addons/connector_pms_wubook/models/hotel_room_type/exporter.py:83
-#: code:addons/connector_pms_wubook/models/hotel_room_type_restriction/deleter.py:22
-#: code:addons/connector_pms_wubook/models/hotel_room_type_restriction/exporter.py:27
-#: code:addons/connector_pms_wubook/models/hotel_room_type_restriction/exporter.py:38
+#: code:addons/connector_pms_wubook/models/pms_room_type/deleter.py:22
+#: code:addons/connector_pms_wubook/models/pms_room_type/exporter.py:48
+#: code:addons/connector_pms_wubook/models/pms_room_type/exporter.py:83
+#: code:addons/connector_pms_wubook/models/pms_room_type_restriction/deleter.py:22
+#: code:addons/connector_pms_wubook/models/pms_room_type_restriction/exporter.py:27
+#: code:addons/connector_pms_wubook/models/pms_room_type_restriction/exporter.py:38
 #: code:addons/connector_pms_wubook/models/product_pricelist/deleter.py:22
 #: code:addons/connector_pms_wubook/models/product_pricelist/exporter.py:27
 #: code:addons/connector_pms_wubook/models/product_pricelist/exporter.py:38
