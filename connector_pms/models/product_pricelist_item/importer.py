@@ -8,7 +8,7 @@ from odoo.addons.component.core import Component
 
 class ProductPricelistItemImporter(Component):
     _name = "channel.product.pricelist.item.importer"
-    _inherit = "hotel.channel.importer"
+    _inherit = "pms.channel.importer"
     _apply_on = ["channel.product.pricelist.item"]
     _usage = "product.pricelist.item.importer"
 

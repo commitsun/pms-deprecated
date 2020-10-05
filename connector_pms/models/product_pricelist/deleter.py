@@ -8,7 +8,7 @@ from odoo.addons.component.core import Component
 
 class ProductPricelistDeleter(Component):
     _name = "channel.product.pricelist.deleter"
-    _inherit = "hotel.channel.deleter"
+    _inherit = "pms.channel.deleter"
     _apply_on = ["channel.product.pricelist"]
     _usage = "product.pricelist.deleter"
 

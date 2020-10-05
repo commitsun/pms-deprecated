@@ -23,17 +23,17 @@ from datetime import timedelta
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestReservationRestrictionItem(TestHotelWubook):
+class TestReservationRestrictionItem(TestPmsWubook):
     def test_write(self):
         now_utc_dt = date_utils.now()
         day_utc_dt = now_utc_dt + timedelta(days=20)
         day_utc_str = day_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
-        rest_item_obj = self.env["hotel.room.type.restriction.item"]
+        rest_item_obj = self.env["pms.room.type.restriction.item"]
         restriction = rest_item_obj.search([], limit=1)
         self.assertTrue(restriction, "Can't found restriction for test")
         restriction.write({"min_stay": 3, "date_start": day_utc_str})

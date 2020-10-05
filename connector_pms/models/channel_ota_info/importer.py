@@ -8,7 +8,7 @@ from odoo.addons.component.core import Component
 
 class ChannelOtaInfoImporter(Component):
     _name = "channel.ota.info.importer"
-    _inherit = "hotel.channel.importer"
+    _inherit = "pms.channel.importer"
     _apply_on = ["channel.ota.info"]
     _usage = "ota.info.importer"
 

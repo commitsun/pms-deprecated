@@ -4,7 +4,7 @@
         <field name="name">channel.backend.form</field>
         <field name="model">channel.backend</field>
         <field name="arch" type="xml">
-            <form string="Hotel Channel Backend">
+            <form string="Pms Channel Backend">
                 <header>
                     <button
                         name="synchronize_push_urls"
@@ -328,7 +328,7 @@
         </field>
     </record>
     <record id="action_channel_backend" model="ir.actions.act_window">
-        <field name="name">Hotel Channel Backends</field>
+        <field name="name">Pms Channel Backends</field>
         <field name="res_model">channel.backend</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="channel_backend_view_tree" />

@@ -24,14 +24,14 @@ from datetime import timedelta
 
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 _logger = logging.getLogger(__name__)
 
 
-class TestResPartner(TestHotelWubook):
+class TestResPartner(TestPmsWubook):
     def test_write(self):
         now_utc_dt = date_utils.now()
         checkin_utc_dt = now_utc_dt + timedelta(days=3)
@@ -39,22 +39,22 @@ class TestResPartner(TestHotelWubook):
 
         wbooks = [
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_2,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
                 },
             ),
             self.create_wubook_booking(
-                self.user_hotel_manager,
+                self.user_pms_manager,
                 checkin_dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
                 self.partner_1,
                 {
-                    self.hotel_room_type_budget.wrid: {
+                    self.pms_room_type_budget.wrid: {
                         "occupancy": [1],
                         "dayprices": [15.0, 15.0],
                     }
@@ -66,11 +66,11 @@ class TestResPartner(TestHotelWubook):
         )
         self.assertTrue(any(processed_rids), "Reservation not found")
         self.assertFalse(errors, "Reservation errors")
-        self.partner_2.with_user(self.user_hotel_manager).write({"vat": "ES00000000T"})
-        self.partner_1.with_user(self.user_hotel_manager).write(
+        self.partner_2.with_user(self.user_pms_manager).write({"vat": "ES00000000T"})
+        self.partner_1.with_user(self.user_pms_manager).write(
             {"vat": "ES00000000T", "unconfirmed": True}
         )
-        reservation = self.env["hotel.reservation"].search(
+        reservation = self.env["pms.reservation"].search(
             [("wrid", "=", processed_rids[1])], order="id ASC", limit=1
         )
         self.assertTrue(reservation, "Can't found reservation")

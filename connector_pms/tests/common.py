@@ -25,9 +25,9 @@ from random import randint
 
 from odoo import api
 
-from odoo.addons.hotel import date_utils
-from odoo.addons.hotel.tests.common import TestHotel
-from odoo.addons.hotel_wubook_proto.wubook import (
+from odoo.addons.pms import date_utils
+from odoo.addons.pms.tests.common import TestPms
+from odoo.addons.pms_wubook_proto.wubook import (
     DEFAULT_WUBOOK_DATE_FORMAT,
     DEFAULT_WUBOOK_TIME_FORMAT,
     WUBOOK_STATUS_CANCELLED,
@@ -37,10 +37,10 @@ from odoo.addons.hotel_wubook_proto.wubook import (
 _logger = logging.getLogger(__name__)
 
 
-class TestHotelWubook(TestHotel):
+class TestPmsWubook(TestPms):
     @classmethod
     def _init_mock_hotel(cls):
-        super(TestHotelWubook, cls)._init_mock_hotel()
+        super(TestPmsWubook, cls)._init_mock_hotel()
 
         def wubook_ommit(self, *args, **kwargs):
             return True
@@ -124,7 +124,7 @@ class TestHotelWubook(TestHotel):
         rooms = []
         rooms_occu = []
         booked_rooms = []
-        room_type_obj = self.env["hotel.room.type"]
+        room_type_obj = self.env["pms.room.type"]
         max_persons = 0
         for k_room, v_room in rinfo.items():
             room_type = room_type_obj.search([("wrid", "=", k_room)], limit=1)
@@ -239,18 +239,16 @@ class TestHotelWubook(TestHotel):
 
     @classmethod
     def setUpClass(cls):
-        super(TestHotelWubook, cls).setUpClass()
+        super(TestPmsWubook, cls).setUpClass()
 
         # Update Test Virtual Rooms
-        cls.hotel_room_type_budget.write(
-            {"wcapacity": 1, "wrid": 3000, "wscode": "T001"}
-        )
-        cls.hotel_room_type_special.write(
+        cls.pms_room_type_budget.write({"wcapacity": 1, "wrid": 3000, "wscode": "T001"})
+        cls.pms_room_type_special.write(
             {"wcapacity": 2, "wrid": 3001, "wscode": "T002"}
         )
 
         # Update Restriction
-        room_type_restr_obj = cls.env["hotel.room.type.restriction"]
+        room_type_restr_obj = cls.env["pms.room.type.restriction"]
         default_restriction = room_type_restr_obj.search([("wpid", "=", "0")], limit=1)
         if default_restriction:
             cls.restriction_default_id = default_restriction.id
@@ -300,4 +298,4 @@ class TestHotelWubook(TestHotel):
         cls.env["wubook"]._revert_method("delete_rplan")
         cls.env["wubook"]._revert_method("import_channels_info")
 
-        super(TestHotelWubook, cls).tearDownClass()
+        super(TestPmsWubook, cls).tearDownClass()

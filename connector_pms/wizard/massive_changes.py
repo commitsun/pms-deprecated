@@ -6,7 +6,7 @@ from odoo import api, fields, models
 
 
 class MassiveChangesWizard(models.TransientModel):
-    _inherit = "hotel.wizard.massive.changes"
+    _inherit = "pms.wizard.massive.changes"
 
     section = fields.Selection(selection_add=[("avail", "Availability")])
 
@@ -32,7 +32,7 @@ class MassiveChangesWizard(models.TransientModel):
 
     @api.model
     def _save_availability(self, ndate, room_types, record):
-        hotel_room_type_avail_obj = self.env["hotel.room.type.availability"]
+        pms_room_type_avail_obj = self.env["pms.room.type.availability"]
         domain = [("date", "=", ndate.strftime(DEFAULT_SERVER_DATE_FORMAT))]
 
         for room_type in room_types:
@@ -40,7 +40,7 @@ class MassiveChangesWizard(models.TransientModel):
             if not any(vals):
                 continue
 
-            room_types_avail = hotel_room_type_avail_obj.search(
+            room_types_avail = pms_room_type_avail_obj.search(
                 domain + [("room_type_id", "=", room_type.id)]
             )
             if any(room_types_avail):
@@ -54,7 +54,7 @@ class MassiveChangesWizard(models.TransientModel):
                         "room_type_id": room_type.id,
                     }
                 )
-                hotel_room_type_avail_obj.with_context(
+                pms_room_type_avail_obj.with_context(
                     {"mail_create_nosubscribe": True}
                 ).create(vals)
 

@@ -15,23 +15,23 @@
         action="action_channel_backend"
     />
     <menuitem
-        id="hotel_channel_connector_issue_menu"
+        id="pms_channel_connector_issue_menu"
         name="Issues"
         sequence="3"
-        action="open_hotel_channel_connector_issue_tree_all"
+        action="open_pms_channel_connector_issue_tree_all"
         parent="menu_channel_connector_root"
     />
     <menuitem
-        id="hotel_configuration_channel_manager"
+        id="pms_configuration_channel_manager"
         name="Channel Manager"
-        parent="hotel.hotel_configuration_menu"
+        parent="pms.pms_configuration_menu"
         sequence="20"
-        groups="hotel.group_hotel_manager"
+        groups="pms.group_pms_manager"
     />
     <menuitem
-        id="hotel_configuration_channel_action"
+        id="pms_configuration_channel_action"
         name="Channels"
-        parent="hotel_configuration_channel_manager"
+        parent="pms_configuration_channel_manager"
         sequence="10"
         action="action_channel_backend"
     />

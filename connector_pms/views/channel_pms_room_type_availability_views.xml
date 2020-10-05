@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="channel_pms_room_type_availability_view_form" model="ir.ui.view">
+        <field name="name">channel.pms.room.type.availability.form</field>
+        <field name="model">channel.pms.room.type.availability</field>
+        <field name="arch" type="xml">
+            <form string="Pms Channel Room Availability">
+                <group>
+                    <field name="id" invisible="1" />
+                    <field name="backend_id" attrs="{'visible': [('id','=', False)]}" />
+                </group>
+                <group>
+                    <field name="quota" />
+                    <field name="channel_avail" />
+                    <field name="booked" />
+                </group>
+                <group>
+                    <field name="channel_pushed" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="channel_pms_room_type_availability_view_tree" model="ir.ui.view">
+        <field name="name">channel.pms.room.type.availability.tree</field>
+        <field name="model">channel.pms.room.type.availability</field>
+        <field name="arch" type="xml">
+            <tree string="Pms Channel Room Availability">
+                <field name="backend_id" />
+                <field name="quota" />
+                <field name="channel_avail" />
+            </tree>
+        </field>
+    </record>
+</odoo>

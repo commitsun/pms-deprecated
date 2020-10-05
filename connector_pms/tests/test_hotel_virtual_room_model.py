@@ -23,40 +23,40 @@
 from openerp.exceptions import ValidationError
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestHotelVirtualRoom(TestHotelWubook):
+class TestPmsVirtualRoom(TestPmsWubook):
     def test_get_capacity(self):
-        self.assertEqual(self.hotel_room_type_budget.wcapacity, 1, "Invalid wcapacity")
+        self.assertEqual(self.pms_room_type_budget.wcapacity, 1, "Invalid wcapacity")
 
     def test_check_wcapacity(self):
         with self.assertRaises(ValidationError):
-            self.hotel_room_type_budget.with_user(self.user_hotel_manager).write(
+            self.pms_room_type_budget.with_user(self.user_pms_manager).write(
                 {"wcapacity": 0}
             )
 
     def test_check_wscode(self):
         with self.assertRaises(ValidationError):
-            self.hotel_room_type_budget.with_user(self.user_hotel_manager).write(
+            self.pms_room_type_budget.with_user(self.user_pms_manager).write(
                 {"wscode": "abcdefg"}
             )
 
     def test_get_restrictions(self):
         now_utc_dt = date_utils.now()
-        rests = self.hotel_room_type_budget.with_user(
-            self.user_hotel_manager
+        rests = self.pms_room_type_budget.with_user(
+            self.user_pms_manager
         ).get_restrictions(now_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT))
         self.assertTrue(any(rests), "Restrictions not found")
 
     def test_import_rooms(self):
-        self.hotel_room_type_budget.with_user(self.user_hotel_manager).import_rooms()
+        self.pms_room_type_budget.with_user(self.user_pms_manager).import_rooms()
 
     def test_create(self):
-        room_type_obj = self.env["hotel.room.type"]
-        room_type = room_type_obj.with_user(self.user_hotel_manager).create(
+        room_type_obj = self.env["pms.room.type"]
+        room_type = room_type_obj.with_user(self.user_pms_manager).create(
             {
                 "name": "Budget Room",
                 "virtual_code": "001",
@@ -67,4 +67,4 @@ class TestHotelVirtualRoom(TestHotelWubook):
         room_type.unlink()
 
     def test_unlink(self):
-        self.hotel_room_type_budget.with_user(self.user_hotel_manager).unlink()
+        self.pms_room_type_budget.with_user(self.user_pms_manager).unlink()

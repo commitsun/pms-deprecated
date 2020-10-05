@@ -6,14 +6,14 @@ from odoo import api
 from odoo.addons.component.core import AbstractComponent
 
 
-class BaseHotelChannelConnectorComponent(AbstractComponent):
-    _name = "base.hotel.channel.connector"
+class BasePmsChannelConnectorComponent(AbstractComponent):
+    _name = "base.pms.channel.connector"
     _inherit = "base.connector"
     _collection = "channel.backend"
 
     @api.model
     def create_issue(self, **kwargs):
-        self.env["hotel.channel.connector.issue"].sudo().create(
+        self.env["pms.channel.connector.issue"].sudo().create(
             {
                 "backend_id": kwargs.get("backend", self.backend_record.id),
                 "section": kwargs.get("section", False),

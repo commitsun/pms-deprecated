@@ -7,11 +7,11 @@ from odoo import fields, models
 class ChannelBinding(models.AbstractModel):
     _name = "channel.binding"
     _inherit = "external.binding"
-    _description = "Hotel Channel Connector Binding (abstract)"
+    _description = "Pms Channel Connector Binding (abstract)"
 
     backend_id = fields.Many2one(
         comodel_name="channel.backend",
-        string="Hotel Channel Connector Backend",
+        string="Pms Channel Connector Backend",
         required=True,
         ondelete="restrict",
     )
