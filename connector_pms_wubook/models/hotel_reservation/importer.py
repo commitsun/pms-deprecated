@@ -633,7 +633,7 @@ class HotelReservationImporter(Component):
                         section="reservation",
                         internal_message="Can't found any room type "
                         "associated to '%s' \
-                                            in this hotel"
+                                                             in this hotel"
                         % book["rooms"],
                         channel_object_id=book["reservation_code"],
                     )
@@ -644,7 +644,7 @@ class HotelReservationImporter(Component):
                         section="reservation",
                         internal_message="Selected room type (%s) doesn't "
                         "have any \
-                                            real room"
+                                                             real room"
                         % book["rooms"],
                         channel_object_id=book["reservation_code"],
                     )
