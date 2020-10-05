@@ -1,9 +1,9 @@
 # Copyright 2018 Alexandre Díaz <dev@redneboa.es>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.addons.queue_job.job import job
-
 from odoo import api, fields, models
+
+from odoo.addons.queue_job.job import job
 
 
 class ChannelProductPricelistItem(models.Model):
@@ -14,7 +14,7 @@ class ChannelProductPricelistItem(models.Model):
 
     odoo_id = fields.Many2one(
         comodel_name="product.pricelist.item",
-        string="Hotel Product Pricelist Item",
+        string="Pms Product Pricelist Item",
         required=True,
         ondelete="cascade",
     )

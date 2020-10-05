@@ -4,15 +4,15 @@
 from odoo.addons.component.core import Component
 
 
-class HotelConnectorModelBinder(Component):
-    _name = "hotel.channel.connector.binder"
-    _inherit = ["base.binder", "base.hotel.channel.connector"]
+class PmsConnectorModelBinder(Component):
+    _name = "pms.channel.connector.binder"
+    _inherit = ["base.binder", "base.pms.channel.connector"]
     _apply_on = [
-        "channel.hotel.reservation",
-        "channel.hotel.room.type",
-        "channel.hotel.room.type.availability",
-        "channel.hotel.room.type.restriction",
-        "channel.hotel.room.type.restriction.item",
+        "channel.pms.reservation",
+        "channel.pms.room.type",
+        "channel.pms.room.type.availability",
+        "channel.pms.room.type.restriction",
+        "channel.pms.room.type.restriction.item",
         "channel.product.pricelist",
         "channel.product.pricelist.item",
         "channel.ota.info",

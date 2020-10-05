@@ -5,12 +5,12 @@ from odoo.exceptions import ValidationError
 
 
 class MassivePriceChangeWizard(models.TransientModel):
-    _inherit = "hotel.wizard.massive.price.reservation.days"
+    _inherit = "pms.wizard.massive.price.reservation.days"
 
     def massive_price_change_days(self):
         self.ensure_one()
-        hotel_reservation_obj = self.env["hotel.reservation"]
-        reservation_id = hotel_reservation_obj.browse(self.env.context.get("active_id"))
+        pms_reservation_obj = self.env["pms.reservation"]
+        reservation_id = pms_reservation_obj.browse(self.env.context.get("active_id"))
         if not reservation_id:
             return False
 

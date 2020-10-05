@@ -14,11 +14,10 @@ class ProductPricelist(models.Model):
     channel_bind_ids = fields.One2many(
         comodel_name="channel.product.pricelist",
         inverse_name="odoo_id",
-        string="Hotel Channel Connector Bindings",
+        string="Pms Channel Connector Bindings",
     )
 
-    pricelist_type = fields.Selection(
-        selection_add=[("virtual", "Virtual Plan")])
+    pricelist_type = fields.Selection(selection_add=[("virtual", "Virtual Plan")])
 
     @api.depends("item_ids")
     def _compute_virtual_plan(self):
@@ -63,8 +62,7 @@ class ProductPricelist(models.Model):
         ]
         action["views"] = [
             (
-                self.env.ref(
-                    "connector_pms.channel_product_pricelist_view_form").id,
+                self.env.ref("connector_pms.channel_product_pricelist_view_form").id,
                 "form",
             )
         ]
@@ -84,8 +82,7 @@ class ProductPricelist(models.Model):
 
     def disconnect_channel_bind_ids(self):
         # TODO: multichannel rooms is not implemented
-        self.channel_bind_ids.with_context(
-            {"connector_no_export": True}).unlink()
+        self.channel_bind_ids.with_context({"connector_no_export": True}).unlink()
 
     def write(self, vals):
         if "active" in vals and vals.get("active") is False:

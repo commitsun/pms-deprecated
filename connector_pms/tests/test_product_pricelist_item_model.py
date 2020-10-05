@@ -24,25 +24,25 @@ from datetime import timedelta
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 
-from odoo.addons.hotel import date_utils
+from odoo.addons.pms import date_utils
 
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 _logger = logging.getLogger(__name__)
 
 
-class TestProductPricelistItem(TestHotelWubook):
+class TestProductPricelistItem(TestPmsWubook):
     def test_create(self):
         now_utc_dt = date_utils.now()
         day_utc_dt = now_utc_dt + timedelta(days=20)
-        budget_product_id = self.hotel_room_type_budget.product_id
+        budget_product_id = self.pms_room_type_budget.product_id
         pr_item_obj = self.env["product.pricelist.item"]
 
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
         default_pricelist.write({"wpid": 1234})
-        pricelist_item = pr_item_obj.with_user(self.user_hotel_manager).create(
+        pricelist_item = pr_item_obj.with_user(self.user_pms_manager).create(
             {
                 "pricelist_id": self.default_pricelist_id,
                 "date_start": day_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT),
@@ -59,14 +59,14 @@ class TestProductPricelistItem(TestHotelWubook):
     def test_write(self):
         now_utc_dt = date_utils.now()
         day_utc_dt = now_utc_dt + timedelta(days=20)
-        budget_product_id = self.hotel_room_type_budget.product_id
+        budget_product_id = self.pms_room_type_budget.product_id
         pr_item_obj = self.env["product.pricelist.item"]
 
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
         default_pricelist.write({"wpid": 1234})
-        pricelist_item = pr_item_obj.with_user(self.user_hotel_manager).create(
+        pricelist_item = pr_item_obj.with_user(self.user_pms_manager).create(
             {
                 "pricelist_id": self.default_pricelist_id,
                 "date_start": day_utc_dt.strftime(DEFAULT_SERVER_DATE_FORMAT),

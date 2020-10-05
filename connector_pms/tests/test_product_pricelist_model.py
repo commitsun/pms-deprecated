@@ -19,23 +19,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from .common import TestHotelWubook
+from .common import TestPmsWubook
 
 
-class TestProductPricelist(TestHotelWubook):
+class TestProductPricelist(TestPmsWubook):
     def test_get_wubook_prices(self):
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
-        wprices = default_pricelist.with_user(
-            self.user_hotel_manager
-        ).get_wubook_prices()
+        wprices = default_pricelist.with_user(self.user_pms_manager).get_wubook_prices()
         self.assertTrue(any(wprices), "Can't get any price for wubook")
 
     def test_create(self):
         npricelist = (
             self.env["product.pricelist"]
-            .with_user(self.user_hotel_manager)
+            .with_user(self.user_pms_manager)
             .create({"name": "Pricelist Test #1"})
         )
         self.assertTrue(npricelist, "Can't create test pricelist")
@@ -44,7 +42,7 @@ class TestProductPricelist(TestHotelWubook):
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
-        default_pricelist.with_user(self.user_hotel_manager).write(
+        default_pricelist.with_user(self.user_pms_manager).write(
             {"name": "Pricelist Test New Name #1"}
         )
         self.assertEqual(
@@ -57,7 +55,7 @@ class TestProductPricelist(TestHotelWubook):
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
-        default_pricelist.with_user(self.user_hotel_manager).unlink()
+        default_pricelist.with_user(self.user_pms_manager).unlink()
 
     def test_import_price_plans(self):
         default_pricelist = self.env["product.pricelist"].browse(
@@ -69,8 +67,8 @@ class TestProductPricelist(TestHotelWubook):
         default_pricelist = self.env["product.pricelist"].browse(
             [self.default_pricelist_id]
         )
-        rest_name = default_pricelist.with_user(self.user_hotel_manager).name_get()
+        rest_name = default_pricelist.with_user(self.user_pms_manager).name_get()
         self.assertTrue("WuBook" in rest_name[0][1], "Invalid Name")
-        default_pricelist.with_user(self.user_hotel_manager).write({"wpid": ""})
-        rest_name = default_pricelist.with_user(self.user_hotel_manager).name_get()
+        default_pricelist.with_user(self.user_pms_manager).write({"wpid": ""})
+        rest_name = default_pricelist.with_user(self.user_pms_manager).name_get()
         self.assertFalse("WuBook" in rest_name[0][1], "Invalid Name")

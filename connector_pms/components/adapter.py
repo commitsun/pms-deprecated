@@ -4,9 +4,9 @@
 from odoo.addons.component.core import AbstractComponent
 
 
-class HotelChannelInterfaceAdapter(AbstractComponent):
-    _name = "hotel.channel.adapter"
-    _inherit = ["base.backend.adapter", "base.hotel.channel.connector"]
+class PmsChannelInterfaceAdapter(AbstractComponent):
+    _name = "pms.channel.adapter"
+    _inherit = ["base.backend.adapter", "base.pms.channel.connector"]
     _usage = "backend.adapter"
 
     def push_activation(self, base_url, security_token):

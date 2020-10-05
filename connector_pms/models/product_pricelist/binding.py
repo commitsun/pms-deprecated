@@ -3,9 +3,9 @@
 
 import logging
 
-from odoo.addons.queue_job.job import job
-
 from odoo import fields, models
+
+from odoo.addons.queue_job.job import job
 
 _logger = logging.getLogger(__name__)
 

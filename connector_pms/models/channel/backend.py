@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 
 class ChannelBackend(models.Model):
     _name = "channel.backend"
-    _description = "Hotel Channel Backend"
+    _description = "Pms Channel Backend"
     _inherit = "connector.backend"
 
     @api.model
@@ -41,7 +41,7 @@ class ChannelBackend(models.Model):
     restriction_from = fields.Date("Restriction From")
     restriction_to = fields.Date("Restriction To")
     restriction_id = fields.Many2one(
-        "channel.hotel.room.type.restriction", "Channel Restriction"
+        "channel.pms.room.type.restriction", "Channel Restriction"
     )
 
     pricelist_from = fields.Date("Pricelist From")
@@ -51,7 +51,7 @@ class ChannelBackend(models.Model):
     )
 
     issue_ids = fields.One2many(
-        "hotel.channel.connector.issue", "backend_id", string="Issues"
+        "pms.channel.connector.issue", "backend_id", string="Issues"
     )
     ota_ids = fields.One2many("channel.ota.info", "backend_id", string="OTA's")
 
@@ -67,9 +67,9 @@ class ChannelBackend(models.Model):
             channel_ota_info_obj.push_activation(record, base_url)
 
     def import_reservations(self):
-        channel_hotel_reservation_obj = self.env["channel.hotel.reservation"]
+        channel_pms_reservation_obj = self.env["channel.pms.reservation"]
         for backend in self:
-            count = channel_hotel_reservation_obj.import_reservations(backend)
+            count = channel_pms_reservation_obj.import_reservations(backend)
             if self.env.context.get("show_notify", True):
                 if count == 0:
                     self.env.user.notify_info(
@@ -84,9 +84,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_reservations_range(self):
-        channel_hotel_reservation_obj = self.env["channel.hotel.reservation"]
+        channel_pms_reservation_obj = self.env["channel.pms.reservation"]
         for backend in self:
-            count = channel_hotel_reservation_obj.import_reservations_range(
+            count = channel_pms_reservation_obj.import_reservations_range(
                 backend, backend.reservation_from, backend.reservation_to
             )
             if self.env.context.get("show_notify", True):
@@ -103,9 +103,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_reservation(self):
-        channel_hotel_reservation_obj = self.env["channel.hotel.reservation"]
+        channel_pms_reservation_obj = self.env["channel.pms.reservation"]
         for backend in self:
-            res = channel_hotel_reservation_obj.import_reservation(
+            res = channel_pms_reservation_obj.import_reservation(
                 backend, backend.reservation_id_str
             )
             if not res and self.env.context.get("show_notify", True):
@@ -116,9 +116,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_rooms(self):
-        channel_hotel_room_type_obj = self.env["channel.hotel.room.type"]
+        channel_pms_room_type_obj = self.env["channel.pms.room.type"]
         for backend in self:
-            count = channel_hotel_room_type_obj.import_rooms(backend)
+            count = channel_pms_room_type_obj.import_rooms(backend)
             if self.env.context.get("show_notify", True):
                 if count == 0:
                     self.env.user.notify_info(
@@ -141,11 +141,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_availability(self):
-        channel_hotel_room_type_avail_obj = self.env[
-            "channel.hotel.room.type.availability"
-        ]
+        channel_pms_room_type_avail_obj = self.env["channel.pms.room.type.availability"]
         for backend in self:
-            res = channel_hotel_room_type_avail_obj.import_availability(
+            res = channel_pms_room_type_avail_obj.import_availability(
                 backend, backend.avail_from, backend.avail_to
             )
             if not res and self.env.context.get("show_notify", True):
@@ -155,11 +153,9 @@ class ChannelBackend(models.Model):
         return True
 
     def push_availability(self):
-        channel_hotel_room_type_avail_obj = self.env[
-            "channel.hotel.room.type.availability"
-        ]
+        channel_pms_room_type_avail_obj = self.env["channel.pms.room.type.availability"]
         for backend in self:
-            res = channel_hotel_room_type_avail_obj.push_availability(backend)
+            res = channel_pms_room_type_avail_obj.push_availability(backend)
             if not res and self.env.context.get("show_notify", True):
                 self.env.user.notify_warning(
                     "Error pushing availability", title="Export Availability"
@@ -167,11 +163,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_restriction_plans(self):
-        channel_hotel_room_type_restr_obj = self.env[
-            "channel.hotel.room.type.restriction"
-        ]
+        channel_pms_room_type_restr_obj = self.env["channel.pms.room.type.restriction"]
         for backend in self:
-            count = channel_hotel_room_type_restr_obj.import_restriction_plans(backend)
+            count = channel_pms_room_type_restr_obj.import_restriction_plans(backend)
             if self.env.context.get("show_notify", True):
                 if count == 0:
                     self.env.user.notify_info(
@@ -186,11 +180,9 @@ class ChannelBackend(models.Model):
         return True
 
     def import_restriction_values(self):
-        channel_hotel_restr_item_obj = self.env[
-            "channel.hotel.room.type.restriction.item"
-        ]
+        channel_pms_restr_item_obj = self.env["channel.pms.room.type.restriction.item"]
         for backend in self:
-            res = channel_hotel_restr_item_obj.import_restriction_values(
+            res = channel_pms_restr_item_obj.import_restriction_values(
                 backend,
                 backend.restriction_from,
                 backend.restriction_to,
@@ -203,11 +195,9 @@ class ChannelBackend(models.Model):
         return True
 
     def push_restriction(self):
-        channel_hotel_restr_item_obj = self.env[
-            "channel.hotel.room.type.restriction.item"
-        ]
+        channel_pms_restr_item_obj = self.env["channel.pms.room.type.restriction.item"]
         for backend in self:
-            res = channel_hotel_restr_item_obj.push_restriction(backend)
+            res = channel_pms_restr_item_obj.push_restriction(backend)
             if not res and self.env.context.get("show_notify", True):
                 self.env.user.notify_warning(
                     "Error pushing restrictions", title="Export Restrictions"
@@ -257,11 +247,9 @@ class ChannelBackend(models.Model):
         return True
 
     def close_online_sales(self):
-        channel_hotel_restr_item_obj = self.env[
-            "channel.hotel.room.type.restriction.item"
-        ]
+        channel_pms_restr_item_obj = self.env["channel.pms.room.type.restriction.item"]
         for backend in self:
-            res = channel_hotel_restr_item_obj.close_online_sales(backend)
+            res = channel_pms_restr_item_obj.close_online_sales(backend)
             if not res and self.env.context.get("show_notify", True):
                 self.env.user.notify_warning(
                     "Error closing online sales", title="Export Restrictions"
@@ -271,7 +259,7 @@ class ChannelBackend(models.Model):
     def channel_availability_watchdog(self):
         # search all availability to the future TODO: It not prepared for
         #  multiple backends
-        availabilities = self.env["hotel.room.type.availability"].search(
+        availabilities = self.env["pms.room.type.availability"].search(
             [("date", ">=", fields.Date.today())]
         )
         email_values = {"body_html": ""}
@@ -279,7 +267,7 @@ class ChannelBackend(models.Model):
             room_type_id = record.room_type_id.id
             date = record.date
             free_rooms = len(
-                self.env["hotel.room.type"].check_availability_room_type(
+                self.env["pms.room.type"].check_availability_room_type(
                     date, date, room_type_id
                 )
             )
@@ -292,7 +280,7 @@ class ChannelBackend(models.Model):
                 record.channel_bind_ids.update({"channel_avail": free_rooms})
                 msg = (
                     "Channel availability mismatch for room type %s."
-                    % self.env["hotel.room.type"].browse(room_type_id).name
+                    % self.env["pms.room.type"].browse(room_type_id).name
                 )
                 msg = (
                     msg
@@ -308,7 +296,7 @@ class ChannelBackend(models.Model):
         if len(email_values["body_html"]) > 0:
             if "email_to" in self._context:
                 template = self.env.ref(
-                    "connector_pms.mail_template_hotel_availability_watchdog"
+                    "connector_pms.mail_template_pms_availability_watchdog"
                 )
                 email_values.update({"email_to": self._context["email_to"]})
                 template.send_mail(self.id, email_values=email_values)

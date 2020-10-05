@@ -4,7 +4,7 @@
         <field name="name">channel.product.pricelist.item.form</field>
         <field name="model">channel.product.pricelist.item</field>
         <field name="arch" type="xml">
-            <form string="Hotel Channel Product Pricelist Item">
+            <form string="Pms Channel Product Pricelist Item">
                 <group>
                     <field name="id" invisible="1" />
                     <field name="backend_id" attrs="{'visible': [('id','=', False)]}" />
@@ -12,11 +12,11 @@
             </form>
         </field>
     </record>
-    <record id="channel_hotel_product_pricelist_item_view_tree" model="ir.ui.view">
-        <field name="name">channel.hotel.product.pricelist.item.tree</field>
+    <record id="channel_pms_product_pricelist_item_view_tree" model="ir.ui.view">
+        <field name="name">channel.pms.product.pricelist.item.tree</field>
         <field name="model">channel.product.pricelist.item</field>
         <field name="arch" type="xml">
-            <tree string="Hotel Channel Product Pricelist Item">
+            <tree string="Pms Channel Product Pricelist Item">
                 <field name="backend_id" />
             </tree>
         </field>
