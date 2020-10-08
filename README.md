@@ -3,7 +3,7 @@
 # ROOMDOO
 All-in-One Property Management System (PMS) focused on medium-sized hotels for managing every aspect of your property's daily operations.
 
-You will find modules for:
+deqdq4efaefaefaefaefaefefwrYou will find modules for:
 
  - Manage hotel properties with multi-hotel and multi-company support.
  - Manage your rooms inventory, reservations, check-in, daily reports, board services, rate and restriction plans.
