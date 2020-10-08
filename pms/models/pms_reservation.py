@@ -20,7 +20,7 @@ class PmsReservation(models.Model):
     _name = "pms.reservation"
     _description = "Reservation"
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin"]
-    _order = "last_updated_res desc, name"
+    _order = "priority, last_updated_res desc, name"
     _check_company_auto = True
 
     # Default Methods ang Gets
@@ -297,6 +297,14 @@ class PmsReservation(models.Model):
     last_updated_res = fields.Datetime(
         "Last Updated", compute="_compute_last_updated_res", store=True, readonly=False,
     )
+    priority = fields.Integer(
+        "Priority",
+        compute="_compute_priority",
+        store=True,
+    )
+    need_action = fields.Boolean(
+        'Need Action', compute='_compute_need_action', search='_search_need_action',
+        help='Need Action')
     folio_pending_amount = fields.Monetary(related="folio_id.pending_amount")
     shared_folio = fields.Boolean(compute="_computed_shared")
     # Used to notify is the reservation folio has other reservations/services
@@ -411,6 +419,23 @@ class PmsReservation(models.Model):
                 )
             else:
                 reservation.name = "/"
+
+    @api.depends(
+        "checkin", "checkout", "state",
+    )
+    def _compute_priority(self):
+        for reservation in self:
+            #TODO:Priority logic to operate
+            reservation.priority = reservation.id
+
+    def _compute_need_action(self):
+        self.need_action = False
+        #TODO: Review need action logic
+
+    def _search_need_action(self):
+        return [()]
+        #TODO: Review need action logic (search or store?)
+
 
     @api.depends("reservation_line_ids", "reservation_line_ids.room_id")
     def _compute_room_id(self):
@@ -690,8 +715,7 @@ class PmsReservation(models.Model):
         3.-Check the reservation dates are not occuped
         """
         for record in self:
-            if fields.Date.from_string(record.checkin) >= fields.Date.from_string(
-                record.checkout
+            if record.checkin >= record.checkout
             ):
                 raise ValidationError(
                     _(
@@ -874,8 +898,7 @@ class PmsReservation(models.Model):
                 ("checkout", "<", fields.Date.today()),
             ]
         )
-        for res in reservations:
-            res.action_reservation_checkout()
+        reservations.action_reservation_checkout()
         res_without_checkin = reservations.filtered(lambda r: r.state != "booking")
         for res in res_without_checkin:
             msg = _("No checkin was made for this reservation")
