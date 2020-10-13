@@ -22,7 +22,7 @@
             <field name="country_id" ref="base.es" />
             <field name="zip">15703</field>
             <field name="phone">+34 123 456 879</field>
-            <field name="email">commitsun@hootel.com</field>
+            <field name="email">commitsun@pms.com</field>
             <field name="website">https://www.commitsun.com</field>
         </record>
         <record model="res.users" id="base.user_root">
