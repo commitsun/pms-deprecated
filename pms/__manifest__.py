@@ -63,6 +63,10 @@
         "views/product_template_views.xml",
         "views/webclient_templates.xml",
     ],
-    "demo": ["demo/pms_master_data.xml", "demo/pms_reservation.xml"],
+    "demo": [
+    	"demo/pms_master_data.xml",
+    	"demo/pms_reservation.xml",
+    	"demo/pms_folio.xml",
+    	],
     "qweb": ["static/src/xml/pms_base_templates.xml",],
 }
