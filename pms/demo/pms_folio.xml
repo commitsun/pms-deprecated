@@ -100,5 +100,20 @@
                     })]"
             />
         </record>
+        <record id="pms_folio_5" model="pms.folio">
+            <field name="partner_id" ref="base.res_partner_address_15" />
+            <field
+                name="reservation_ids"
+                eval="[(5, 0), (0, 0, {
+                    'pricelist_id': ref('product.list0'),
+                    'room_type_id': ref('pms_room_type_0'),
+                    'checkin': (DateTime.today() + timedelta(days=14)),
+                    'checkout': (DateTime.today() + timedelta(days=16)),
+                    'adults': 2,
+                    'state': 'confirm',
+                    'board_service_room_id': ref('pms_board_service_room_1'),
+                    })]"
+            />
+        </record>
     </data>
 </odoo>
