@@ -20,3 +20,4 @@
 #
 ##############################################################################
 from . import test_pms_amenities
+from . import test_pms_room_type
