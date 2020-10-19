@@ -3,7 +3,7 @@
 
 {
     "name": "PMS Channel Connector Wubook",
-    "version": "13.0.1.0.0",
+    "version": "14.0.1.0.0",
     "author": "Alexandre Díaz,Odoo Community Association (OCA)",
     "website": "https://github.com/hootel/hootel",
     "category": "pms/connector",
