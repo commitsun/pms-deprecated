@@ -185,15 +185,7 @@
                             name="partner_id"
                             default_focus="1"
                             placeholder="Lastname, Firstname"
-                            attrs="{'invisible':[('reservation_type','in',('out'))]}"
                             required="1"
-                        />
-                        <field
-                            name="closure_reason_id"
-                            default_focus="1"
-                            options="{'no_create': True,'no_open': True}"
-                            placeholder="Closure Reason"
-                            attrs="{'invisible':[('reservation_type','not in',('out'))]}"
                         />
                     </h1>
                     <h3>
@@ -221,11 +213,6 @@
                             </div>
                         </group>
                     </h3>
-                    <field
-                        name="out_service_description"
-                        placeholder="Out service description"
-                        attrs="{'invisible':[('reservation_type','not in',('out'))]}"
-                    />
                     <group col="8">
                         <group
                             colspan="2"
@@ -240,8 +227,7 @@
                                 placeholder="email"
                                 widget="email"
                                 force_save="1"
-                                attrs="{'invisible': [('reservation_type','in',('out'))],
-                                       'readonly': [('partner_id', '!=', False),
+                                attrs="{'readonly': [('partner_id', '!=', False),
                                                    ('email','!=', False)]}"
                             />
                             <field
@@ -251,8 +237,7 @@
                                 placeholder="mobile"
                                 widget="phone"
                                 force_save="1"
-                                attrs="{'invisible': [('reservation_type','in',('out'))],
-                                       'readonly': [('partner_id', '!=', False),
+                                attrs="{'readonly': [('partner_id', '!=', False),
                                                    ('mobile','!=', False)]}"
                             />
                             <field
@@ -261,7 +246,6 @@
                                 nolabel="1"
                                 name="partner_internal_comment"
                                 string="Partner Note"
-                                attrs="{'invisible': [('reservation_type','in',('out'))]}"
                             />
                             <field
                                 nolabel="1"
@@ -280,10 +264,7 @@
                             name="reservation_details"
                         >
                             <field name="pms_property_id" />
-                            <field
-                                name="pricelist_id"
-                                attrs="{'invisible': [('reservation_type','in',('out'))]}"
-                            />
+                            <field name="pricelist_id" />
                             <!--<field
                                 name="agency_id"
                                 options="{'no_create': True,'no_open': True}"
@@ -292,14 +273,8 @@
                                 name="cancelled_reason"
                                 attrs="{'invisible': [('state', 'not in', ('cancelled'))]}"
                             />
-                            <field
-                                name="adults"
-                                attrs="{'invisible': [('reservation_type','in',('out'))]}"
-                            />
-                            <field
-                                name="children"
-                                attrs="{'invisible': [('reservation_type','in',('out'))]}"
-                            />
+                            <field name="adults" />
+                            <field name="children" />
                             <field
                                 name="children_occupying"
                                 attrs="{'invisible': [('children', '=', 0)]}"
@@ -320,7 +295,6 @@
                                     ('pms_room_type_id', '=', room_type_id),
                                     ('pricelist_id', 'in', [pricelist_id, False])]"
                                 options="{'no_create': True,'no_open': True}"
-                                attrs="{'invisible': [('reservation_type','in',('out'))]}"
                             />
                             <field
                                 name="folio_internal_comment"
@@ -485,11 +459,7 @@
                                 </field>
                             </group>
                         </page>
-                        <page
-                            name="persons"
-                            string="Persons"
-                            attrs="{'invisible': [('reservation_type','in',('out'))]}"
-                        >
+                        <page name="persons" string="Persons">
                             <group colspan="2" cols="6">
                                 <field
                                     name="segmentation_ids"
@@ -507,11 +477,7 @@
                                     }"
                             />
                         </page>
-                        <page
-                            name="invoicing"
-                            string="Invoicing"
-                            attrs="{'invisible': [('reservation_type','in',('out'))]}"
-                        >
+                        <page name="invoicing" string="Invoicing">
                             <group>
                                 <field
                                     name="partner_invoice_id"
@@ -523,13 +489,6 @@
                             <group>
                                 <field name="localizator" />
                                 <field name="overbooking" />
-                            </group>
-                            <group>
-                                <!--<field
-                                    name="channel_type"
-                                    attrs="{'required':[('reservation_type','not in',('staff','out'))]}"
-                                />-->
-                                <field name="reservation_type" />
                             </group>
                         </page>
                     </notebook>
@@ -771,16 +730,6 @@
                     domain="[('cancelled_reason','in',['late','noshow'])]"
                 />
                 <separator />
-                <filter
-                    string="Staff"
-                    name="staff"
-                    domain="[('reservation_type','in',['staff'])]"
-                />
-                <filter
-                    string="Out of Service"
-                    name="out_of_service"
-                    domain="[('reservation_type','in',['dontsell'])]"
-                />
                 <group expand="0" string="Group By">
                     <!-- <filter string="Room Type" domain="[]"
                         context="{'group_by':'room_type_id'}"/> -->

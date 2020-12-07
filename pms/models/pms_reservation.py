@@ -307,9 +307,6 @@ class PmsReservation(models.Model):
         tracking=True,
         readonly=True,
     )
-    reservation_type = fields.Selection(
-        related="folio_id.reservation_type", default=lambda *a: "normal"
-    )
     splitted = fields.Boolean(
         "Splitted",
         compute="_compute_splitted",
@@ -527,11 +524,9 @@ class PmsReservation(models.Model):
                 )
                 reservation.allowed_room_ids = rooms_available
 
-    @api.depends("reservation_type", "agency_id")
+    @api.depends("agency_id")
     def _compute_partner_id(self):
         for reservation in self:
-            if reservation.reservation_type == "out":
-                reservation.partner_id = reservation.pms_property_id.partner_id.id
             if reservation.folio_id:
                 reservation.partner_id = reservation.folio_id.partner_id
             else:
@@ -1028,27 +1023,6 @@ class PmsReservation(models.Model):
             if record.agency_id and not record.agency_id.is_agency:
                 raise ValidationError(_("booking agency with wrong configuration: "))
 
-    # @api.constrains("reservation_type", "partner_id")
-    # def _check_partner_reservation(self):
-    #     for reservation in self:
-    #         if (
-    #             reservation.reservation_type == "out"
-    #             and reservation.partner_id.id != \
-    #                   reservation.pms_property_id.partner_id.id
-    #         ):
-    #             raise models.ValidationError(
-    #                 _("The partner on out reservations must be a property partner")
-    #             )
-
-    # @api.constrains("closure_reason_id", "reservation_type")
-    # def _check_clousure_reservation(self):
-    #     for reservation in self:
-    #         if reservation.closure_reason_id and \
-    #               reservation.reservation_type != "out":
-    #             raise models.ValidationError(
-    #                 _("Only the out reservations can has a clousure reason")
-    #             )
-
     # self._compute_tax_ids() TODO: refact
 
     # Action methods
@@ -1154,7 +1128,6 @@ class PmsReservation(models.Model):
             vals.update(
                 {
                     "folio_id": folio.id,
-                    "reservation_type": vals.get("reservation_type"),
                 }
             )
         record = super(PmsReservation, self).create(vals)
@@ -1307,14 +1280,10 @@ class PmsReservation(models.Model):
 
     def _compute_checkin_partner_count(self):
         for record in self:
-            if record.reservation_type != "out":
-                record.checkin_partner_count = len(record.checkin_partner_ids)
-                record.checkin_partner_pending_count = (
-                    record.adults + record.children
-                ) - len(record.checkin_partner_ids)
-            else:
-                record.checkin_partner_count = 0
-                record.checkin_partner_pending_count = 0
+            record.checkin_partner_count = len(record.checkin_partner_ids)
+            record.checkin_partner_pending_count = (
+                record.adults + record.children
+            ) - len(record.checkin_partner_ids)
 
     def _search_checkin_partner_pending(self, operator, value):
         self.ensure_one()

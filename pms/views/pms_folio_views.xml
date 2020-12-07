@@ -59,16 +59,8 @@
                         <field name="name" />
                     </h2>
                     <h1>
-                        <field
-                            name="partner_id"
-                            placeholder="Guest"
-                            attrs="{'invisible':[('reservation_type','in',('out'))]}"
-                        />
-                        <field
-                            name="closure_reason_id"
-                            placeholder="Closure reason"
-                            attrs="{'invisible':[('reservation_type','not in',('out'))]}"
-                        />
+                        <field name="partner_id" placeholder="Guest" />
+                        <field name="closure_reason_id" placeholder="Closure reason" />
                     </h1>
                     <group>
                         <group>
@@ -94,18 +86,6 @@
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
                             />
-                            <field
-                                name="reservation_type"
-                                attrs="{'readonly':[('state','not in',('draft'))]}"
-                            />
-                            <!--<field
-                                name="channel_type"
-                                attrs="{'required':[('reservation_type','=','normal')]}"
-                            />
-                            <field
-                                name="agency_id"
-                                options="{'no_create': True,'no_open': True}"
-                            />-->
                             <field name="agency_id" />
                             <field name="channel_type_id" />
                         </group>

@@ -386,7 +386,6 @@ class PmsService(models.Model):
         new = reservation_new if reservation_new else folio_new
         price_fields = [
             "pricelist_id",
-            "reservation_type",
             "pms_property_id",
         ]
         if (

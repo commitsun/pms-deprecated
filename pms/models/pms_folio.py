@@ -173,11 +173,6 @@ class PmsFolio(models.Model):
         "res.partner.category", string="Segmentation", ondelete="restrict"
     )
     client_order_ref = fields.Char(string="Customer Reference", copy=False)
-    reservation_type = fields.Selection(
-        [("normal", "Normal"), ("staff", "Staff"), ("out", "Out of Service")],
-        string="Type",
-        default=lambda *a: "normal",
-    )
     date_order = fields.Datetime(
         string="Order Date",
         required=True,
@@ -470,41 +465,33 @@ class PmsFolio(models.Model):
             )
 
     # TODO: Add return_ids to depends
-    @api.depends("amount_total", "payment_ids", "reservation_type", "state")
+    @api.depends("amount_total", "payment_ids", "state")
     def _compute_amount(self):
         acc_pay_obj = self.env["account.payment"]
         for record in self:
-            if record.reservation_type in ("staff", "out"):
-                vals = {
-                    "pending_amount": 0,
-                    "invoices_paid": 0,
-                    # "refund_amount": 0,
-                }
-                record.update(vals)
-            else:
-                total_inv_refund = 0
-                payments = acc_pay_obj.search([("folio_id", "=", record.id)])
-                total_paid = sum(pay.amount for pay in payments)
-                # return_lines = self.env["payment.return.line"].search(
-                #     [
-                #         ("move_line_ids", "in", payments.mapped("move_line_ids.id")),
-                #         ("return_id.state", "=", "done"),
-                #     ]
-                # )
-                # total_inv_refund = sum(
-                #   pay_return.amount for pay_return in return_lines
-                # )
-                total = record.amount_total
-                # REVIEW: Must We ignored services in cancelled folios
-                # pending amount?
-                if record.state == "cancelled":
-                    total = total - sum(record.service_ids.mapped("price_total"))
-                vals = {
-                    "pending_amount": total - total_paid + total_inv_refund,
-                    "invoices_paid": total_paid,
-                    # "refund_amount": total_inv_refund,
-                }
-                record.update(vals)
+            total_inv_refund = 0
+            payments = acc_pay_obj.search([("folio_id", "=", record.id)])
+            total_paid = sum(pay.amount for pay in payments)
+            # return_lines = self.env["payment.return.line"].search(
+            #     [
+            #         ("move_line_ids", "in", payments.mapped("move_line_ids.id")),
+            #         ("return_id.state", "=", "done"),
+            #     ]
+            # )
+            # total_inv_refund = sum(
+            #   pay_return.amount for pay_return in return_lines
+            # )
+            total = record.amount_total
+            # REVIEW: Must We ignored services in cancelled folios
+            # pending amount?
+            if record.state == "cancelled":
+                total = total - sum(record.service_ids.mapped("price_total"))
+            vals = {
+                "pending_amount": total - total_paid + total_inv_refund,
+                "invoices_paid": total_paid,
+                # "refund_amount": total_inv_refund,
+            }
+            record.update(vals)
 
     # Action methods
 
@@ -637,7 +624,7 @@ class PmsFolio(models.Model):
 
     def _compute_checkin_partner_count(self):
         for record in self:
-            if record.reservation_type == "normal" and record.reservation_ids:
+            if record.reservation_ids:
                 filtered_reservs = record.reservation_ids.filtered(
                     lambda x: x.state != "cancelled"
                 )

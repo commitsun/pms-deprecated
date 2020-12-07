@@ -222,7 +222,6 @@ class PmsReservationLine(models.Model):
         "reservation_id",
         "reservation_id.pricelist_id",
         "reservation_id.room_type_id",
-        "reservation_id.reservation_type",
         "reservation_id.pms_property_id",
     )
     def _compute_price(self):
@@ -277,7 +276,6 @@ class PmsReservationLine(models.Model):
         price_fields = [
             "pricelist_id",
             "room_type_id",
-            "reservation_type",
             "pms_property_id",
         ]
         if (

@@ -81,25 +81,6 @@
                     })]"
             />
         </record>
-        <!-- out of service room -->
-        <record id="pms_folio_4" model="pms.folio">
-            <field name="partner_id" ref="main_pms_property" />
-            <field name="reservation_type">out</field>
-            <field
-                name="reservation_ids"
-                eval="[(5, 0), (0, 0, {
-                    'pricelist_id': ref('product.list0'),
-                    'room_type_id': ref('pms_room_type_1'),
-                    'checkin': (DateTime.today() + timedelta(days=16)),
-                    'checkout': (DateTime.today() + timedelta(days=17)),
-                    'adults': 1,
-                    'state': 'confirm',
-                    'reservation_type': 'out',
-                    'closure_reason_id': ref('pms_room_closure_reason_0'),
-                    'out_service_description': 'Change of lighting',
-                    })]"
-            />
-        </record>
         <!-- reservation of 1 double room for 1 day-->
         <record id="pms_folio_5" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_address_15" />
@@ -205,25 +186,6 @@
                     })]"
             />
         </record>
-        <!-- out of service single-101 room -->
-        <record id="pms_folio_8" model="pms.folio">
-            <field name="partner_id" ref="main_pms_property" />
-            <field name="reservation_type">out</field>
-            <field
-                name="reservation_ids"
-                eval="[(5, 0), (0, 0, {
-                    'pricelist_id': ref('product.list0'),
-                    'preferred_room_id': ref('pms_room_1'),
-                    'checkin': (DateTime.today() + timedelta(days=19)),
-                    'checkout': (DateTime.today() + timedelta(days=20)),
-                    'adults': 1,
-                    'state': 'confirm',
-                    'reservation_type': 'out',
-                    'closure_reason_id': ref('pms_room_closure_reason_0'),
-                    'out_service_description': 'Door arrangement',
-                    })]"
-            />
-        </record>
         <!--2 reservetions in diferent rooms and diferent days-->
         <record id="pms_folio_9" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_address_33" />
@@ -313,7 +275,6 @@
         <!--Reservation of the conference room with VIP privacy closure reason-->
         <record id="pms_folio_13" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_12" />
-            <field name="reservation_type">normal</field>
             <field
                 name="reservation_ids"
                 eval="[(5, 0), (0, 0, {
@@ -347,7 +308,6 @@
         <!-- TODO: The reservation is marked from State: Cancelled to Pending arrival at Folio creation -->
         <record id="pms_folio_15" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_18" />
-            <field name="reservation_type">normal</field>
             <field
                 name="reservation_ids"
                 eval="[(5, 0), (0, 0, {
@@ -363,7 +323,6 @@
         <!--Reservation of double room without default hours-->
         <record id="pms_folio_16" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_18" />
-            <field name="reservation_type">normal</field>
             <field
                 name="reservation_ids"
                 eval="[(5, 0), (0, 0, {
@@ -384,7 +343,6 @@
         <!-- TODO: The reservation is marked from State: Pre-reservation to Pending arrival at Folio creation -->
         <record id="pms_folio_17" model="pms.folio">
             <field name="partner_id" ref="base.res_partner_address_32" />
-            <field name="reservation_type">normal</field>
             <field
                 name="reservation_ids"
                 eval="[(5, 0), (0, 0, {
