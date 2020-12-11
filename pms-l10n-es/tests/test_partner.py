@@ -18,7 +18,7 @@ class TestResPartner(common.SavepointCase):
         )
         reservation_vals = {
             "checkin": "2011-03-16",
-            "chekout": "2011-03-19",
+            "checkout": "2011-03-19",
             "partner_id": partner.id,
             "adults": 1,
         }
@@ -35,7 +35,7 @@ class TestResPartner(common.SavepointCase):
         partner = self.env["res.partner"].create(
             {
                 "name": "name1",
-                "lastname": "lastname1",
+                #"lastname": "lastname1",
                 "lastname2": "secondlastname",
                 "expedition_name": "2011-02-20",
                 "birthdate": "1995-12-10",
@@ -44,7 +44,7 @@ class TestResPartner(common.SavepointCase):
         )
         reservation_vals = {
             "checkin": today,
-            "chekout": today + datetime.timedelta(days=3),
+            "checkout": today + datetime.timedelta(days=3),
             "partner_id": partner.id,
             "adults": 1,
         }
@@ -73,7 +73,7 @@ class TestResPartner(common.SavepointCase):
         )
         reservation_vals = {
             "checkin": today,
-            "chekout": today + datetime.timedelta(days=3),
+            "checkout": today + datetime.timedelta(days=3),
             "partner_id": partner.id,
             "adults": 1,
         }
@@ -97,7 +97,7 @@ class TestResPartner(common.SavepointCase):
         partner = self.env["res.partner"].create(
             {
                 "name": "name1",
-                "lastname": "lastname1",
+                #"lastname": "lastname1",
                 "lastname2": "secondlastname",
                 "expedition_name": "2011-02-20",
                 "birthdate": "1995-12-10",
@@ -106,7 +106,7 @@ class TestResPartner(common.SavepointCase):
         )
         reservation_vals = {
             "checkin": today(),
-            "chekout": today() + datetime.timedelta(days=3),
+            "checkout": today() + datetime.timedelta(days=3),
             "partner_id": partner.id,
             "adults": 1,
         }

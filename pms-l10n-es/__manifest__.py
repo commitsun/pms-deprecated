@@ -13,11 +13,10 @@
     # "website": "https://github.com/OCA/partner-contact",
     "depends": [
         "pms",
-        "partner_firstname",
-        # "partner_lastname",
-        # "partner_contact_gender",
-        # "partner_vat_unique"
-        # "parner_contact_birthdate"
+        #"partner_firstname",
+        #"partner_second_lastname",
+        #"partner_contact_gender",
+        #"parner_contact_birthdate",
     ],
     "post_init_hook": "post_init_hook",
     "data": [
