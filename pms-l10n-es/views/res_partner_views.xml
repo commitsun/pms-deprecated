@@ -8,7 +8,7 @@
             ref="partner_contact_personal_information_page.personal_information"
         />
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='personal_information_group']">
+            <xpath expr="//group[@name='personal_information_group']" position="inside">
                 <field name='document_type' />
                 <field name='document_number' />
                 <field name='document_expedition_date' />
