@@ -4,24 +4,23 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    "name": "Mandatory fiels adaptation to spanish law",
+    "name": "Adaptation to spanish law",
     "version": "14.0.1.0.0",
     "author": "CommitSun, " "Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "application": True,
-    "category": "Extra Tools",
-    # "website": "https://github.com/OCA/partner-contact",
+    "category": "Localization",
+    "website": "https://github.com/OCA/pms",
     "depends": [
         "pms",
-        #"partner_firstname",
-        #"partner_second_lastname",
-        #"partner_contact_gender",
-        #"parner_contact_birthdate",
+        "partner_firstname",
+        "partner_second_lastname",
+        "partner_contact_gender",
+        "partner_contact_birthdate",
     ],
-    "post_init_hook": "post_init_hook",
     "data": [
-        # "views/res_partner.xml",
+        "views/pms_checkin_partner_views.xml",
+        "views/res_partner_views.xml",
     ],
-    "auto_install": False,
     "installable": True,
 }
