@@ -84,20 +84,6 @@ class PmsReservation(models.Model):
             segmentation_ids = folio.segmentation_ids
         return segmentation_ids
 
-    @api.model
-    def _default_diff_invoicing(self):
-        """
-        If the guest has an invoicing address set,
-        this method return diff_invoicing = True, else, return False
-        """
-        if "reservation_id" in self.env.context:
-            reservation = self.env["pms.reservation"].browse(
-                [self.env.context["reservation_id"]]
-            )
-        if reservation.partner_id.id == reservation.partner_invoice_id.id:
-            return False
-        return True
-
     # Fields declaration
     name = fields.Text(
         "Reservation Description",
