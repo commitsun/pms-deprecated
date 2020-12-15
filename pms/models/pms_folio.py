@@ -26,18 +26,6 @@ class PmsFolio(models.Model):
         return result
 
     @api.model
-    def _default_diff_invoicing(self):
-        """
-        If the guest has an invoicing address set,
-        this method return diff_invoicing = True, else, return False
-        """
-        if "folio_id" in self.env.context:
-            folio = self.env["pms.folio"].browse([self.env.context["folio_id"]])
-        if folio.partner_id.id == folio.partner_invoice_id.id:
-            return False
-        return True
-
-    @api.model
     def _get_default_pms_property(self):
         return (
             self.env.user.pms_property_id
