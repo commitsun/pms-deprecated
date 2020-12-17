@@ -59,7 +59,7 @@ class TestPmsReservations(TestHotel):
     def test_num_rules_on_create01(self):
 
         # TEST CASE
-        # rules for 1,2,3 days
+        # rules for 1,2,3,4 days
 
         # ARRANGE
         self.create_common_scenario()
@@ -67,19 +67,16 @@ class TestPmsReservations(TestHotel):
         for days in [0, 1, 2, 3]:
             with self.subTest(k=days):
                 num_exp_rules_to_create = days + 1
-                wizard = (
-                    self.env["pms.availability.wizard"]
-                    .create(
-                        {
-                            "availability_id": self.test_availability_plan.id,
-                            "start_date": fields.date.today(),
-                            "end_date": fields.date.today()
-                            + datetime.timedelta(days=days),
-                            "room_type_id": self.test_room_type_double.id,
-                        }
-                    )
-                    .apply_availability_rules()
-                )
+
+                self.env["pms.availability.wizard"].create(
+                    {
+                        "availability_id": self.test_availability_plan.id,
+                        "start_date": fields.date.today(),
+                        "end_date": fields.date.today() + datetime.timedelta(days=days),
+                        "room_type_id": self.test_room_type_double.id,
+                    }
+                ).apply_availability_rules()
+
                 self.assertEqual(
                     len(self.test_availability_plan.item_ids),
                     num_exp_rules_to_create,
@@ -154,5 +151,57 @@ class TestPmsReservations(TestHotel):
         for key in vals:
             with self.subTest(k=key):
                 self.assertEqual(
-                    self.test_availability_plan.item_ids[0][key], vals[key]
+                    self.test_availability_plan.item_ids[0][key],
+                    vals[key],
+                    "The value of " + key + " is not correctly established",
+                )
+
+    @freeze_time("1980-12-01")
+    def test_value_rules_on_create_one_days(self):
+        # TEST CASE
+        # check all the rule's values for days of week are created
+
+        # ARRANGE
+        self.create_common_scenario()
+        test_case_week_days = [
+            [1, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 1],
+        ]
+
+        date_from = fields.date.today()
+        date_to = fields.date.today() + datetime.timedelta(days=6)
+
+        wizard = self.env["pms.availability.wizard"].create(
+            {
+                "availability_id": self.test_availability_plan.id,
+                "room_type_id": self.test_room_type_double.id,
+                "start_date": date_from,
+                "end_date": date_to,
+            }
+        )
+
+        for index, test_case in enumerate(test_case_week_days):
+            with self.subTest(k=test_case):
+                # ACT
+                wizard.write(
+                    {
+                        "apply_on_monday": test_case[0],
+                        "apply_on_tuesday": test_case[1],
+                        "apply_on_wednesday": test_case[2],
+                        "apply_on_thursday": test_case[3],
+                        "apply_on_friday": test_case[4],
+                        "apply_on_saturday": test_case[5],
+                        "apply_on_sunday": test_case[6],
+                    }
+                )
+                wizard.apply_availability_rules()
+                self.assertTrue(
+                    self.test_availability_plan.item_ids[index].date.timetuple()[6]
+                    == index
+                    and test_case[index]
                 )

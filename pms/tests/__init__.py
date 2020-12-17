@@ -18,14 +18,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# 1     x
-# 2
-# 3
-# 4     x
-# 5
-# 6
-
-
 ##############################################################################
 from . import test_pms_reservation
 from . import test_pms_pricelist

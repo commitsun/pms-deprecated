@@ -185,14 +185,6 @@
                         string="Apply changes"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible':[('num_rules_to_overwrite','>',0)]}"
-                    />
-                    <button
-                        name="apply_availability_rules"
-                        string="Apply changes"
-                        class="btn-primary"
-                        type="object"
-                        attrs="{'invisible':[('num_rules_to_overwrite','=',0)]}"
                     />
                     or
                     <button
