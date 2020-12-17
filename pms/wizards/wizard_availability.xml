@@ -1,0 +1,207 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="availability_wizard" model="ir.ui.view">
+        <field name="name">Availability Wizard</field>
+        <field name="model">pms.availability.wizard</field>
+        <field name="arch" type="xml">
+            <form class="pt-1">
+                <field name="avail_readonly" invisible="1" />
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <b>FROM</b>
+                                    </div>
+                                    <div class="col-6 px-0">
+                                        <b>TO</b>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <b>Availability Plan</b>
+                                    </div>
+                                    <div class="col-6 px-0">
+                                        <b>Room Type</b>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <field
+                            name="start_date"
+                            widget="daterange"
+                            class="oe_inline"
+                            options="{'related_end_date': 'end_date'}"
+                        />
+                        <i
+                            class="fa fa-long-arrow-right mx-2"
+                            aria-label="Arrow icon"
+                            title="Arrow"
+                        />
+
+                        <field
+                            name="end_date"
+                            widget="daterange"
+                            class="oe_inline"
+                            options="{'related_start_date': 'start_date'}"
+                        />
+                    </div>
+                    <div class="col-7">
+                        <field name="availability_id" class="mr-5" />
+                        <field name="room_type_id" default_focus="1" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <group>
+                        <table class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>All days</th>
+                                    <th>Sunday</th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                    <th>Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                       <field
+                                                name="apply_on_all_week"
+                                                widget="boolean_toggle"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_sunday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_monday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_tuesday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_wednesday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_thursday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_friday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+                                    <td>
+                                        <field
+                                                name="apply_on_saturday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            />
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                        </group>
+                    </div>
+                </div>
+
+                <u><b>Rules to apply:</b></u>
+                <div class="row">
+                    <div class="col-6">
+                        <group>
+                            <field string="Min. Stay" name="min_stay" />
+                            <field string="Max. Stay" name="max_stay" />
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <group>
+                            <field string="Quota" name="quota" />
+                            <field string="Max. Avail." name="max_avail" />
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <group>
+                            <field string="Min. Stay Arrival" name="min_stay_arrival" />
+                            <field string="Max. Stay Arrival" name="max_stay_arrival" />
+                        </group>
+                    </div>
+                    <div class="col-6">
+                        <group>
+                            <field string="Closed" name="closed" />
+                            <field string="Closed Arrival" name="closed_arrival" />
+                            <field string="Closed departure" name="closed_departure" />
+                        </group>
+                    </div>
+                </div>
+                <b>
+                    <span style="text-decoration:underline;">
+                        <field name="num_rules_to_overwrite" />
+                    </span>
+                    <u>
+                        availability rules will be overwritten:
+                    </u>
+                </b>
+
+                <field name="rules_to_overwrite" invisible="0" />
+                <!--    REVIEW:   a calendar view could be more understandable   -->
+                <footer>
+                    <button
+                        name="apply_availability_rules"
+                        string="Apply changes"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible':[('num_rules_to_overwrite','>',0)]}"
+                    />
+                    <button
+                        name="apply_availability_rules"
+                        string="Apply changes"
+                        class="btn-primary"
+                        type="object"
+                        attrs="{'invisible':[('num_rules_to_overwrite','=',0)]}"
+                    />
+                    or
+                    <button
+                        string="Cancel"
+                        class="btn-default border"
+                        special="cancel"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

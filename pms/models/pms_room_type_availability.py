@@ -30,14 +30,12 @@ class PmsRoomTypeAvailability(models.Model):
         inverse_name="availability_id",
         string="Pricelists",
         required=False,
-        ondelete="restrict",
     )
 
     item_ids = fields.One2many(
         comodel_name="pms.room.type.availability.rule",
         inverse_name="availability_id",
-        string="Rule Items",
-        copy=True,
+        string="Availability Rules",
     )
 
     active = fields.Boolean(
@@ -191,3 +189,19 @@ class PmsRoomTypeAvailability(models.Model):
                 old_rule.quota += 1
 
         return False
+
+    # Action methods
+    def open_availability_wizard(self):
+
+        if self.ensure_one():
+            return {
+                "view_type": "form",
+                "view_mode": "form",
+                "name": "Massive changes on Availability Plans",
+                "res_model": "pms.availability.wizard",
+                "target": "new",
+                "type": "ir.actions.act_window",
+                "context": {
+                    "availability_id": self.id,
+                },
+            }

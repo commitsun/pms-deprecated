@@ -6,7 +6,19 @@
         <field name="arch" type="xml">
             <form string="Rules">
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <div class="oe_button_box " name="button_box">
+                        <button
+                            name="open_availability_wizard"
+                            type="object"
+                            class="oe_stat_button mr-5"
+                            icon="fa-magic"
+                        >
+                            <label
+                                for="open_availability_wizard"
+                                string="Massive changes"
+                            />
+                        </button>
+
                         <button
                             name="toggle_active"
                             type="object"
@@ -21,10 +33,12 @@
                         </button>
                     </div>
                     <div class="oe_title">
-                        <label for="name" string="Name" />
-                        <h1>
-                            <field name="name" />
-                        </h1>
+                        <group>
+                            <label for="name" string="Name" />
+                            <h1>
+                                <field name="name" />
+                            </h1>
+                        </group>
                     </div>
                     <group>
                         <field
@@ -38,12 +52,7 @@
                         />
                     </group>
                     <separator string="Availability Rules" />
-                    <field name="item_ids" nolabel="1">
-                        <tree string="Availability Rules">
-                            <field name="room_type_id" />
-                            <field name="date" />
-                        </tree>
-                    </field>
+                    <field name="item_ids" nolabel="1" />
                 </sheet>
             </form>
         </field>
@@ -51,6 +60,7 @@
     <record id="room_type_availability_view_tree" model="ir.ui.view">
         <field name="name">pms.room.type.availability.tree</field>
         <field name="model">pms.room.type.availability</field>
+
         <field name="arch" type="xml">
             <tree string="Availability Plans">
                 <field name="name" />

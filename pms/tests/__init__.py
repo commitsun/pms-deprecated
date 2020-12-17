@@ -18,6 +18,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# 1     x
+# 2
+# 3
+# 4     x
+# 5
+# 6
+
+
 ##############################################################################
 from . import test_pms_reservation
 from . import test_pms_pricelist
@@ -27,3 +35,4 @@ from . import test_pms_sale_channel
 from . import test_pms_folio
 from . import test_pms_room_type_availability_rules
 from . import test_pms_room_type
+from . import test_pms_wizard_availability
