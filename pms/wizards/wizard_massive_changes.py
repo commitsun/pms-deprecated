@@ -301,10 +301,11 @@ class AvailabilityWizard(models.TransientModel):
             )
 
     # actions
-    def apply_availability_rules(self):
+    def apply_massive_changes(self):
         for record in self:
             # remove old rules
             record.rules_to_overwrite.unlink()
+            record.pricelist_items_to_overwrite.unlink()
             week_days_to_apply = (
                 record.apply_on_monday,
                 record.apply_on_tuesday,
@@ -338,6 +339,7 @@ class AvailabilityWizard(models.TransientModel):
                         self.env["product.pricelist.item"].create(
                             {
                                 "pricelist_id": record.pricelist_id.id,
+                                # REVIEW TIMEZONE
                                 "date_start": datetime.datetime.combine(
                                     date,
                                     datetime.time.min,

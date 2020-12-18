@@ -210,7 +210,7 @@
                 />
                 <footer>
                     <button
-                        name="apply_availability_rules"
+                        name="apply_massive_changes"
                         string="Apply changes"
                         type="object"
                         class="btn-primary"

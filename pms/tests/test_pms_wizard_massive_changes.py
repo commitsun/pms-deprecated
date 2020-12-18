@@ -58,6 +58,7 @@ class TestPmsReservations(TestHotel):
         )
 
     # MASSIVE CHANGE WIZARD TESTS ON AVAILABILITY RULES
+
     @freeze_time("1980-12-01")
     def test_num_availability_rules_create(self):
 
@@ -79,7 +80,7 @@ class TestPmsReservations(TestHotel):
                         "end_date": fields.date.today() + datetime.timedelta(days=days),
                         "room_type_id": self.test_room_type_double.id,
                     }
-                ).apply_availability_rules()
+                ).apply_massive_changes()
 
                 self.assertEqual(
                     len(self.test_availability_plan.rule_ids),
@@ -109,7 +110,7 @@ class TestPmsReservations(TestHotel):
                 "start_date": date_from,
                 "end_date": date_to,
             }
-        ).apply_availability_rules()
+        ).apply_massive_changes()
 
         # ASSERT
         self.assertEqual(
@@ -147,7 +148,7 @@ class TestPmsReservations(TestHotel):
         }
 
         # ACT
-        self.env["pms.massive.changes.wizard"].create(vals).apply_availability_rules()
+        self.env["pms.massive.changes.wizard"].create(vals).apply_massive_changes()
 
         # ASSERT
         del vals["massive_changes_on"]
@@ -185,11 +186,11 @@ class TestPmsReservations(TestHotel):
 
         wizard = self.env["pms.massive.changes.wizard"].create(
             {
+                "massive_changes_on": "availability_plan",
                 "availability_plan_id": self.test_availability_plan.id,
                 "room_type_id": self.test_room_type_double.id,
                 "start_date": date_from,
                 "end_date": date_to,
-                "massive_changes_on": "availability_plan",
             }
         )
 
@@ -208,17 +209,19 @@ class TestPmsReservations(TestHotel):
                     }
                 )
                 # ACT
-                wizard.apply_availability_rules()
-
+                wizard.apply_massive_changes()
+                availability_rules = self.test_availability_plan.rule_ids.sorted(
+                    key=lambda s: s.date
+                )
                 # ASSERT
                 self.assertTrue(
-                    self.test_availability_plan.rule_ids[index].date.timetuple()[6]
-                    == index
+                    availability_rules[index].date.timetuple()[6] == index
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )
 
     # MASSIVE CHANGE WIZARD TESTS ON PRICELIST ITEMS
+
     @freeze_time("1980-12-01")
     def test_pricelist_items_create(self):
         # TEST CASE
@@ -226,23 +229,11 @@ class TestPmsReservations(TestHotel):
 
         # ARRANGE
         self.create_common_scenario()
-
-        self.create_common_scenario()
-        self.env["pms.massive.changes.wizard"].create(
-            {
-                "massive_changes_on": "pricelist",
-                "pricelist_id": self.test_pricelist.id,
-                "start_date": fields.date.today(),
-                "end_date": fields.date.today() + datetime.timedelta(days=2),
-                "room_type_id": self.test_room_type_double.id,
-            }
-        ).apply_availability_rules()
-
         for days in [0, 1, 2, 3]:
             with self.subTest(k=days):
+
                 # ARRANGE
                 num_exp_items_to_create = days + 1
-                self.test_pricelist.item_ids = False
 
                 # ACT
                 self.env["pms.massive.changes.wizard"].create(
@@ -253,7 +244,7 @@ class TestPmsReservations(TestHotel):
                         "end_date": fields.date.today() + datetime.timedelta(days=days),
                         "room_type_id": self.test_room_type_double.id,
                     }
-                ).apply_availability_rules()
+                ).apply_massive_changes()
                 # ASSERT
                 self.assertEqual(
                     len(
@@ -286,7 +277,7 @@ class TestPmsReservations(TestHotel):
                 "start_date": date_from,
                 "end_date": date_to,
             }
-        ).apply_availability_rules()
+        ).apply_massive_changes()
 
         # ASSERT
         self.assertEqual(
@@ -335,7 +326,7 @@ class TestPmsReservations(TestHotel):
                 "price": price,
                 "min_quantity": min_quantity,
             }
-        ).apply_availability_rules()
+        ).apply_massive_changes()
 
         # ASSERT
         for key in vals:
@@ -379,6 +370,7 @@ class TestPmsReservations(TestHotel):
         for index, test_case in enumerate(test_case_week_days):
             with self.subTest(k=test_case):
                 # ARRANGE
+
                 wizard.write(
                     {
                         "apply_on_monday": test_case[0],
@@ -391,12 +383,13 @@ class TestPmsReservations(TestHotel):
                     }
                 )
                 # ACT
-                wizard.apply_availability_rules()
-
+                wizard.apply_massive_changes()
+                pricelist_items = self.test_pricelist.item_ids.sorted(
+                    key=lambda s: s.date_start
+                )
                 # ASSERT
                 self.assertTrue(
-                    self.test_pricelist.item_ids[index].date_start.timetuple()[6]
-                    == index
+                    pricelist_items[index].date_start.timetuple()[6] == index
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )
