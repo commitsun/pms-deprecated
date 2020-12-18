@@ -68,7 +68,7 @@ class TestPmsReservations(TestHotel):
             with self.subTest(k=days):
                 num_exp_rules_to_create = days + 1
 
-                self.env["pms.availability.wizard"].create(
+                self.env["pms.massive.changes.wizard"].create(
                     {
                         "availability_plan_id": self.test_availability_plan.id,
                         "start_date": fields.date.today(),
@@ -98,7 +98,7 @@ class TestPmsReservations(TestHotel):
         num_exp_rules_to_create = ((date_to - date_from).days + 1) * num_room_types
 
         # ACT
-        self.env["pms.availability.wizard"].create(
+        self.env["pms.massive.changes.wizard"].create(
             {
                 "availability_plan_id": self.test_availability_plan.id,
                 "start_date": date_from,
@@ -141,7 +141,7 @@ class TestPmsReservations(TestHotel):
         }
 
         # ACT
-        self.env["pms.availability.wizard"].create(vals).apply_availability_rules()
+        self.env["pms.massive.changes.wizard"].create(vals).apply_availability_rules()
 
         # ASSERT
         del vals["availability_plan_id"]
@@ -176,7 +176,7 @@ class TestPmsReservations(TestHotel):
         date_from = fields.date.today()
         date_to = fields.date.today() + datetime.timedelta(days=6)
 
-        wizard = self.env["pms.availability.wizard"].create(
+        wizard = self.env["pms.massive.changes.wizard"].create(
             {
                 "availability_plan_id": self.test_availability_plan.id,
                 "room_type_id": self.test_room_type_double.id,

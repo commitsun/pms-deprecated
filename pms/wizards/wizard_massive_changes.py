@@ -5,16 +5,28 @@ from odoo import api, fields, models
 
 class AvailabilityWizard(models.TransientModel):
 
-    _name = "pms.availability.wizard"
-    _description = "Wizard for massive changes on availability plans."
+    _name = "pms.massive.changes.wizard"
+    _description = "Wizard for massive changes on Availability Plans & Pricelists."
 
     # Fields declaration
+    massive_changes_on = fields.Selection(
+        [("pricelist", "Pricelist"), ("availability_plan", "Availability Plan")],
+        string="Massive changes on",
+        default="availability_plan",
+        required=True,
+    )
+
     availability_plan_id = fields.Many2one(
         comodel_name="pms.room.type.availability.plan",
         string="Availability Plan to apply massive changes",
-        required=True,
         # can be setted by context from availability plan detail
     )
+
+    pricelist_id = fields.Many2one(
+        comodel_name="product.pricelist",
+        string="Pricelist to apply massive changes",
+    )
+
     start_date = fields.Date(
         string="From:",
         required=True,
@@ -107,6 +119,7 @@ class AvailabilityWizard(models.TransientModel):
         readonly=True,
     )
     avail_readonly = fields.Boolean(compute="_compute_avail_readonly")
+    pricelist_readonly = fields.Boolean(compute="_compute_pricelist_readonly")
 
     @api.depends(
         "start_date",
@@ -176,6 +189,10 @@ class AvailabilityWizard(models.TransientModel):
     def _compute_avail_readonly(self):
         for record in self:
             record.avail_readonly = True if self._context.get("availability_plan_id") else False
+
+    def _compute_pricelist_readonly(self):
+        for record in self:
+            record.pricelist_readonly = True if self._context.get("pricelist_id") else False
 
     # actions
     def apply_availability_rules(self):

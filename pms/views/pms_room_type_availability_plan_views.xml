@@ -8,13 +8,13 @@
                 <sheet>
                     <div class="oe_button_box " name="button_box">
                         <button
-                            name="open_availability_wizard"
+                            name="open_massive_changes_wizard"
                             type="object"
                             class="oe_stat_button mr-5"
                             icon="fa-magic"
                         >
                             <label
-                                for="open_availability_wizard"
+                                for="open_massive_changes_wizard"
                                 string="Massive changes"
                             />
                         </button>

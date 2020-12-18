@@ -4,6 +4,15 @@
         <field name="model">product.pricelist</field>
         <field name="inherit_id" ref="product.product_pricelist_view" />
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <div class="oe_button_box " name="button_box">
+                    <button name="open_massive_changes_wizard" type="object" class="oe_stat_button mr-5" icon="fa-magic">
+                        <label for="open_massive_changes_wizard" string="Massive changes"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+        <field name="arch" type="xml">
             <xpath expr="//field[@name='country_group_ids']" position="before">
                 <field
                     name="pms_property_ids"

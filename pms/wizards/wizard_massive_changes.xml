@@ -1,79 +1,51 @@
 <?xml version="1.0" ?>
 <odoo>
-    <record id="availability_wizard" model="ir.ui.view">
+    <record id="massive_changes_wizard" model="ir.ui.view">
         <field name="name">Availability Wizard</field>
-        <field name="model">pms.availability.wizard</field>
+        <field name="model">pms.massive.changes.wizard</field>
         <field name="arch" type="xml">
             <form class="pt-1">
                 <field name="avail_readonly" invisible="1" />
+                <field name="pricelist_readonly" invisible="1" />
                 <div class="row">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-5">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <b>FROM</b>
-                                    </div>
-                                    <div class="col-6 px-0">
-                                        <b>TO</b>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="row">
-                                    <div class="col-5 border"
-                                        attrs="{'invisible':[('avail_readonly','=',True)]}"
-                                    >
-                                        <b>Availability Plan</b>
-                                    </div>
-                                    <div class="col-6  border"
-                                    attrs="{'invisible':[('avail_readonly','=',True)]}">
-                                        <b>Room Types</b>
-                                    </div>
+                    <div class="col-5 ">
+                        <group>
+                            <field
+                                name="start_date"
+                                widget="daterange"
+                                options="{'related_end_date': 'end_date'}"
+                            />
 
-                                     <div class="col-6"
-                                     attrs="{'invisible':[('avail_readonly','=',False)]}"
-                                     >
-                                        <b>Room Type</b>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
+                            <field
+                                name="end_date"
+                                widget="daterange"
+                                options="{'related_start_date': 'start_date'}"
+                            />
+                        </group>
                     </div>
                     <div class="col-5">
-                        <field
-                            name="start_date"
-                            widget="daterange"
-                            class="oe_inline"
-                            options="{'related_end_date': 'end_date'}"
-                        />
-                        <i
-                            class="fa fa-long-arrow-right mx-2"
-                            aria-label="Arrow icon"
-                            title="Arrow"
-                        />
+                        <group class="">
+                            <field
+                                name="massive_changes_on"
+                                attrs="{'invisible':['|', ('avail_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                            />
+                            <field
+                                name="availability_plan_id"
+                                class="mr-5"
+                                string="Availability Plan"
+                                attrs="{'invisible':['|','|', ('massive_changes_on','=','pricelist'), ('avail_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                            />
+                            <field
+                                name="pricelist_id"
+                                string="Pricelist"
+                                attrs="{'invisible':['|','|',('massive_changes_on','=','availability_plan'), ('pricelist_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                            />
+                            <field
+                                name="room_type_id"
+                                default_focus="1"
+                            />
+                        </group>
 
-                        <field
-                            name="end_date"
-                            widget="daterange"
-                            class="oe_inline"
-                            options="{'related_start_date': 'start_date'}"
-                        />
-                    </div>
-                    <div class="col-7">
-                        <field
-                            name="availability_plan_id"
-                            class="mr-5"
-                            attrs="{'invisible':[('avail_readonly','=',True)]}"
-
-                        />
-                        <field
-                            name="room_type_id"
-                            default_focus="1"
-
-                        />
                     </div>
                 </div>
 
@@ -103,9 +75,9 @@
                                     </td>
                                     <td>
                                         <field
-                                                name="apply_on_sunday"
-                                                widget="boolean_toggle"
-                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                            name="apply_on_sunday"
+                                            widget="boolean_toggle"
+                                            attrs="{'invisible':[('apply_on_all_week','=',True)]}"
                                             />
                                     </td>
                                     <td>
