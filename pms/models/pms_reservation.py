@@ -235,13 +235,16 @@ class PmsReservation(models.Model):
     )
     currency_id = fields.Many2one(
         "res.currency",
-        related="pricelist_id.currency_id",
-        string="Currency",
+        depends=["pricelist_id"],
+        store=True,
         readonly=True,
     )
     tax_ids = fields.Many2many(
         "account.tax",
         string="Taxes",
+        compute="_compute_tax_ids",
+        readonly="False",
+        store=True,
         ondelete="restrict",
         domain=["|", ("active", "=", False), ("active", "=", True)],
     )
@@ -253,7 +256,6 @@ class PmsReservation(models.Model):
         string="Invoice Lines",
         copy=False,
     )
-    analytic_tag_ids = fields.Many2many("account.analytic.tag", string="Analytic Tags")
     localizator = fields.Char(
         string="Localizator", compute="_compute_localizator", store=True
     )
@@ -268,7 +270,6 @@ class PmsReservation(models.Model):
     children_occupying = fields.Integer(
         string="Children occupying",
     )
-
     children = fields.Integer(
         "Children",
         readonly=False,
@@ -301,14 +302,12 @@ class PmsReservation(models.Model):
         compute="_compute_splitted",
         store=True,
     )
-
     rooms = fields.Char(
         string="Room/s",
         compute="_compute_rooms",
         store=True,
         tracking=True,
     )
-
     credit_card_details = fields.Text(related="folio_id.credit_card_details")
     cancelled_reason = fields.Selection(
         [("late", "Late"), ("intime", "In time"), ("noshow", "No Show")],
@@ -336,11 +335,6 @@ class PmsReservation(models.Model):
         "Exact Departure",
         compute="_compute_checkout_datetime",
     )
-    # TODO: As checkin_partner_count is a computed field, it can't not
-    # be used in a domain filer Non-stored field
-    # pms.reservation.checkin_partner_count cannot be searched
-    # searching on a computed field can also be enabled by setting the
-    # search parameter. The value is a method name returning a Domains
     checkin_partner_count = fields.Integer(
         "Checkin counter", compute="_compute_checkin_partner_count"
     )
@@ -371,6 +365,7 @@ class PmsReservation(models.Model):
     preconfirm = fields.Boolean("Auto confirm to Save", default=True)
     invoice_status = fields.Selection(
         [
+            ("upselling", "Upselling Opportunity"),
             ("invoiced", "Fully Invoiced"),
             ("to invoice", "To Invoice"),
             ("no", "Nothing to Invoice"),
@@ -382,18 +377,38 @@ class PmsReservation(models.Model):
         default="no",
     )
     qty_to_invoice = fields.Float(
-        compute="_compute_get_to_invoice_qty",
-        string="To Invoice",
+        compute="_compute_qty_to_invoice",
+        string="To Invoice Quantity",
         store=True,
         readonly=True,
         digits=("Product Unit of Measure"),
     )
     qty_invoiced = fields.Float(
-        compute="_compute_get_invoice_qty",
-        string="Invoiced",
+        compute="_compute_qty_invoiced",
+        string="Invoiced Quantity",
         store=True,
         readonly=True,
         digits=("Product Unit of Measure"),
+    )
+    untaxed_amount_invoiced = fields.Monetary(
+        "Untaxed Invoiced Amount",
+        compute="_compute_untaxed_amount_invoiced",
+        compute_sudo=True,
+        store=True,
+    )
+    untaxed_amount_to_invoice = fields.Monetary(
+        "Untaxed Amount To Invoice",
+        compute="_compute_untaxed_amount_to_invoice",
+        compute_sudo=True,
+        store=True,
+    )
+    analytic_tag_ids = fields.Many2many(
+        "account.analytic.tag",
+        string="Analytic Tags",
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+    )
+    analytic_line_ids = fields.One2many(
+        "account.analytic.line", "so_line", string="Analytic lines"
     )
     price_subtotal = fields.Monetary(
         string="Subtotal",
@@ -429,6 +444,7 @@ class PmsReservation(models.Model):
         string="Discount (€)",
         digits=("Discount"),
         compute="_compute_discount",
+        readonly=False,
         store=True,
     )
 
@@ -825,6 +841,16 @@ class PmsReservation(models.Model):
             elif not float_is_zero(line.qty_to_invoice, precision_digits=precision):
                 line.invoice_status = "to invoice"
             elif (
+                line.state == "confirm"
+                and float_compare(
+                    line.qty_delivered,
+                    len(line.reservation_line_ids),
+                    precision_digits=precision,
+                )
+                == 1
+            ):
+                line.invoice_status = "upselling"
+            elif (
                 float_compare(
                     line.qty_invoiced,
                     len(line.reservation_line_ids),
@@ -837,11 +863,10 @@ class PmsReservation(models.Model):
                 line.invoice_status = "no"
 
     @api.depends("qty_invoiced", "nights", "folio_id.state")
-    def _compute_get_to_invoice_qty(self):
+    def _compute_qty_to_invoice(self):
         """
-        Compute the quantity to invoice. If the invoice policy is order,
-        the quantity to invoice is calculated from the ordered quantity.
-        Otherwise, the quantity delivered is used.
+        Compute the quantity to invoice. The quantity to invoice is
+        calculated from the nights quantity.
         """
         for line in self:
             if line.folio_id.state not in ["draft"]:
@@ -849,17 +874,21 @@ class PmsReservation(models.Model):
             else:
                 line.qty_to_invoice = 0
 
-    @api.depends("move_line_ids.move_id.state", "move_line_ids.quantity")
-    def _compute_get_invoice_qty(self):
+    @api.depends(
+        "move_line_ids.move_id.state",
+        "move_line_ids.quantity",
+        "untaxed_amount_to_invoice",
+    )
+    def _compute_qty_invoiced(self):
         """
         Compute the quantity invoiced. If case of a refund, the quantity
         invoiced is decreased. We must check day per day and sum or
         decreased on 1 unit per invoice_line
         """
-        for line in self:
+        for record in self:
             qty_invoiced = 0.0
-            for day in line.reservation_line_ids:
-                invoice_lines = day.move_line_ids.filtered(
+            for line in record.reservation_line_ids:
+                invoice_lines = line.move_line_ids.filtered(
                     lambda r: r.move_id.state != "cancel"
                 )
                 qty_invoiced += len(
@@ -867,7 +896,112 @@ class PmsReservation(models.Model):
                 ) - len(
                     invoice_lines.filtered(lambda r: r.move_id.type == "out_refund")
                 )
-            line.qty_invoiced = qty_invoiced
+            record.qty_invoiced = qty_invoiced
+
+    @api.depends(
+        "move_line_ids",
+        "move_line_ids.price_total",
+        "move_line_ids.move_id.state",
+        "move_line_ids.move_id.move_type",
+    )
+    def _compute_untaxed_amount_invoiced(self):
+        """Compute the untaxed amount already invoiced from the reservation,
+        taking the refund attached
+        the reservation into account. This amount is computed as
+            SUM(inv_line.price_subtotal) - SUM(ref_line.price_subtotal)
+        where
+            `inv_line` is a customer invoice line linked to the reservation
+            `ref_line` is a customer credit note (refund)
+            line linked to the reservation
+        """
+        for line in self:
+            amount_invoiced = 0.0
+            for invoice_line in line.move_line_ids:
+                if invoice_line.move_id.state == "posted":
+                    invoice_date = (
+                        invoice_line.move_id.invoice_date or fields.Date.today()
+                    )
+                    if invoice_line.move_id.move_type == "out_invoice":
+                        amount_invoiced += invoice_line.currency_id._convert(
+                            invoice_line.price_subtotal,
+                            line.currency_id,
+                            line.company_id,
+                            invoice_date,
+                        )
+                    elif invoice_line.move_id.move_type == "out_refund":
+                        amount_invoiced -= invoice_line.currency_id._convert(
+                            invoice_line.price_subtotal,
+                            line.currency_id,
+                            line.company_id,
+                            invoice_date,
+                        )
+            line.untaxed_amount_invoiced = amount_invoiced
+
+    @api.depends(
+        "state", "discount", "price_total", "room_type_id", "untaxed_amount_invoiced"
+    )
+    def _compute_untaxed_amount_to_invoice(self):
+        """Total of remaining amount to invoice on the reservation (taxes excl.) as
+            total_sol - amount already invoiced
+
+        Note: Draft invoice are ignored on purpose, the 'to invoice' amount should
+        come only from the reservation.
+        """
+        for line in self:
+            amount_to_invoice = 0.0
+            if line.state not in ["draft"]:
+                price_subtotal = 0.0
+                price_subtotal = line.price_subtotal
+                if len(line.tax_ids.filtered(lambda tax: tax.price_include)) > 0:
+                    # As included taxes are not excluded from the computed subtotal,
+                    # `compute_all()` method
+                    # has to be called to retrieve the subtotal without them.
+                    price_subtotal = line.tax_ids.compute_all(
+                        price_subtotal,
+                        currency=line.currency_id,
+                        quantity=line.nights,
+                        product=line.room_type_id.product_id,
+                    )["total_excluded"]
+
+                if any(
+                    line.move_line_ids.mapped(lambda i: i.discount != line.discount)
+                ):
+                    # In case of re-invoicing with different discount we
+                    # try to calculate manually the
+                    # remaining amount to invoice
+                    amount = 0
+                    for move in line.move_line_ids:
+                        if (
+                            len(move.tax_ids.filtered(lambda tax: tax.price_include))
+                            > 0
+                        ):
+                            amount += move.tax_ids.compute_all(
+                                move.currency_id._convert(
+                                    move.price_unit,
+                                    line.currency_id,
+                                    line.company_id,
+                                    move.date or fields.Date.today(),
+                                    round=False,
+                                )
+                                * move.quantity
+                            )["total_excluded"]
+                        else:
+                            amount += (
+                                move.currency_id._convert(
+                                    move.price_unit,
+                                    line.currency_id,
+                                    line.company_id,
+                                    move.date or fields.Date.today(),
+                                    round=False,
+                                )
+                                * move.quantity
+                            )
+
+                    amount_to_invoice = max(price_subtotal - amount, 0)
+                else:
+                    amount_to_invoice = price_subtotal - line.untaxed_amount_invoiced
+
+            line.untaxed_amount_to_invoice = amount_to_invoice
 
     @api.depends("reservation_line_ids")
     def _compute_nights(self):
@@ -1018,29 +1152,6 @@ class PmsReservation(models.Model):
         for record in self:
             if record.agency_id and not record.agency_id.is_agency:
                 raise ValidationError(_("booking agency with wrong configuration: "))
-
-    # @api.constrains("reservation_type", "partner_id")
-    # def _check_partner_reservation(self):
-    #     for reservation in self:
-    #         if (
-    #             reservation.reservation_type == "out"
-    #             and reservation.partner_id.id != \
-    #                   reservation.pms_property_id.partner_id.id
-    #         ):
-    #             raise models.ValidationError(
-    #                 _("The partner on out reservations must be a property partner")
-    #             )
-
-    # @api.constrains("closure_reason_id", "reservation_type")
-    # def _check_clousure_reservation(self):
-    #     for reservation in self:
-    #         if reservation.closure_reason_id and \
-    #               reservation.reservation_type != "out":
-    #             raise models.ValidationError(
-    #                 _("Only the out reservations can has a clousure reason")
-    #             )
-
-    # self._compute_tax_ids() TODO: refact
 
     # Action methods
 
@@ -1391,19 +1502,15 @@ class PmsReservation(models.Model):
             if reservation.checkout_datetime <= fields.Datetime.now():
                 reservations.state = "no_checkout"
 
-    def unify(self):
-        # TODO
-        return True
-
+    @api.depends("room_type_id")
     def _compute_tax_ids(self):
         for record in self:
-            # If company_id is set, always filter taxes by the company
-            folio = record.folio_id or self.env.context.get("default_folio_id")
+            record = record.with_company(record.company_id)
             product = self.env["product.product"].browse(
                 record.room_type_id.product_id.id
             )
             record.tax_ids = product.taxes_id.filtered(
-                lambda r: not record.company_id or r.company_id == folio.company_id
+                lambda t: t.company_id == record.env.company
             )
 
     @api.depends("reservation_line_ids", "reservation_line_ids.room_id")
