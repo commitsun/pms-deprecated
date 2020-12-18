@@ -12,7 +12,7 @@
                 />
                 <field name="pricelist_type" />
                 <field name="cancelation_rule_id" />
-                <field name="availability_id" />
+                <field name="availability_plan_id" />
 
             </xpath>
             <xpath

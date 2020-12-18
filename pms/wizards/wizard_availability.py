@@ -9,8 +9,8 @@ class AvailabilityWizard(models.TransientModel):
     _description = "Wizard for massive changes on availability plans."
 
     # Fields declaration
-    availability_id = fields.Many2one(
-        comodel_name="pms.room.type.availability",
+    availability_plan_id = fields.Many2one(
+        comodel_name="pms.room.type.availability.plan",
         string="Availability Plan to apply massive changes",
         required=True,
         # can be setted by context from availability plan detail
@@ -120,17 +120,17 @@ class AvailabilityWizard(models.TransientModel):
         "apply_on_saturday",
         "apply_on_sunday",
         "apply_on_all_week",
-        "availability_id",
+        "availability_plan_id",
     )
     def _compute_rules_to_overwrite(self):
         for record in self:
 
-            if not record.availability_id and self._context.get("availability_id"):
-                record.availability_id = self._context.get("availability_id")
+            if not record.availability_plan_id and self._context.get("availability_plan_id"):
+                record.availability_plan_id = self._context.get("availability_plan_id")
 
-            if record.availability_id:
+            if record.availability_plan_id:
                 domain = [
-                    ("availability_id", "=", record.availability_id.id),
+                    ("availability_plan_id", "=", record.availability_plan_id.id),
                 ]
 
                 if record.room_type_id:
@@ -175,7 +175,7 @@ class AvailabilityWizard(models.TransientModel):
 
     def _compute_avail_readonly(self):
         for record in self:
-            record.avail_readonly = self._context.get("availability_id")
+            record.avail_readonly = True if self._context.get("availability_plan_id") else False
 
     # actions
     def apply_availability_rules(self):
@@ -212,7 +212,7 @@ class AvailabilityWizard(models.TransientModel):
                     # and write all data in 1 operation
                     self.env["pms.room.type.availability.rule"].create(
                         {
-                            "availability_id": record.availability_id.id,
+                            "availability_plan_id": record.availability_plan_id.id,
                             "date": date,
                             "room_type_id": room.id,
                             "quota": record.quota,

@@ -15,8 +15,8 @@ class TestPmsReservations(TestHotel):
                 "name": "test pricelist 1",
             }
         )
-        # pms.room.type.availability
-        self.test_availability_plan = self.env["pms.room.type.availability"].create(
+        # pms.room.type.availability.plan
+        self.test_availability_plan = self.env["pms.room.type.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist.id])],
@@ -28,7 +28,7 @@ class TestPmsReservations(TestHotel):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist.id,
-                "default_availability_id": self.test_availability_plan.id,
+                "default_availability_plan_id": self.test_availability_plan.id,
             }
         )
         # pms.room.type.class
@@ -70,7 +70,7 @@ class TestPmsReservations(TestHotel):
 
                 self.env["pms.availability.wizard"].create(
                     {
-                        "availability_id": self.test_availability_plan.id,
+                        "availability_plan_id": self.test_availability_plan.id,
                         "start_date": fields.date.today(),
                         "end_date": fields.date.today() + datetime.timedelta(days=days),
                         "room_type_id": self.test_room_type_double.id,
@@ -78,7 +78,7 @@ class TestPmsReservations(TestHotel):
                 ).apply_availability_rules()
 
                 self.assertEqual(
-                    len(self.test_availability_plan.item_ids),
+                    len(self.test_availability_plan.rule_ids),
                     num_exp_rules_to_create,
                     "the number of rules created by the wizard should include all the "
                     "days between start and finish (both included)",
@@ -100,7 +100,7 @@ class TestPmsReservations(TestHotel):
         # ACT
         self.env["pms.availability.wizard"].create(
             {
-                "availability_id": self.test_availability_plan.id,
+                "availability_plan_id": self.test_availability_plan.id,
                 "start_date": date_from,
                 "end_date": date_to,
             }
@@ -108,14 +108,14 @@ class TestPmsReservations(TestHotel):
 
         # ASSERT
         self.assertEqual(
-            len(self.test_availability_plan.item_ids),
+            len(self.test_availability_plan.rule_ids),
             num_exp_rules_to_create,
             "the number of rules created by the wizard should consider all "
             "room types when one is not applied",
         )
 
     @freeze_time("1980-12-01")
-    def test_value_rules_on_create_one_rule(self):
+    def test_avail_rules_on_create_one_rule(self):
         # TEST CASE
         # check all the rule's values
 
@@ -125,7 +125,7 @@ class TestPmsReservations(TestHotel):
         date_to = fields.date.today()
 
         vals = {
-            "availability_id": self.test_availability_plan.id,
+            "availability_plan_id": self.test_availability_plan.id,
             "start_date": date_from,
             "end_date": date_to,
             "room_type_id": self.test_room_type_double.id,
@@ -144,20 +144,20 @@ class TestPmsReservations(TestHotel):
         self.env["pms.availability.wizard"].create(vals).apply_availability_rules()
 
         # ASSERT
-        del vals["availability_id"]
+        del vals["availability_plan_id"]
         del vals["start_date"]
         del vals["end_date"]
         del vals["room_type_id"]
         for key in vals:
             with self.subTest(k=key):
                 self.assertEqual(
-                    self.test_availability_plan.item_ids[0][key],
+                    self.test_availability_plan.rule_ids[0][key],
                     vals[key],
                     "The value of " + key + " is not correctly established",
                 )
 
     @freeze_time("1980-12-01")
-    def test_value_rules_on_create_one_days(self):
+    def test_avail_rules_on_create_days_of_week(self):
         # TEST CASE
         # check all the rule's values for days of week are created
 
@@ -178,7 +178,7 @@ class TestPmsReservations(TestHotel):
 
         wizard = self.env["pms.availability.wizard"].create(
             {
-                "availability_id": self.test_availability_plan.id,
+                "availability_plan_id": self.test_availability_plan.id,
                 "room_type_id": self.test_room_type_double.id,
                 "start_date": date_from,
                 "end_date": date_to,
@@ -187,7 +187,7 @@ class TestPmsReservations(TestHotel):
 
         for index, test_case in enumerate(test_case_week_days):
             with self.subTest(k=test_case):
-                # ACT
+                # ARRANGE
                 wizard.write(
                     {
                         "apply_on_monday": test_case[0],
@@ -199,9 +199,12 @@ class TestPmsReservations(TestHotel):
                         "apply_on_sunday": test_case[6],
                     }
                 )
+                # ACT
                 wizard.apply_availability_rules()
+
+                # ASSERT
                 self.assertTrue(
-                    self.test_availability_plan.item_ids[index].date.timetuple()[6]
+                    self.test_availability_plan.rule_ids[index].date.timetuple()[6]
                     == index
                     and test_case[index]
                 )

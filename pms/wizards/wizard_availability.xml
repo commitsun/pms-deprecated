@@ -21,10 +21,19 @@
                             </div>
                             <div class="col-6">
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-5 border"
+                                        attrs="{'invisible':[('avail_readonly','=',True)]}"
+                                    >
                                         <b>Availability Plan</b>
                                     </div>
-                                    <div class="col-6 px-0">
+                                    <div class="col-6  border"
+                                    attrs="{'invisible':[('avail_readonly','=',True)]}">
+                                        <b>Room Types</b>
+                                    </div>
+
+                                     <div class="col-6"
+                                     attrs="{'invisible':[('avail_readonly','=',False)]}"
+                                     >
                                         <b>Room Type</b>
                                     </div>
 
@@ -54,8 +63,17 @@
                         />
                     </div>
                     <div class="col-7">
-                        <field name="availability_id" class="mr-5" />
-                        <field name="room_type_id" default_focus="1" />
+                        <field
+                            name="availability_plan_id"
+                            class="mr-5"
+                            attrs="{'invisible':[('avail_readonly','=',True)]}"
+
+                        />
+                        <field
+                            name="room_type_id"
+                            default_focus="1"
+
+                        />
                     </div>
                 </div>
 
@@ -140,14 +158,8 @@
                     </div>
                 </div>
 
-                <u><b>Rules to apply:</b></u>
+                <b>Rules to apply:</b>
                 <div class="row">
-                    <div class="col-6">
-                        <group>
-                            <field string="Min. Stay" name="min_stay" />
-                            <field string="Max. Stay" name="max_stay" />
-                        </group>
-                    </div>
                     <div class="col-6">
                         <group>
                             <field string="Quota" name="quota" />
@@ -156,10 +168,12 @@
                     </div>
                     <div class="col-6">
                         <group>
-                            <field string="Min. Stay Arrival" name="min_stay_arrival" />
-                            <field string="Max. Stay Arrival" name="max_stay_arrival" />
+                            <field string="Min. Stay" name="min_stay" />
+                            <field string="Max. Stay" name="max_stay" />
                         </group>
                     </div>
+
+
                     <div class="col-6">
                         <group>
                             <field string="Closed" name="closed" />
@@ -167,14 +181,19 @@
                             <field string="Closed departure" name="closed_departure" />
                         </group>
                     </div>
+                    <div class="col-6">
+                        <group>
+                            <field string="Min. Stay Arrival" name="min_stay_arrival" />
+                            <field string="Max. Stay Arrival" name="max_stay_arrival" />
+                        </group>
+                    </div>
                 </div>
                 <b>
                     <span style="text-decoration:underline;">
                         <field name="num_rules_to_overwrite" />
                     </span>
-                    <u>
-                        availability rules will be overwritten:
-                    </u>
+                    availability rules
+                    <u>will be overwritten:</u>
                 </b>
 
                 <field name="rules_to_overwrite" invisible="0" />
