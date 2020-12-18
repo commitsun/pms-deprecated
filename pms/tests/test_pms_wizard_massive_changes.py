@@ -16,7 +16,9 @@ class TestPmsReservations(TestHotel):
             }
         )
         # pms.room.type.availability.plan
-        self.test_availability_plan = self.env["pms.room.type.availability.plan"].create(
+        self.test_availability_plan = self.env[
+            "pms.room.type.availability.plan"
+        ].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist.id])],
@@ -55,11 +57,12 @@ class TestPmsReservations(TestHotel):
             }
         )
 
+    # MASSIVE CHANGE WIZARD TESTS ON AVAILABILITY RULES
     @freeze_time("1980-12-01")
-    def test_num_rules_on_create01(self):
+    def test_num_availability_rules_create(self):
 
         # TEST CASE
-        # rules for 1,2,3,4 days
+        # rules should be created consistently for 1,2,3,4 days
 
         # ARRANGE
         self.create_common_scenario()
@@ -70,6 +73,7 @@ class TestPmsReservations(TestHotel):
 
                 self.env["pms.massive.changes.wizard"].create(
                     {
+                        "massive_changes_on": "availability_plan",
                         "availability_plan_id": self.test_availability_plan.id,
                         "start_date": fields.date.today(),
                         "end_date": fields.date.today() + datetime.timedelta(days=days),
@@ -80,14 +84,14 @@ class TestPmsReservations(TestHotel):
                 self.assertEqual(
                     len(self.test_availability_plan.rule_ids),
                     num_exp_rules_to_create,
-                    "the number of rules created by the wizard should include all the "
+                    "the number of rules created by should contains all the "
                     "days between start and finish (both included)",
                 )
 
     @freeze_time("1980-12-01")
-    def test_num_rules_on_create_no_room_type(self):
+    def test_num_availability_rules_create_no_room_type(self):
         # TEST CASE
-        # rules for 3 days and no room type is applied
+        # (days x room_types) rules should be created
 
         # ARRANGE
         self.create_common_scenario()
@@ -100,6 +104,7 @@ class TestPmsReservations(TestHotel):
         # ACT
         self.env["pms.massive.changes.wizard"].create(
             {
+                "massive_changes_on": "availability_plan",
                 "availability_plan_id": self.test_availability_plan.id,
                 "start_date": date_from,
                 "end_date": date_to,
@@ -111,13 +116,13 @@ class TestPmsReservations(TestHotel):
             len(self.test_availability_plan.rule_ids),
             num_exp_rules_to_create,
             "the number of rules created by the wizard should consider all "
-            "room types when one is not applied",
+            "room types",
         )
 
     @freeze_time("1980-12-01")
-    def test_avail_rules_on_create_one_rule(self):
+    def test_value_availability_rules_create(self):
         # TEST CASE
-        # check all the rule's values
+        # Rule values should be set correctly
 
         # ARRANGE
         self.create_common_scenario()
@@ -125,6 +130,7 @@ class TestPmsReservations(TestHotel):
         date_to = fields.date.today()
 
         vals = {
+            "massive_changes_on": "availability_plan",
             "availability_plan_id": self.test_availability_plan.id,
             "start_date": date_from,
             "end_date": date_to,
@@ -144,6 +150,7 @@ class TestPmsReservations(TestHotel):
         self.env["pms.massive.changes.wizard"].create(vals).apply_availability_rules()
 
         # ASSERT
+        del vals["massive_changes_on"]
         del vals["availability_plan_id"]
         del vals["start_date"]
         del vals["end_date"]
@@ -157,9 +164,9 @@ class TestPmsReservations(TestHotel):
                 )
 
     @freeze_time("1980-12-01")
-    def test_avail_rules_on_create_days_of_week(self):
+    def test_day_of_week_availability_rules_create(self):
         # TEST CASE
-        # check all the rule's values for days of week are created
+        # rules for each day of week should be created
 
         # ARRANGE
         self.create_common_scenario()
@@ -179,6 +186,190 @@ class TestPmsReservations(TestHotel):
         wizard = self.env["pms.massive.changes.wizard"].create(
             {
                 "availability_plan_id": self.test_availability_plan.id,
+                "room_type_id": self.test_room_type_double.id,
+                "start_date": date_from,
+                "end_date": date_to,
+                "massive_changes_on": "availability_plan",
+            }
+        )
+
+        for index, test_case in enumerate(test_case_week_days):
+            with self.subTest(k=test_case):
+                # ARRANGE
+                wizard.write(
+                    {
+                        "apply_on_monday": test_case[0],
+                        "apply_on_tuesday": test_case[1],
+                        "apply_on_wednesday": test_case[2],
+                        "apply_on_thursday": test_case[3],
+                        "apply_on_friday": test_case[4],
+                        "apply_on_saturday": test_case[5],
+                        "apply_on_sunday": test_case[6],
+                    }
+                )
+                # ACT
+                wizard.apply_availability_rules()
+
+                # ASSERT
+                self.assertTrue(
+                    self.test_availability_plan.rule_ids[index].date.timetuple()[6]
+                    == index
+                    and test_case[index],
+                    "Rule not created on correct day of week",
+                )
+
+    # MASSIVE CHANGE WIZARD TESTS ON PRICELIST ITEMS
+    @freeze_time("1980-12-01")
+    def test_pricelist_items_create(self):
+        # TEST CASE
+        # items should be created consistently for 1,2,3,4 days
+
+        # ARRANGE
+        self.create_common_scenario()
+
+        self.create_common_scenario()
+        self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": self.test_pricelist.id,
+                "start_date": fields.date.today(),
+                "end_date": fields.date.today() + datetime.timedelta(days=2),
+                "room_type_id": self.test_room_type_double.id,
+            }
+        ).apply_availability_rules()
+
+        for days in [0, 1, 2, 3]:
+            with self.subTest(k=days):
+                # ARRANGE
+                num_exp_items_to_create = days + 1
+                self.test_pricelist.item_ids = False
+
+                # ACT
+                self.env["pms.massive.changes.wizard"].create(
+                    {
+                        "massive_changes_on": "pricelist",
+                        "pricelist_id": self.test_pricelist.id,
+                        "start_date": fields.date.today(),
+                        "end_date": fields.date.today() + datetime.timedelta(days=days),
+                        "room_type_id": self.test_room_type_double.id,
+                    }
+                ).apply_availability_rules()
+                # ASSERT
+                self.assertEqual(
+                    len(
+                        self.test_pricelist.item_ids
+                        if self.test_pricelist.item_ids
+                        else []
+                    ),
+                    num_exp_items_to_create,
+                    "the number of rules created by the wizard should include all the "
+                    "days between start and finish (both included)",
+                )
+
+    @freeze_time("1980-12-01")
+    def test_num_pricelist_items_create_no_room_type(self):
+        # TEST CASE
+        # (days x room_types) items should be created
+
+        # ARRANGE
+        self.create_common_scenario()
+        date_from = fields.date.today()
+        date_to = fields.date.today() + datetime.timedelta(days=3)
+        num_room_types = self.env["pms.room.type"].search_count([])
+        num_exp_items_to_create = ((date_to - date_from).days + 1) * num_room_types
+
+        # ACT
+        self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": self.test_pricelist.id,
+                "start_date": date_from,
+                "end_date": date_to,
+            }
+        ).apply_availability_rules()
+
+        # ASSERT
+        self.assertEqual(
+            len(self.test_pricelist.item_ids),
+            num_exp_items_to_create,
+            "the number of rules created by the wizard should consider all "
+            "room types when one is not applied",
+        )
+
+    @freeze_time("1980-12-01")
+    def test_value_pricelist_items_create(self):
+        # TEST CASE
+        # Item values should be set correctly
+
+        # ARRANGE
+        self.create_common_scenario()
+        date_from = fields.date.today()
+        date_to = fields.date.today()
+        price = 20
+        min_quantity = 3
+        vals = {
+            "pricelist_id": self.test_pricelist,
+            "date_start": datetime.datetime.combine(
+                date_from,
+                datetime.time.min,
+            ),
+            "date_end": datetime.datetime.combine(
+                date_to,
+                datetime.time.max,
+            ),
+            "compute_price": "fixed",
+            "applied_on": "1_product",
+            "product_tmpl_id": self.test_room_type_double.product_id.product_tmpl_id,
+            "fixed_price": price,
+            "min_quantity": min_quantity,
+        }
+
+        # ACT
+        self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": self.test_pricelist.id,
+                "start_date": date_from,
+                "end_date": date_to,
+                "room_type_id": self.test_room_type_double.id,
+                "price": price,
+                "min_quantity": min_quantity,
+            }
+        ).apply_availability_rules()
+
+        # ASSERT
+        for key in vals:
+            with self.subTest(k=key):
+                self.assertEqual(
+                    self.test_pricelist.item_ids[0][key],
+                    vals[key],
+                    "The value of " + key + " is not correctly established",
+                )
+
+    @freeze_time("1980-12-01")
+    def test_day_of_week_pricelist_items_create(self):
+        # TEST CASE
+        # items for each day of week should be created
+
+        # ARRANGE
+        self.create_common_scenario()
+        test_case_week_days = [
+            [1, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 1],
+        ]
+
+        date_from = fields.date.today()
+        date_to = fields.date.today() + datetime.timedelta(days=6)
+
+        wizard = self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": self.test_pricelist.id,
                 "room_type_id": self.test_room_type_double.id,
                 "start_date": date_from,
                 "end_date": date_to,
@@ -204,7 +395,8 @@ class TestPmsReservations(TestHotel):
 
                 # ASSERT
                 self.assertTrue(
-                    self.test_availability_plan.rule_ids[index].date.timetuple()[6]
+                    self.test_pricelist.item_ids[index].date_start.timetuple()[6]
                     == index
-                    and test_case[index]
+                    and test_case[index],
+                    "Rule not created on correct day of week",
                 )

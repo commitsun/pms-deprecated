@@ -15,18 +15,18 @@ class AvailabilityWizard(models.TransientModel):
         default="availability_plan",
         required=True,
     )
-
     availability_plan_id = fields.Many2one(
         comodel_name="pms.room.type.availability.plan",
         string="Availability Plan to apply massive changes",
         # can be setted by context from availability plan detail
     )
-
     pricelist_id = fields.Many2one(
         comodel_name="product.pricelist",
         string="Pricelist to apply massive changes",
     )
-
+    allowed_pricelist_ids = fields.One2many(
+        comodel_name="product.pricelist", compute="_compute_allowed_pricelist_ids"
+    )
     start_date = fields.Date(
         string="From:",
         required=True,
@@ -36,6 +36,9 @@ class AvailabilityWizard(models.TransientModel):
         required=True,
     )
     room_type_id = fields.Many2one(comodel_name="pms.room.type", string="Room Type")
+    price = fields.Float(string="Price")
+    min_quantity = fields.Float(string="Min. Quantity")
+
     min_stay = fields.Integer(
         string="Min. Stay",
         default=0,
@@ -112,14 +115,34 @@ class AvailabilityWizard(models.TransientModel):
         store=False,
         readonly=True,
     )
+    pricelist_items_to_overwrite = fields.One2many(
+        comodel_name="product.pricelist.item",
+        compute="_compute_pricelist_items_to_overwrite",
+        store=False,
+        readonly=True,
+    )
     num_rules_to_overwrite = fields.Integer(
         string="Rules to overwrite on massive changes",
         compute="_compute_num_rules_to_overwrite",
         store=False,
         readonly=True,
     )
+    num_pricelist_items_to_overwrite = fields.Integer(
+        string="Pricelist items to overwrite on massive changes",
+        compute="_compute_num_pricelist_items_to_overwrite",
+        store=False,
+        readonly=True,
+    )
     avail_readonly = fields.Boolean(compute="_compute_avail_readonly")
     pricelist_readonly = fields.Boolean(compute="_compute_pricelist_readonly")
+
+    def _compute_allowed_pricelist_ids(self):
+        for record in self:
+            record.allowed_pricelist_ids = self.env["product.pricelist"].search(
+                [
+                    ("pricelist_type", "=", "daily"),
+                ]
+            )
 
     @api.depends(
         "start_date",
@@ -138,8 +161,11 @@ class AvailabilityWizard(models.TransientModel):
     def _compute_rules_to_overwrite(self):
         for record in self:
 
-            if not record.availability_plan_id and self._context.get("availability_plan_id"):
+            if not record.availability_plan_id and self._context.get(
+                "availability_plan_id"
+            ):
                 record.availability_plan_id = self._context.get("availability_plan_id")
+                record.massive_changes_on = "availability_plan"
 
             if record.availability_plan_id:
                 domain = [
@@ -180,19 +206,99 @@ class AvailabilityWizard(models.TransientModel):
                 record.rules_to_overwrite = False
 
     @api.depends(
+        "start_date",
+        "end_date",
+        "room_type_id",
+        "apply_on_monday",
+        "apply_on_tuesday",
+        "apply_on_wednesday",
+        "apply_on_thursday",
+        "apply_on_friday",
+        "apply_on_saturday",
+        "apply_on_sunday",
+        "apply_on_all_week",
+        "pricelist_id",
+    )
+    def _compute_pricelist_items_to_overwrite(self):
+        for record in self:
+
+            if not record.pricelist_id and self._context.get("pricelist_id"):
+                record.pricelist_id = self._context.get("pricelist_id")
+                record.massive_changes_on = "pricelist"
+
+            if record.pricelist_id:
+                domain = [
+                    ("pricelist_id", "=", record.pricelist_id.id),
+                ]
+
+                if record.start_date:
+                    domain.append(("date_start", ">=", record.start_date))
+
+                if record.end_date:
+                    domain.append(("date_end", "<=", record.end_date))
+                if record.room_type_id:
+                    domain.append(
+                        (
+                            "product_tmpl_id",
+                            "=",
+                            record.room_type_id.product_id.product_tmpl_id.id,
+                        )
+                    )
+
+                week_days_to_apply = (
+                    record.apply_on_monday,
+                    record.apply_on_tuesday,
+                    record.apply_on_wednesday,
+                    record.apply_on_thursday,
+                    record.apply_on_friday,
+                    record.apply_on_saturday,
+                    record.apply_on_sunday,
+                )
+
+                if record.start_date and record.end_date:
+                    items = self.env["product.pricelist.item"].search(domain)
+                    if (
+                        not record.apply_on_all_week
+                        and record.start_date
+                        and record.end_date
+                    ):
+                        record.pricelist_items_to_overwrite = items.filtered(
+                            lambda x: week_days_to_apply[x.date_start.timetuple()[6]]
+                        )
+                    else:
+                        record.pricelist_items_to_overwrite = items
+                else:
+                    record.pricelist_items_to_overwrite = False
+            else:
+                record.pricelist_items_to_overwrite = False
+
+    @api.depends(
         "rules_to_overwrite",
     )
     def _compute_num_rules_to_overwrite(self):
         for record in self:
             self.num_rules_to_overwrite = len(record.rules_to_overwrite)
 
+    @api.depends(
+        "pricelist_items_to_overwrite",
+    )
+    def _compute_num_pricelist_items_to_overwrite(self):
+        for record in self:
+            self.num_pricelist_items_to_overwrite = len(
+                record.pricelist_items_to_overwrite
+            )
+
     def _compute_avail_readonly(self):
         for record in self:
-            record.avail_readonly = True if self._context.get("availability_plan_id") else False
+            record.avail_readonly = (
+                True if self._context.get("availability_plan_id") else False
+            )
 
     def _compute_pricelist_readonly(self):
         for record in self:
-            record.pricelist_readonly = True if self._context.get("pricelist_id") else False
+            record.pricelist_readonly = (
+                True if self._context.get("pricelist_id") else False
+            )
 
     # actions
     def apply_availability_rules(self):
@@ -227,20 +333,43 @@ class AvailabilityWizard(models.TransientModel):
                 for room in rooms:
                     # REVIEW -> maybe would be more efficient creating a list
                     # and write all data in 1 operation
-                    self.env["pms.room.type.availability.rule"].create(
-                        {
-                            "availability_plan_id": record.availability_plan_id.id,
-                            "date": date,
-                            "room_type_id": room.id,
-                            "quota": record.quota,
-                            "max_avail": record.max_avail,
-                            "min_stay": record.min_stay,
-                            "min_stay_arrival": record.min_stay_arrival,
-                            "max_stay": record.max_stay,
-                            "max_stay_arrival": record.max_stay_arrival,
-                            "closed": record.closed,
-                            "closed_arrival": record.closed_arrival,
-                            "closed_departure": record.closed_departure,
-                        }
-                    )
+                    if record.massive_changes_on == "pricelist":
+
+                        self.env["product.pricelist.item"].create(
+                            {
+                                "pricelist_id": record.pricelist_id.id,
+                                "date_start": datetime.datetime.combine(
+                                    date,
+                                    datetime.time.min,
+                                ),
+                                "date_end": datetime.datetime.combine(
+                                    date,
+                                    datetime.time.max,
+                                ),
+                                "compute_price": "fixed",
+                                "applied_on": "1_product",
+                                "product_tmpl_id": room.product_id.product_tmpl_id.id,
+                                "fixed_price": record.price,
+                                "min_quantity": record.min_quantity,
+                            }
+                        )
+
+                    else:
+                        self.env["pms.room.type.availability.rule"].create(
+                            {
+                                "availability_plan_id": record.availability_plan_id.id,
+                                "date": date,
+                                "room_type_id": room.id,
+                                "quota": record.quota,
+                                "max_avail": record.max_avail,
+                                "min_stay": record.min_stay,
+                                "min_stay_arrival": record.min_stay_arrival,
+                                "max_stay": record.max_stay,
+                                "max_stay_arrival": record.max_stay_arrival,
+                                "closed": record.closed,
+                                "closed_arrival": record.closed_arrival,
+                                "closed_departure": record.closed_departure,
+                            }
+                        )
+
         # return {}

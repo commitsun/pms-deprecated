@@ -298,7 +298,10 @@
             </field>
         </record>
         <!-- Multi pms Demo -->
-        <record id="demo_pms_room_type_availability_plan" model="pms.room.type.availability.plan">
+        <record
+            id="demo_pms_room_type_availability_plan"
+            model="pms.room.type.availability.plan"
+        >
             <field name="name">Availability Plan Demo</field>
         </record>
         <record id="demo_pms_property" model="pms.property">

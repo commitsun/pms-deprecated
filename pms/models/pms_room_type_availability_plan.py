@@ -102,7 +102,9 @@ class PmsRoomTypeAvailability(models.Model):
         free_rooms = self.env["pms.room"].search(domain_rooms)
 
         if pricelist:
-            domain_rules.append(("availability_plan_id.pms_pricelist_ids", "=", pricelist))
+            domain_rules.append(
+                ("availability_plan_id.pms_pricelist_ids", "=", pricelist)
+            )
             rule_items = self.env["pms.room.type.availability.rule"].search(
                 domain_rules
             )

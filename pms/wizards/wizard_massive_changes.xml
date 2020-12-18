@@ -5,8 +5,10 @@
         <field name="model">pms.massive.changes.wizard</field>
         <field name="arch" type="xml">
             <form class="pt-1">
+                <group>
                 <field name="avail_readonly" invisible="1" />
                 <field name="pricelist_readonly" invisible="1" />
+                </group>
                 <div class="row">
                     <div class="col-5 ">
                         <group>
@@ -15,7 +17,6 @@
                                 widget="daterange"
                                 options="{'related_end_date': 'end_date'}"
                             />
-
                             <field
                                 name="end_date"
                                 widget="daterange"
@@ -33,22 +34,25 @@
                                 name="availability_plan_id"
                                 class="mr-5"
                                 string="Availability Plan"
-                                attrs="{'invisible':['|','|', ('massive_changes_on','=','pricelist'), ('avail_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                                attrs="{'invisible':['|','|',('massive_changes_on','=','pricelist'), ('avail_readonly','=',True),
+                                                             ('pricelist_readonly', '=', True)],
+                                'required': [('massive_changes_on','=','availability_plan')]}"
                             />
+
                             <field
                                 name="pricelist_id"
                                 string="Pricelist"
-                                attrs="{'invisible':['|','|',('massive_changes_on','=','availability_plan'), ('pricelist_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                                attrs="{'invisible':['|','|',('massive_changes_on','=','availability_plan'),
+                                ('pricelist_readonly','=',True), ('pricelist_readonly', '=', True)],
+                                 'required': [('massive_changes_on','=','pricelist')]}"
+                                domain="[('id', 'in', allowed_pricelist_ids)]"
                             />
-                            <field
-                                name="room_type_id"
-                                default_focus="1"
-                            />
+                            <field name="room_type_id" default_focus="1" />
                         </group>
 
                     </div>
                 </div>
-
+                <field name="allowed_pricelist_ids" invisible="1" />
                 <div class="row">
                     <div class="col-12">
                         <group>
@@ -75,9 +79,9 @@
                                     </td>
                                     <td>
                                         <field
-                                            name="apply_on_sunday"
-                                            widget="boolean_toggle"
-                                            attrs="{'invisible':[('apply_on_all_week','=',True)]}"
+                                                name="apply_on_sunday"
+                                                widget="boolean_toggle"
+                                                attrs="{'invisible':[('apply_on_all_week','=',True)]}"
                                             />
                                     </td>
                                     <td>
@@ -129,9 +133,16 @@
                         </group>
                     </div>
                 </div>
+                <b
+                    attrs="{'invisible':['|','|', ('massive_changes_on','=','pricelist'), ('avail_readonly','=',True), ('pricelist_readonly', '=', True)]}"
+                >
+                    Rules to apply:
+                </b>
 
-                <b>Rules to apply:</b>
-                <div class="row">
+                <div
+                    class="row"
+                    attrs="{'invisible':[('massive_changes_on','=','pricelist')]}"
+                >
                     <div class="col-6">
                         <group>
                             <field string="Quota" name="quota" />
@@ -144,8 +155,6 @@
                             <field string="Max. Stay" name="max_stay" />
                         </group>
                     </div>
-
-
                     <div class="col-6">
                         <group>
                             <field string="Closed" name="closed" />
@@ -160,7 +169,18 @@
                         </group>
                     </div>
                 </div>
-                <b>
+                <div
+                    class="row"
+                    attrs="{'invisible':[('massive_changes_on','=','availability_plan')]}"
+                >
+                    <div class="col-4">
+                        <group>
+                            <field name="price" />
+                            <field name="min_quantity" />
+                        </group>
+                    </div>
+                </div>
+                <b attrs="{'invisible':[('massive_changes_on','=','pricelist')]}">
                     <span style="text-decoration:underline;">
                         <field name="num_rules_to_overwrite" />
                     </span>
@@ -168,8 +188,26 @@
                     <u>will be overwritten:</u>
                 </b>
 
-                <field name="rules_to_overwrite" invisible="0" />
+                <b
+                    attrs="{'invisible':[('massive_changes_on','=','availability_plan')]}"
+                >
+                    <span style="text-decoration:underline;">
+                        <field name="num_pricelist_items_to_overwrite" />
+                    </span>
+                    pricelist items
+                    <u>will be overwritten:</u>
+                </b>
+
+
                 <!--    REVIEW:   a calendar view could be more understandable   -->
+                <field
+                    name="rules_to_overwrite"
+                    attrs="{'invisible':[('massive_changes_on','=','pricelist')]}"
+                />
+                <field
+                    name="pricelist_items_to_overwrite"
+                    attrs="{'invisible':[('massive_changes_on','=','availability_plan')]}"
+                />
                 <footer>
                     <button
                         name="apply_availability_rules"
@@ -187,4 +225,19 @@
             </form>
         </field>
     </record>
+    <record id="action_wizard_massive_changes" model="ir.actions.act_window">
+        <field name="name">Massive changes on Pricelist &amp; Availability Plans</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pms.massive.changes.wizard</field>
+        <field name="view_id" ref="massive_changes_wizard" />
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem
+        name="Massive Changes"
+        id="menu_pms_room_massive_changes_wizard"
+        action="action_wizard_massive_changes"
+        sequence="25"
+        parent="pms.configuration_others"
+    />
 </odoo>
