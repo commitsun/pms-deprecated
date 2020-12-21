@@ -1,5 +1,6 @@
 import datetime
 
+import pytz
 from freezegun import freeze_time
 
 from odoo import fields
@@ -7,7 +8,7 @@ from odoo import fields
 from .common import TestHotel
 
 
-class TestPmsReservations(TestHotel):
+class TestPmsWizardMassiveChanges(TestHotel):
     def create_common_scenario(self):
         # product.pricelist
         self.test_pricelist = self.env["product.pricelist"].create(
@@ -234,6 +235,7 @@ class TestPmsReservations(TestHotel):
 
                 # ARRANGE
                 num_exp_items_to_create = days + 1
+                self.test_pricelist.item_ids = False
 
                 # ACT
                 self.env["pms.massive.changes.wizard"].create(
@@ -296,6 +298,7 @@ class TestPmsReservations(TestHotel):
         self.create_common_scenario()
         date_from = fields.date.today()
         date_to = fields.date.today()
+
         price = 20
         min_quantity = 3
         vals = {
@@ -327,21 +330,31 @@ class TestPmsReservations(TestHotel):
                 "min_quantity": min_quantity,
             }
         ).apply_massive_changes()
-
+        vals["date_start"] = pytz.timezone("Europe/Madrid").localize(vals["date_start"])
+        vals["date_end"] = pytz.timezone("Europe/Madrid").localize(vals["date_end"])
         # ASSERT
         for key in vals:
             with self.subTest(k=key):
-                self.assertEqual(
-                    self.test_pricelist.item_ids[0][key],
-                    vals[key],
-                    "The value of " + key + " is not correctly established",
-                )
+                if key == "date_start" or key == "date_end":
+                    self.assertEqual(
+                        fields.Datetime.context_timestamp(
+                            self.test_pricelist.item_ids[0],
+                            self.test_pricelist.item_ids[0][key],
+                        ),
+                        vals[key],
+                        "The value of " + key + " is not correctly established",
+                    )
+                else:
+                    self.assertEqual(
+                        self.test_pricelist.item_ids[0][key],
+                        vals[key],
+                        "The value of " + key + " is not correctly established",
+                    )
 
     @freeze_time("1980-12-01")
     def test_day_of_week_pricelist_items_create(self):
         # TEST CASE
         # items for each day of week should be created
-
         # ARRANGE
         self.create_common_scenario()
         test_case_week_days = [
@@ -353,10 +366,8 @@ class TestPmsReservations(TestHotel):
             [0, 0, 0, 0, 0, 1, 0],
             [0, 0, 0, 0, 0, 0, 1],
         ]
-
         date_from = fields.date.today()
-        date_to = fields.date.today() + datetime.timedelta(days=6)
-
+        date_to = date_from + datetime.timedelta(days=6)
         wizard = self.env["pms.massive.changes.wizard"].create(
             {
                 "massive_changes_on": "pricelist",
@@ -366,11 +377,9 @@ class TestPmsReservations(TestHotel):
                 "end_date": date_to,
             }
         )
-
         for index, test_case in enumerate(test_case_week_days):
             with self.subTest(k=test_case):
                 # ARRANGE
-
                 wizard.write(
                     {
                         "apply_on_monday": test_case[0],
@@ -382,14 +391,24 @@ class TestPmsReservations(TestHotel):
                         "apply_on_sunday": test_case[6],
                     }
                 )
+                self.test_pricelist.item_ids = False
+
                 # ACT
                 wizard.apply_massive_changes()
+
+                # ASSERT
                 pricelist_items = self.test_pricelist.item_ids.sorted(
                     key=lambda s: s.date_start
                 )
+
                 # ASSERT
                 self.assertTrue(
-                    pricelist_items[index].date_start.timetuple()[6] == index
+                    (
+                        fields.Datetime.context_timestamp(
+                            pricelist_items[index], pricelist_items[index].date_start
+                        )
+                    ).timetuple()[6]
+                    == index
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )

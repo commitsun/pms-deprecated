@@ -324,6 +324,7 @@ class AvailabilityWizard(models.TransientModel):
                 record.start_date + datetime.timedelta(days=x)
                 for x in range(0, (record.end_date - record.start_date).days + 1)
             ]:
+
                 if (
                     not record.apply_on_all_week
                     and not week_days_to_apply[date.timetuple()[6]]
@@ -347,6 +348,7 @@ class AvailabilityWizard(models.TransientModel):
                             date,
                             datetime.time.max,
                         )
+
                         dt_from = pytz.timezone(tz).localize(dt_from)
                         dt_to = pytz.timezone(tz).localize(dt_to)
 
