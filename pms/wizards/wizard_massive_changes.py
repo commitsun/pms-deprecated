@@ -1,5 +1,7 @@
 import datetime
 
+import pytz
+
 from odoo import api, fields, models
 
 
@@ -302,6 +304,7 @@ class AvailabilityWizard(models.TransientModel):
 
     # actions
     def apply_massive_changes(self):
+        tz = "Europe/Madrid"
         for record in self:
             # remove old rules
             record.rules_to_overwrite.unlink()
@@ -336,18 +339,28 @@ class AvailabilityWizard(models.TransientModel):
                     # and write all data in 1 operation
                     if record.massive_changes_on == "pricelist":
 
+                        dt_from = datetime.datetime.combine(
+                            date,
+                            datetime.time.min,
+                        )
+                        dt_to = datetime.datetime.combine(
+                            date,
+                            datetime.time.max,
+                        )
+                        dt_from = pytz.timezone(tz).localize(dt_from)
+                        dt_to = pytz.timezone(tz).localize(dt_to)
+
+                        dt_from = dt_from.astimezone(pytz.utc)
+                        dt_to = dt_to.astimezone(pytz.utc)
+
+                        dt_from = dt_from.replace(tzinfo=None)
+                        dt_to = dt_to.replace(tzinfo=None)
+
                         self.env["product.pricelist.item"].create(
                             {
                                 "pricelist_id": record.pricelist_id.id,
-                                # REVIEW TIMEZONE
-                                "date_start": datetime.datetime.combine(
-                                    date,
-                                    datetime.time.min,
-                                ),
-                                "date_end": datetime.datetime.combine(
-                                    date,
-                                    datetime.time.max,
-                                ),
+                                "date_start": dt_from,
+                                "date_end": dt_to,
                                 "compute_price": "fixed",
                                 "applied_on": "1_product",
                                 "product_tmpl_id": room.product_id.product_tmpl_id.id,

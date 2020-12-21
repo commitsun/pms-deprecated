@@ -143,29 +143,35 @@
                     class="row"
                     attrs="{'invisible':[('massive_changes_on','=','pricelist')]}"
                 >
-                    <div class="col-6">
-                        <group>
-                            <field string="Quota" name="quota" />
-                            <field string="Max. Avail." name="max_avail" />
-                        </group>
-                    </div>
-                    <div class="col-6">
+
+                    <div class="col-4">
                         <group>
                             <field string="Min. Stay" name="min_stay" />
                             <field string="Max. Stay" name="max_stay" />
                         </group>
                     </div>
-                    <div class="col-6">
+
+                    <div class="col-4">
+                        <group>
+                            <field string="Min. Stay Arrival" name="min_stay_arrival" />
+                            <field string="Max. Stay Arrival" name="max_stay_arrival" />
+                        </group>
+                    </div>
+                    <div class="col-4">
                         <group>
                             <field string="Closed" name="closed" />
                             <field string="Closed Arrival" name="closed_arrival" />
                             <field string="Closed departure" name="closed_departure" />
                         </group>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <group>
-                            <field string="Min. Stay Arrival" name="min_stay_arrival" />
-                            <field string="Max. Stay Arrival" name="max_stay_arrival" />
+                            <field string="Quota" name="quota" />
+                        </group>
+                    </div>
+                    <div class="col-4">
+                        <group>
+                            <field string="Max. Avail." name="max_avail" />
                         </group>
                     </div>
                 </div>
