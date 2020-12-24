@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="filter_dates_wizard" model="ir.ui.view">
+        <field name="name">Filter by dates</field>
+        <field name="model">pms.filter.dates.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Choose The Details">
+                <group>
+                    <field name="search_models" string="Model" />
+                    <field
+                        name="invoice_dates_fields"
+                        attrs="{'invisible':[('search_models','!=','invoices')]}"
+                    />
+                </group>
+                <group>
+                    <div class="modal-body row">
+                        <div class="col-md-6">
+                            <field
+                                name="date_start"
+                                widget="daterange"
+                                options="{'related_end_date': 'date_end'}"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                                <field
+                                name="date_end"
+                                widget="daterange"
+                                options="{'related_start_date': 'date_start'}"
+                            />
+                        </div>
+                    </div>
+                </group>
+                <field
+                    name="reservation_ids"
+                    attrs="{'invisible':[('search_models','!=','reservation')]}"
+                />
+                <field
+                    name="checkin_partner_ids"
+                    attrs="{'invisible':[('search_models','!=','checkins')]}"
+                />
+                <field
+                    name="services_ids"
+                    attrs="{'invisible':[('search_models','!=','services')]}"
+                />
+                <field
+                    name="folio_ids"
+                    attrs="{'invisible':[('search_models','!=','folios')]}"
+                />
+                <field
+                    name="invoice_ids"
+                    attrs="{'invisible':[('search_models','!=','invoices')]}"
+                />
+                <field
+                    name="payments_ids"
+                    attrs="{'invisible':[('search_models','!=','payments')]}"
+                />
+                <footer>
+                    <button string="Cancel" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_filter_dates_wizard" model="ir.actions.act_window">
+        <field name="name">Filter by Dates</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pms.filter.dates.wizard</field>
+        <field name="view_id" ref="filter_dates_wizard" />
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem
+        id="menu_pms_filter_dates"
+        name="Filter by dates"
+        parent="pms.pms_reports_menu"
+        sequence="30"
+        action="action_filter_dates_wizard"
+    />
+</odoo>
