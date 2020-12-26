@@ -11,24 +11,22 @@
                         name="invoice_dates_fields"
                         attrs="{'invisible':[('search_models','!=','invoices')]}"
                     />
+                    <field
+                        name="checkin_partner_date_fields"
+                        attrs="{'invisible':[('search_models','!=','checkins')]}"
+                    />
                 </group>
                 <group>
-                    <div class="modal-body row">
-                        <div class="col-md-6">
-                            <field
-                                name="date_start"
-                                widget="daterange"
-                                options="{'related_end_date': 'date_end'}"
-                            />
-                        </div>
-                        <div class="col-md-6">
-                                <field
-                                name="date_end"
-                                widget="daterange"
-                                options="{'related_start_date': 'date_start'}"
-                            />
-                        </div>
-                    </div>
+                    <field
+                        name="date_start"
+                        widget="daterange"
+                        options="{'related_end_date': 'date_end'}"
+                    />
+                    <field
+                        name="date_end"
+                        widget="daterange"
+                        options="{'related_start_date': 'date_start'}"
+                    />
                 </group>
                 <field
                     name="reservation_ids"

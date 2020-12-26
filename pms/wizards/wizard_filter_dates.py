@@ -29,6 +29,15 @@ class DatesWizard(models.TransientModel):
         string="Filtered checkin partners",
         compute="_compute_checkin_partner_dates",
     )
+    checkin_partner_date_fields = fields.Selection(
+        [
+            ("arrival", "Arrival"),
+            ("departure", "Departure"),
+        ],
+        string="Checkin Partner Dates",
+        default="arrival",
+        required=True,
+    )
     services_ids = fields.One2many(
         comodel_name="pms.service.line",
         string="Filtered services",
@@ -55,8 +64,8 @@ class DatesWizard(models.TransientModel):
         string="Filtered payments",
         compute="_compute_payments_dates",
     )
-    date_start = fields.Date(string="Date start", required=True)
-    date_end = fields.Date(string="Date End", required=True)
+    date_start = fields.Date(string="From", required=True)
+    date_end = fields.Date(string="To", required=True)
 
     @api.depends("search_models", "date_start", "date_end")
     def _compute_reservation_dates(self):
@@ -84,12 +93,20 @@ class DatesWizard(models.TransientModel):
                 and record.date_start
                 and record.date_end
             ):
-                checkin_partners = self.env["pms.checkin.partner"].search(
-                    [
-                        ("arrival", ">=", record.date_start),
-                        ("arrival", "<=", record.date_end),
-                    ]
-                )
+                if record.checkin_partner_date_fields == "arrival":
+                    checkin_partners = self.env["pms.checkin.partner"].search(
+                        [
+                            ("arrival", ">=", record.date_start),
+                            ("arrival", "<=", record.date_end),
+                        ]
+                    )
+                if record.checkin_partner_date_fields == "departure":
+                    checkin_partners = self.env["pms.checkin.partner"].search(
+                        [
+                            ("departure", ">=", record.date_start),
+                            ("departure", "<=", record.date_end),
+                        ]
+                    )
                 record.checkin_partner_ids = checkin_partners
             else:
                 record.checkin_partner_ids = False
