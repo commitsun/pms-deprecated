@@ -150,6 +150,24 @@ class PmsFolio(models.Model):
         help="Pricelist for current folio.",
     )
     checkin_partner_ids = fields.One2many("pms.checkin.partner", "folio_id")
+    count_pending_arrival = fields.Integer(
+        "Pending Arrival",
+        compute="_compute_count_pending_arrival",
+        store=True,
+    )
+    checkins_ratio = fields.Integer(
+        string="Pending Arrival Ratio",
+        compute="_compute_checkins_ratio",
+    )
+    pending_checkin_data = fields.Integer(
+        "Checkin Data",
+        compute="_compute_pending_checkin_data",
+        store=True,
+    )
+    ratio_checkin_data = fields.Integer(
+        string="Pending Checkin Data",
+        compute="_compute_ratio_checkin_data",
+    )
     move_ids = fields.Many2many(
         "account.move",
         string="Invoices",
@@ -465,14 +483,46 @@ class PmsFolio(models.Model):
                 }
             )
 
-    @api.depends("reservation_ids", "reservation_ids.state")
-    def _compute_reservations_pending_arrival(self):
-        for record in self:
-            record.reservation_pending_arrival_ids = record.reservation_ids.filtered(
-                lambda r: r.state in ("draft", "precheckin")
+    @api.depends("checkin_partner_ids", "checkin_partner_ids.state")
+    def _compute_count_pending_arrival(self):
+        for folio in self:
+            folio.count_pending_arrival = len(
+                folio.checkin_partner_ids.filtered(
+                    lambda c: c.state in ("draft", "precheckin")
+                )
             )
-            record.reservations_pending_count = len(
-                record.reservations_pending_arrival_ids
+
+    @api.depends("count_pending_arrival")
+    def _compute_checkins_ratio(self):
+        self.checkins_ratio = 0
+        for folio in self.filtered(lambda r: r.adults > 0):
+            folio.checkins_ratio = (
+                (
+                    sum(folio.reservation_ids.mapped("adults"))
+                    - folio.count_pending_arrival
+                )
+                * 100
+                / sum(folio.reservation_ids.mapped("adults"))
+            )
+
+    @api.depends("checkin_partner_ids", "checkin_partner_ids.state")
+    def _compute_pending_checkin_data(self):
+        for folio in self:
+            folio.pending_checkin_data = len(
+                folio.checkin_partner_ids.filtered(lambda c: c.state == "draft")
+            )
+
+    @api.depends("pending_checkin_data")
+    def _compute_ratio_checkin_data(self):
+        self.ratio_checkin_data = 0
+        for folio in self:
+            folio.ratio_checkin_data = (
+                (
+                    sum(folio.reservation_ids.mapped("adults"))
+                    - folio.pending_checkin_data
+                )
+                * 100
+                / sum(folio.reservation_ids.mapped("adults"))
             )
 
     # TODO: Add return_ids to depends
@@ -638,23 +688,6 @@ class PmsFolio(models.Model):
         # if not self.analytic_account_id:
         # self._create_analytic_account()
         return True
-
-    # CHECKIN/OUT PROCESS
-
-    def _compute_checkin_partner_count(self):
-        for record in self:
-            if record.reservation_type == "normal" and record.reservation_ids:
-                filtered_reservs = record.reservation_ids.filtered(
-                    lambda x: x.state != "cancelled"
-                )
-                mapped_checkin_partner = filtered_reservs.mapped(
-                    "checkin_partner_ids.id"
-                )
-                record.checkin_partner_count = len(mapped_checkin_partner)
-                mapped_checkin_partner_count = filtered_reservs.mapped(
-                    lambda x: (x.adults + x.children) - len(x.checkin_partner_ids)
-                )
-                record.checkin_partner_pending_count = sum(mapped_checkin_partner_count)
 
     def _get_tax_amount_by_group(self):
         self.ensure_one()

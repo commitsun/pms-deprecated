@@ -165,13 +165,13 @@
                             />
                         </page>
                         <!--TODO: Add precheckin with indeterminate select room?? -->
-                        <page name="persons" string="Persons" invisible="1">
+                        <page name="persons" string="Rooming">
                             <field
                                 name="checkin_partner_ids"
                                 context="{
                                     'default_reservation_id': id,
                                     'reservation_id': id,
-                                    'tree_view_ref':'pms.pms_checkin_partner_reservation_view_tree',
+                                    'tree_view_ref':'pms.pms_checkin_partner_folio_view_tree',
                                     }"
                             />
                         </page>

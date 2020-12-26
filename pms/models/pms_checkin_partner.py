@@ -17,10 +17,7 @@ class PmsCheckinPartner(models.Model):
 
     # Fields declaration
     identifier = fields.Char(
-        "Identifier",
-        compute="_compute_identifier",
-        readonly=False,
-        store=True,
+        "Identifier", readonly=True, index=True, default=lambda self: _("New")
     )
     partner_id = fields.Many2one(
         "res.partner",
@@ -143,9 +140,16 @@ class PmsCheckinPartner(models.Model):
                 )
                 if len(draft_checkins) > 0 and vals.get("partner_id"):
                     draft_checkins[0].sudo().unlink()
+        if vals.get("identifier", _("New")) == _("New") or "identifier" not in vals:
+            pms_property_id = (
+                self.env.user.get_active_property_ids()[0]
+                if "pms_property_id" not in vals
+                else vals["pms_property_id"]
+            )
+            vals["identifier"] = self.env["ir.sequence"].search(
+                [("pms_property_id", "=", pms_property_id)]
+            ).next_by_code("pms.checkin.partner") or _("New")
         return super(PmsCheckinPartner, self).create(vals)
-
-    # Action methods
 
     def action_on_board(self):
         for record in self:
