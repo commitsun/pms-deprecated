@@ -30,6 +30,7 @@
                                 required="True"
                                 domain="[('is_company','=', False)]"
                             />
+                            <field name="name" />
                             <field name="pms_property_id" invisible="1" />
                             <field name="arrival" />
                             <field name="departure" />
@@ -65,7 +66,8 @@
                     attrs="{'invisible': [('state','!=','precheckin')]}"
                 />
                 <field name="identifier" />
-                <field name="partner_id" required="True" />
+                <field name="partner_id" />
+                <field name="name" />
                 <field name="mobile" />
                 <field name="email" />
                 <field name="arrival" />
@@ -100,6 +102,7 @@
                 />
                 <field name="reservation_id" />
                 <field name="partner_id" domain="[('is_company','=', False)]" />
+                <field name="name" />
                 <field name="mobile" />
                 <field name="email" />
                 <field name="arrival" invisible="1" />
@@ -131,6 +134,7 @@
                 />
                 <field name="identifier" />
                 <field name="partner_id" domain="[('is_company','=', False)]" />
+                <field name="name" />
                 <field name="mobile" />
                 <field name="email" />
                 <field name="arrival" />

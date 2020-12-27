@@ -33,7 +33,7 @@
                     />
                 </header>
                 <sheet>
-                    <div class=" oe_button_box">
+                    <div class="oe_button_box" name="button_box">
                         <button
                             type="object"
                             class="oe_stat_button"
