@@ -36,12 +36,4 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem
-        id="menu_pms_checkin_partner"
-        name="Rooming Import"
-        parent="pms.pms_reports_menu"
-        sequence="50"
-        action="action_import_rooming"
-    />
-
 </odoo>

@@ -32,6 +32,7 @@ class RoomingCheckinXlsx(models.AbstractModel):
                     "value": "Folio",
                 },
                 "data": {
+                    "type": "string",
                     "value": self._render("checkin.folio_id.name"),
                 },
                 "width": 10,

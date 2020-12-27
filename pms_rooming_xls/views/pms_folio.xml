@@ -13,9 +13,19 @@
                     icon="fa-address-book"
                     name="rooming_xls"
                 >
-          <div class="o_form_field o_stat_info">
-            <span class="o_stat_text">Rooming List</span>
-          </div>
+            <div class="o_form_field o_stat_info">
+                <span class="o_stat_text">Print Rooming</span>
+            </div>
+        </button>
+        <button
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-address-book-o"
+                    name="%(pms_rooming_xls.action_import_rooming)d"
+                >
+            <div class="o_form_field o_stat_info">
+                <span class="o_stat_text">Import Rooming</span>
+            </div>
         </button>
       </div>
     </field>

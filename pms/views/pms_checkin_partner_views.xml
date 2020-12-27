@@ -372,4 +372,98 @@
             </search>
         </field>
     </record>
+
+    <record model="ir.ui.view" id="pms_checkin_partner_view_folio_search">
+        <field name="name">pms.checkin.partner.search</field>
+        <field name="model">pms.checkin.partner</field>
+        <field name="arch" type="xml">
+            <search string="Checkin Detail">
+                <field name="partner_id" />
+                <field name="reservation_id" />
+                <filter
+                    string="On Board"
+                    name="on_board"
+                    domain="[('state','=','onboard')]"
+                    help="Current Booking"
+                />
+                <filter
+                    string="To enter"
+                    name="to_enter"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter string="Out" name="out" domain="[('state', '=', 'done')]" />
+                <filter
+                    string="Checkins Tomorrow"
+                    name="enter_tomorrow"
+                    domain="[('arrival', '=', (context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')),
+                        ('state', '=', 'confirm')]"
+                    help="Show all checkins for enter tomorrow"
+                />
+                <filter
+                    string="Checkins to 7 days"
+                    name="next_res_week"
+                    domain="[('arrival', '&lt;', (context_today()+datetime.timedelta(days=7)).strftime('%Y-%m-%d')),
+                        ('state', '=', 'confirm')]"
+                    help="Show all reservations for which date enter is before than 7 days"
+                />
+                <filter
+                    string="On Board Tomorrow"
+                    name="next_res_2week"
+                    domain="[('arrival', '&lt;', (context_today()+datetime.timedelta(days=14)).strftime('%Y-%m-%d')),
+                        ('state', 'in', ['confirm','onboard'])]"
+                    help="Show all checkins for Tomorrow"
+                />
+                <group expand="0" string="Group By">
+                    <filter
+                        string="Create by Month"
+                        name="create_date_by_month"
+                        context="{'group_by':'create_date', 'default_order': 'create_date asc'}"
+                    />
+                    <filter
+                        string="Create by Week"
+                        name="create_date_by_week"
+                        context="{'group_by':'create_date:week', 'default_order': 'create_date'}"
+                    />
+                    <filter
+                        string="Create by Day"
+                        name="create_date_by_week"
+                        context="{'group_by':'create_date:day', 'default_order': 'create_date'}"
+                    />
+                    <separator />
+                    <filter
+                        string="Checkin by Month"
+                        name="checkin_by_month"
+                        context="{'group_by':'arrival', 'default_order': 'arrival asc'}"
+                    />
+                    <filter
+                        string="Checkin by Week"
+                        name="checkin_by_week"
+                        context="{'group_by':'arrival:week', 'default_order': 'arrival'}"
+                    />
+                    <filter
+                        string="Checkin by Day"
+                        name="checkin_by_week"
+                        context="{'group_by':'arrival:day', 'default_order': 'arrival'}"
+                    />
+                    <separator />
+                    <filter
+                        string="Checkout by Month"
+                        name="checkout_by_month"
+                        context="{'group_by':'departure', 'default_order': 'departure asc'}"
+                    />
+                    <filter
+                        string="Checkout by Week"
+                        name="checkout_by_week"
+                        context="{'group_by':'departure:week', 'default_order': 'departure'}"
+                    />
+                    <filter
+                        string="Checkout by Day"
+                        name="checkout_by_week"
+                        context="{'group_by':'departure:day', 'default_order': 'departure'}"
+                    />
+                    <separator />
+                </group>
+            </search>
+        </field>
+    </record>
 </odoo>

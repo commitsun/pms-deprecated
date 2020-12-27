@@ -213,13 +213,16 @@ class PmsCheckinPartner(models.Model):
                 if not record.partner_id:
                     partner_vals = {}
                     for field in self._checkin_partner_fields():
-                        partner_vals[field] = getattr(record, field)
-                        if field in ResPartner._get_key_fields():
+                        if getattr(record, field):
+                            partner_vals[field] = getattr(record, field)
+                        if field in ResPartner._get_key_fields() and partner_vals.get(
+                            field
+                        ):
                             key = True
                             partner = ResPartner.search(
                                 [(field, "=", getattr(record, field))]
                             )
-                    if key and not partner:
+                    if key:
                         partner = ResPartner.create(partner_vals)
                         record.partner_id = partner
 

@@ -150,9 +150,9 @@ class PmsFolio(models.Model):
         help="Pricelist for current folio.",
     )
     checkin_partner_ids = fields.One2many("pms.checkin.partner", "folio_id")
-    count_pending_arrival = fields.Integer(
+    count_rooms_pending_arrival = fields.Integer(
         "Pending Arrival",
-        compute="_compute_count_pending_arrival",
+        compute="_compute_count_rooms_pending_arrival",
         store=True,
     )
     checkins_ratio = fields.Integer(
@@ -483,26 +483,14 @@ class PmsFolio(models.Model):
                 }
             )
 
-    @api.depends("checkin_partner_ids", "checkin_partner_ids.state")
-    def _compute_count_pending_arrival(self):
-        for folio in self:
-            folio.count_pending_arrival = len(
-                folio.checkin_partner_ids.filtered(
-                    lambda c: c.state in ("draft", "precheckin")
+    @api.depends("reservation_ids", "reservation_ids.state")
+    def _compute_count_rooms_pending_arrival(self):
+        self.count_rooms_pending_arrival = 0
+        for folio in self.filtered("reservation_ids"):
+            folio.count_rooms_pending_arrival = len(
+                folio.reservation_ids.filtered(
+                    lambda c: c.state in ("draf", "confirm", "no_show")
                 )
-            )
-
-    @api.depends("count_pending_arrival")
-    def _compute_checkins_ratio(self):
-        self.checkins_ratio = 0
-        for folio in self.filtered(lambda r: r.adults > 0):
-            folio.checkins_ratio = (
-                (
-                    sum(folio.reservation_ids.mapped("adults"))
-                    - folio.count_pending_arrival
-                )
-                * 100
-                / sum(folio.reservation_ids.mapped("adults"))
             )
 
     @api.depends("checkin_partner_ids", "checkin_partner_ids.state")
@@ -633,8 +621,21 @@ class PmsFolio(models.Model):
             "res_model": "pms.checkin.partner",
             "type": "ir.actions.act_window",
             "domain": [("reservation_id", "in", rooms)],
+            "search_view_id": [
+                self.env.ref("pms.pms_checkin_partner_view_folio_search").id,
+                "search",
+            ],
             "target": "new",
         }
+
+    def action_to_arrive(self):
+        self.ensure_one()
+        reservations = self.reservation_ids.filtered(
+            lambda c: c.state in ("draf", "confirm", "no_show")
+        )
+        action = self.env.ref("pms.open_pms_reservation_form_tree_all").read()[0]
+        action["domain"] = [("id", "in", reservations.ids)]
+        return action
 
     # ORM Overrides
     @api.model

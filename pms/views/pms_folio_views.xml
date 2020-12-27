@@ -54,6 +54,34 @@
                                 <span class="o_stat_text">Pending Payment</span>
                             </div>
                         </button>
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            id="arrive_smart_button"
+                            icon="fa-street-view"
+                            name="action_to_arrive"
+                        >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field
+                                        name="count_rooms_pending_arrival"
+                                        nolabel="1"
+                                    />
+                                </span>
+                                <span class="o_stat_text">To arrive Rooms</span>
+                            </div>
+                        </button>
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            name="action_checks"
+                        >
+                            <field
+                                name="ratio_checkin_data"
+                                string="Checkin Data"
+                                widget="percentpie"
+                            />
+                        </button>
                     </div>
                     <h2>
                         <field name="name" />
@@ -169,8 +197,8 @@
                             <field
                                 name="checkin_partner_ids"
                                 context="{
-                                    'default_reservation_id': id,
-                                    'reservation_id': id,
+                                    'default_folio_id': id,
+                                    'folio_id': id,
                                     'tree_view_ref':'pms.pms_checkin_partner_folio_view_tree',
                                     }"
                             />
