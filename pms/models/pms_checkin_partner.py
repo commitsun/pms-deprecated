@@ -204,17 +204,27 @@ class PmsCheckinPartner(models.Model):
 
     def write(self, vals):
         res = super(PmsCheckinPartner, self).write(vals)
-        if any(field in vals for field in self.env["res.partner"]._get_key_fields()):
-            # Create Partner if get key field
+        ResPartner = self.env["res.partner"]
+        if any(field in vals for field in ResPartner._get_key_fields()):
+            # Create Partner if get key field in the checkin
             for record in self:
+                key = False
+                partner = False
                 if not record.partner_id:
                     partner_vals = {}
                     for field in self._checkin_partner_fields():
                         partner_vals[field] = getattr(record, field)
-                    partner = self.env["res.partner"].create(partner_vals)
-                    record.partner_id = partner
+                        if field in ResPartner._get_key_fields():
+                            key = True
+                            partner = ResPartner.search(
+                                [(field, "=", getattr(record, field))]
+                            )
+                    if key and not partner:
+                        partner = ResPartner.create(partner_vals)
+                        record.partner_id = partner
+
         if any(field in vals for field in self._checkin_partner_fields()):
-            # Update partner when the field is not set
+            # Update partner when the checkin partner field is not set on the partner
             for record in self:
                 if record.partner_id:
                     partner_vals = {}
