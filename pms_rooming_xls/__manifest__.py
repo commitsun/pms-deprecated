@@ -17,5 +17,6 @@
         "views/pms_folio.xml",
         "wizard/import_rooming_xlsx.xml",
     ],
+    "external_dependencies": {"python": ["xlrd"]},
     "installable": True,
 }
