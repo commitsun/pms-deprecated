@@ -16,52 +16,11 @@
                     <field name="pms_model_name" invisible="1" />
                 </group>
                 <footer>
-                <button
+                    <button
                         type="object"
                         class="oe_stat_button"
                         id="reservation_button"
-                        name="action_search_reservation"
-                        attrs="{'invisible':[('pms_model_name','!=','pms.reservation')]}"
-                        string="Search"
-                    />
-                <button
-                        type="object"
-                        class="oe_stat_button"
-                        id="checkins_button"
-                        name="action_search_checkins"
-                        attrs="{'invisible':[('pms_model_name','!=','pms.checkin.partner')]}"
-                        string="Search"
-                    />
-                <button
-                        type="object"
-                        class="oe_stat_button"
-                        id="services_button"
-                        name="action_search_services"
-                        attrs="{'invisible':[('pms_model_name','!=','pms.service.line')]}"
-                        string="Search"
-                    />
-                <button
-                        type="object"
-                        class="oe_stat_button"
-                        id="folio_button"
-                        name="action_search_folios"
-                        attrs="{'invisible':[('pms_model_name','!=','pms.folio')]}"
-                        string="Search"
-                    />
-                <button
-                        type="object"
-                        class="oe_stat_button"
-                        id="invoices_button"
-                        name="action_search_invoices"
-                        attrs="{'invisible':[('pms_model_name','!=','account.move')]}"
-                        string="Search"
-                    />
-                <button
-                        type="object"
-                        class="oe_stat_button"
-                        id="payments_button"
-                        name="action_search_payments"
-                        attrs="{'invisible':[('pms_model_name','!=','account.payment')]}"
+                        name="action_filter"
                         string="Search"
                     />
                     <button string="Cancel" class="oe_link" special="cancel" />
