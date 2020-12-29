@@ -1,7 +1,7 @@
 # Copyright 2019 Pablo Quesada
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.http import request
 
 
@@ -17,9 +17,9 @@ class ResUsers(models.Model):
     pms_property_id = fields.Many2one(
         "pms.property",
         string="Property",
-        default=_get_default_pms_property,
         help="The property this user is currently working for.",
         context={"user_preference": True},
+        domain="[('id','in',pms_property_ids)]",
     )
     pms_property_ids = fields.Many2many(
         "pms.property",
@@ -27,8 +27,9 @@ class ResUsers(models.Model):
         "user_id",
         "pms_property_id",
         string="Properties",
-        default=_get_default_pms_property,
+        domain="[('company_id','in',company_ids)]",
     )
+    company_id = fields.Many2one(domain="[('id','in',company_ids)]")
 
     @api.model
     def get_active_property_ids(self):
@@ -43,3 +44,10 @@ class ResUsers(models.Model):
                 raise AccessError(_("Access to unauthorized or invalid properties."))
             return self.env["pms.property"].browse(active_property_ids).ids
         return user_property_ids
+
+    @api.constrains("pms_property_id", "pms_property_ids")
+    def _check_property(self):
+        if any(user.pms_property_id not in user.pms_property_ids for user in self):
+            raise ValidationError(
+                _("The chosen property is not in the allowed properties for this user")
+            )
