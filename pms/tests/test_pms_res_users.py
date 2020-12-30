@@ -71,29 +71,24 @@ class TestPmsResUser(common.TransactionCase):
                 }
             )
 
-    def test_check_allowed_property(self):
+    def test_check_allowed_property_ids(self):
         # ARRANGE
         name = "test user2"
         login = "test_user2"
         self.create_common_scenario()
         Users = self.env["res.users"]
-        # ACT
-        user2 = Users.create(
-            {
-                "name": name,
-                "login": login,
-                "company_ids": [(4, self.company_A.id)],
-                "company_id": self.company_A.id,
-            }
-        )
-        counter = 0
-        for property in user2.pms_property_ids:
-            if property.company_id == user2.company_id:
-                counter += 1
-
-        # ASSERT
-        self.assertEqual(
-            counter,
-            len(user2.pms_property_ids),
-            "Properties don't correspond with the company",
-        )
+        # ACT & ASSERT
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            Users.create(
+                {
+                    "name": name,
+                    "login": login,
+                    "company_ids": [(4, self.company_A.id)],
+                    "company_id": self.company_A.id,
+                    "pms_property_ids": [
+                        (4, self.property_A1.id),
+                        (4, self.property_B1.id),
+                    ],
+                    "pms_property_id": self.property_A1.id,
+                }
+            )

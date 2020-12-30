@@ -17,6 +17,11 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "test pricelist 1",
             }
         )
+        self.test_pricelist2 = self.env["product.pricelist"].create(
+            {
+                "name": "test pricelist 2",
+            }
+        )
         # pms.room.type.availability.plan
         self.test_room_type_availability1 = self.env[
             "pms.room.type.availability.plan"
@@ -52,7 +57,9 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
         # pms.room.type
         self.test_room_type_double = self.env["pms.room.type"].create(
             {
-                "pms_property_ids": [self.test_property.id],
+                "pms_property_ids": [
+                    (4, self.test_property.id),
+                ],
                 "name": "Double Test",
                 "code_type": "DBL_Test",
                 "class_id": self.test_room_type_class.id,
@@ -110,6 +117,46 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "Single 102 test",
                 "room_type_id": self.test_room_type_single.id,
                 "capacity": 1,
+            }
+        )
+
+    def create_scenario_multiproperty(self):
+        self.create_common_scenario()
+
+        self.test_property1 = self.env["pms.property"].create(
+            {
+                "name": "Property 1",
+                "company_id": self.env.ref("base.main_company").id,
+                "default_pricelist_id": self.test_pricelist2.id,
+                # "default_availability_plan_id": self.availability_multiproperty.id,
+            }
+        )
+        self.test_property2 = self.env["pms.property"].create(
+            {
+                "name": "Property 2",
+                "company_id": self.env.ref("base.main_company").id,
+                "default_pricelist_id": self.test_pricelist2.id,
+                # "default_availability_plan_id": self.availability_multiproperty.id,
+            }
+        )
+        self.test_property3 = self.en["pms.property"].create(
+            {
+                "name": "Property 3",
+                "company_id": self.env.ref("base.main_company").id,
+                "default_pricelist_id": self.test_pricelist2.id,
+                # "default_availability_plan_id": self.availability_multiproperty.id,
+            }
+        )
+        self.availability_multiproperty = self.env[
+            "pms.room.type.availability.plan"
+        ].create(
+            {
+                "name": "Availability plan for TEST",
+                "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
+                "pms_property_ids": {
+                    (4, self.test_property1),
+                    (4, self.test_property2),
+                },
             }
         )
 
@@ -211,7 +258,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
 
         # ARRANGE
         self.create_common_scenario()
-        self.test_room_type_availability1_item1 = self.env[
+        self.test_room_type_availability_rule1 = self.env[
             "pms.room.type.availability.rule"
         ].create(
             {
@@ -245,7 +292,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
         # ARRANGE
         self.create_common_scenario()
 
-        self.test_room_type_availability1_item1 = self.env[
+        self.test_room_type_availability_rule1 = self.env[
             "pms.room.type.availability.rule"
         ].create(
             {
@@ -361,7 +408,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             with self.subTest(k=test_case):
 
                 # ACT
-                self.test_room_type_availability1_item1.write(test_case)
+                self.test_room_type_availability_rule1.write(test_case)
 
                 result = self.env["pms.room.type.availability.plan"].rooms_available(
                     checkin=checkin,
@@ -386,7 +433,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
 
         # ARRANGE
         self.create_common_scenario()
-        self.test_room_type_availability1_item1 = self.env[
+        self.test_room_type_availability_rule1 = self.env[
             "pms.room.type.availability.rule"
         ].create(
             {
@@ -425,7 +472,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
 
         # ARRANGE
         self.create_common_scenario()
-        self.test_room_type_availability1_item1 = self.env[
+        self.test_room_type_availability_rule1 = self.env[
             "pms.room.type.availability.rule"
         ].create(
             {
@@ -487,7 +534,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
         # ARRANGE
         self.create_common_scenario()
 
-        self.test_room_type_availability1_item1 = self.env[
+        self.test_room_type_availability_rule1 = self.env[
             "pms.room.type.availability.rule"
         ].create(
             {
@@ -566,3 +613,123 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             rule.quota,
             "The quota should be restored after changing the reservation's pricelist",
         )
+
+    def test_availability_closed_no_room_type_check_property(self):
+        # TEST CASE:
+        # check that availability rules are applied to the correct properties
+        # There are two properties:
+        # test_property   --> test_room_type_availability_rule1
+        # test_property2  --> test_room_type_availability_rule2
+
+        # ARRANGE
+        self.create_common_scenario()
+        self.create_scenario_multiproperty()
+        self.test_room_type_availability_rule1 = self.env[
+            "pms.room.type.availability.rule"
+        ].create(
+            {
+                "availability_plan_id": self.availability_multiproperty.id,
+                "room_type_id": self.test_room_type_double.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,
+                "pms_property_id": self.test_property1,
+            }
+        )
+        self.test_room_type_availability_rule2 = self.env[
+            "pms.room.type.availability.rule"
+        ].create(
+            {
+                "availability_plan_id": self.availability_multiproperty.id,
+                "room_type_id": self.test_room_type_double.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": False,
+                "pms_property_id": self.test_property2,
+            }
+        )
+        # ACT
+        avail_property1 = self.env["pms.room.type.availability.plan"].rooms_available(
+            checkin=fields.date.today(),
+            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
+            room_type_id=True,
+            pricelist=self.test_pricelist1.id,
+            pms_property_id=self.test_property1,
+        )
+        avail_property2 = self.env["pms.room.type.availability.plan"].rooms_available(
+            checkin=fields.date.today(),
+            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
+            room_type_id=True,
+            pricelist=self.test_pricelist1.id,
+            pms_property_id=self.test_property2,
+        )
+        # ASSERT
+        # check that for that date test_property1 doesnt have rooms available
+        # (of that type:test_room_type_double),
+        # instead, property2 has test_room_type_double available
+        asserts = {avail_property1: False, avail_property2: True}
+
+        for result, case in asserts:
+            with self.subTest(k=result, v=case):
+                self.assertEqual(result, case, "Availability is not correct")
+
+    def test_check_property_availability_room_type(self):
+        # TEST CASE:
+        # check integrity between availability properties and room_type properties
+
+        # ARRANGE
+        self.create_common_scenario()
+        self.create_scenario_multiproperty()
+        # create new room_type
+        self.test_room_type_special = self.env["pms.room.type"].create(
+            {
+                "pms_property_ids": [
+                    (4, self.test_property1.id),
+                ],
+                "name": "Special Room Test",
+                "code_type": "SP_Test",
+                "class_id": self.test_room_type_class.id,
+            }
+        )
+        # ACT
+        self.availability_example = self.env["pms.room.type.availability.plan"].create(
+            {
+                "name": "Availability plan for TEST",
+                "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
+                "pms_property_ids": {
+                    (4, self.test_property1),
+                    (4, self.test_property2),
+                },
+            }
+        )
+        # Test cases when creating a availability_rule
+        # Allowed properties:
+        # Room Type(test_room_type_special)      -->TEST_PROPERTY1 TEST_PROPERTY3
+        # Availability Plan(availability_example)-->TEST_PROPERTY1 TEST_PROPERTY2
+
+        # Both cases throw an exception:
+        # 1:Rule for property2,
+        #    it is allowed in availability_plan but not in room_type
+        # 2:Rule for property3,
+        #    it is allowed in room_type, but not in availability_plan
+
+        test_cases = [
+            {
+                "availability_plan_id": self.availability_example.id,
+                "room_type_id": self.test_room_type_special.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,
+                "pms_property_id": self.test_property2,
+            },
+            {
+                "availability_plan_id": self.availability_example.id,
+                "room_type_id": self.test_room_type_special.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,
+                "pms_property_id": self.test_property3,
+            },
+        ]
+        # ASSERT
+        #
+        for test_case in test_cases:
+            with self.subTest(k=test_case):
+                with self.assertRaises(ValidationError):
+                    self.env["pms.room.type.availability.rule"].create(test_case)

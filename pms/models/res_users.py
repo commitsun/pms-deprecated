@@ -46,8 +46,17 @@ class ResUsers(models.Model):
         return user_property_ids
 
     @api.constrains("pms_property_id", "pms_property_ids")
-    def _check_property(self):
+    def _check_property_in_allowed_properties(self):
         if any(user.pms_property_id not in user.pms_property_ids for user in self):
             raise ValidationError(
                 _("The chosen property is not in the allowed properties for this user")
             )
+
+    @api.constrains("pms_property_ids")
+    def _check_company_in_property_ids(self):
+        for record in self:
+            for property in record.pms_property_ids:
+                if property.company_id not in record.company_ids:
+                    raise ValidationError(
+                        _("Some properties do not belong to the allowed companies")
+                    )
