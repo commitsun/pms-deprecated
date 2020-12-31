@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+
+    <record id="view_pms_housekeeping_tree" model="ir.ui.view">
+        <field name="name">Housekeeping view</field>
+        <field name="model">pms.housekeeping</field>
+        <field name="type">tree</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <tree string=" Property Ubications">
+                <field name="cleandate" colspan="1" />
+                <field name="room" colspan="1" />
+                <field name="employee" colspan="1" />
+                <field name="tasks" colspan="1" />
+                <field name="notes" colspan="1" />
+            </tree>
+        </field>
+    </record>
+
+
+
+    <record model="ir.actions.act_window" id="action_pms_house_keeping_view_form">
+        <field name="name">Housekeeping</field>
+        <field name="res_model">pms.housekeeping</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+    <menuitem
+        name="Housekeeping"
+        id="menu_action_pms_house_keeping_view_form"
+        action="action_pms_house_keeping_view_form"
+        sequence="30"
+        parent="pms.pms_reports_menu"
+    />
+
+</odoo>
