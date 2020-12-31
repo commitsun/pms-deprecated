@@ -12,11 +12,15 @@
     "website": "https://github.com/OCA/pms",
     "depends": [
         "pms",
+        "hr",
     ],
     "data": [
         "views/pms_housekeeping_task_view.xml",
         "views/pms_housekeeping_views.xml",
         "security/ir.model.access.csv",
+    ],
+    "demo": [
+        "demo/pms_housekeeping.xml",
     ],
     "installable": True,
 }
