@@ -116,7 +116,7 @@ class PmsReservationLine(models.Model):
                     room_type_id=reservation.room_type_id.id
                     if not free_room_select
                     else False,
-                    current_lines=line._origin.reservation_id.reservation_line_ids.ids,
+                    current_lines=line.reservation_id.reservation_line_ids.ids,
                     pricelist=line.reservation_id.pricelist_id.id,
                 )
                 # if there is availability for the entire stay
@@ -282,8 +282,6 @@ class PmsReservationLine(models.Model):
                     line.reservation_id.company_id,
                 )
                 # TODO: Out of service 0 amount
-            else:
-                line.price = line._origin.price
 
     @api.depends("reservation_id.state", "reservation_id.overbooking")
     def _compute_occupies_availability(self):

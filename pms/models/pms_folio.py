@@ -66,6 +66,13 @@ class PmsFolio(models.Model):
         help="Services detail provide to customer and it will "
         "include in main Invoice.",
     )
+    sale_line_ids = fields.One2many(
+        "folio.sale.line",
+        "folio_id",
+        compute="_compute_sale_line_ids",
+        compute_sudo=True,
+        store="True",
+    )
     company_id = fields.Many2one(
         "res.company",
         "Company",
@@ -300,6 +307,78 @@ class PmsFolio(models.Model):
             folio.number_of_rooms = len(
                 folio.reservation_ids.filtered(lambda a: a.state != "cancelled")
             )
+
+    @api.depends(
+        "reservation_ids",
+        "service_ids",
+        "service_ids.reservation_id",
+        "reservation_ids.reservation_line_ids",
+        "reservation_ids.reservation_line_ids.price",
+        "reservation_ids.reservation_line_ids.discount",
+        "reservation_ids.reservation_line_ids.cancel_discount",
+        )
+    def _compute_sale_line_ids(self):
+        for folio in self:
+            sale_lines = [(5,0,0)]
+            reservations = folio.reservation_ids
+            services_without_room = folio.service_ids.filtered(
+                lambda s: not s.reservation_id
+                )
+            for reservation in reservations:
+                sale_lines.append(
+                    (0, False, {
+                        'display_type': 'line_section',
+                        'name': reservation.name,
+                    })
+                )
+                group_lines = {}
+                for line in reservation.reservation_line_ids:
+                    # On resevations the price, and discounts fields are used
+                    # by group, we need pass this in the create line
+                    group_key = (reservation.id, line.price, line.discount,
+                        line.cancel_discount)
+                    if line.cancel_discount == 100:
+                        continue
+                    discount_factor = 1.0
+                    for discount in [line.discount, line.cancel_discount]:
+                        discount_factor = (
+                            discount_factor * ((100.0 - discount) / 100.0))
+                    final_discount = 100.0 - (discount_factor * 100.0)
+                    if group_key not in group_lines:
+                        group_lines[group_key] = {
+                            'reservation_id': reservation.id,
+                            'discount': final_discount,
+                            'price_unit': line.price,
+                            'reservation_line_ids': [(4, line.id)]
+                        }
+                    else:
+                        group_lines[group_key][('reservation_line_ids')].append((4,line.id))
+                for item in group_lines.items():
+                    sale_lines.append((0, False, item[1]))
+                for service in reservation.service_ids:
+                    # On service the price, and discounts fields are
+                    # compute in the sale.order.line
+                    sale_lines.append(
+                        (0, False, {
+                            'name': service.name,
+                            'service_id': service.id,
+                        })
+                    )
+            if services_without_room:
+                sale_lines.append(
+                    (0, False, {
+                        'display_type': 'line_section',
+                        'name': _('Others'),
+                    })
+                )
+                for service in services_without_room:
+                    sale_lines.append(
+                        (0, False, {
+                            'name': service.name,
+                            'service_id': service.id,
+                        })
+                    )
+            folio.sale_line_ids = sale_lines
 
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):

@@ -41,3 +41,4 @@ from . import pms_board_service_room_type_line
 from . import pms_board_service_line
 from . import account_move_line
 from . import pms_cancelation_rule
+from . import folio_sale_line
