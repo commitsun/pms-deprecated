@@ -35,6 +35,7 @@
         # "templates/pms_email_template.xml",
         "views/general.xml",
         "data/menus.xml",
+        "wizards/folio_make_invoice_advance_views.xml",
         "views/pms_amenity_views.xml",
         "views/pms_amenity_type_views.xml",
         "views/pms_board_service_views.xml",
