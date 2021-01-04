@@ -36,10 +36,10 @@ class AccountMoveLine(models.Model):
         copy=False,
     )
     folio_line_ids = fields.Many2many(
-        'folio.sale.line',
-        'folio_sale_line_invoice_rel',
-        'invoice_line_id',
-        'sale_line_id',
-        string='Folio Lines',
-        copy=False
+        "folio.sale.line",
+        "folio_sale_line_invoice_rel",
+        "invoice_line_id",
+        "sale_line_id",
+        string="Folio Lines",
+        copy=False,
     )

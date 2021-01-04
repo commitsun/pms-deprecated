@@ -426,11 +426,18 @@ class PmsService(models.Model):
                 if invoice_line.move_id.state != "cancel":
                     if invoice_line.move_id.move_type == "out_invoice":
                         qty_invoiced += invoice_line.product_uom_id._compute_quantity(
-                            invoice_line.quantity, line.product_id.uom_id)
+                            invoice_line.quantity, line.product_id.uom_id
+                        )
                     elif invoice_line.move_id.move_type == "out_refund":
-                        if not line.is_downpayment or line.untaxed_amount_to_invoice == 0 :
-                            qty_invoiced -= invoice_line.product_uom_id._compute_quantity(
-                                invoice_line.quantity, line.product_id.uom_id)
+                        if (
+                            not line.is_downpayment
+                            or line.untaxed_amount_to_invoice == 0
+                        ):
+                            qty_invoiced -= (
+                                invoice_line.product_uom_id._compute_quantity(
+                                    invoice_line.quantity, line.product_id.uom_id
+                                )
+                            )
             line.qty_invoiced = qty_invoiced
 
     @api.depends("product_qty", "qty_to_invoice", "qty_invoiced")

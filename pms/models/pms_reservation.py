@@ -883,9 +883,13 @@ class PmsReservation(models.Model):
                     lambda r: r.move_id.state != "cancel"
                 )
                 qty_invoiced += len(
-                    invoice_lines.filtered(lambda r: r.move_id.move_type == "out_invoice")
+                    invoice_lines.filtered(
+                        lambda r: r.move_id.move_type == "out_invoice"
+                    )
                 ) - len(
-                    invoice_lines.filtered(lambda r: r.move_id.move_type == "out_refund")
+                    invoice_lines.filtered(
+                        lambda r: r.move_id.move_type == "out_refund"
+                    )
                 )
             record.qty_invoiced = qty_invoiced
 

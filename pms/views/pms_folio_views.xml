@@ -62,7 +62,6 @@
                             </div>
                         </button>
                         <button
-<<<<<<< HEAD
                             type="object"
                             class="oe_stat_button"
                             id="arrive_smart_button"
@@ -88,17 +87,19 @@
                                 name="ratio_checkin_data"
                                 string="Checkin Data"
                                 widget="percentpie"
-=======
+                            />
+                        </button>
+                        <button
                             name="action_view_invoice"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-pencil-square-o"
-                            attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                            attrs="{'invisible': [('invoice_count', '=', 0)]}"
+                        >
                             <field
                                 name="invoice_count"
                                 widget="statinfo"
                                 string="Invoices"
->>>>>>> [WIP] Basic Invoice Wizard Control
                             />
                         </button>
                     </div>
@@ -260,7 +261,8 @@
                                     />
                                     <field
                                         name="product_uom_qty"
-                                        decoration-info="(not display_type and invoice_status == 'to invoice')" decoration-bf="(not display_type and invoice_status == 'to invoice')"
+                                        decoration-info="(not display_type and invoice_status == 'to invoice')"
+                                        decoration-bf="(not display_type and invoice_status == 'to invoice')"
                                         context="{
                                             'partner_id': parent.partner_id,
                                             'quantity': product_uom_qty,
@@ -271,12 +273,13 @@
                                     />
                                     <field
                                         name="qty_invoiced"
-                                        decoration-info="(not display_type and invoice_status == 'to invoice')" decoration-bf="(not display_type and invoice_status == 'to invoice')"
+                                        decoration-info="(not display_type and invoice_status == 'to invoice')"
+                                        decoration-bf="(not display_type and invoice_status == 'to invoice')"
                                         string="Invoiced"
                                         attrs="{'column_invisible': [('parent.state', '=', 'draft')]}"
                                         optional="show"
                                     />
-                                    <field name="qty_to_invoice" invisible="1"/>
+                                    <field name="qty_to_invoice" invisible="1" />
                                     <field name="product_uom_readonly" invisible="1" />
                                     <field
                                         name="product_uom"
@@ -312,7 +315,7 @@
                                         groups="account.group_show_line_subtotals_tax_included"
                                     />
                                     <field name="state" invisible="0" />
-                                    <field name="invoice_status" invisible="0"/>
+                                    <field name="invoice_status" invisible="0" />
                                     <field name="currency_id" invisible="1" />
                                     <field name="price_tax" invisible="1" />
                                     <field name="company_id" invisible="1" />
