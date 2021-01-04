@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-5">
                         <group>
-                             <field name="partner_id" string="Partner" required="1" />
+                            <field name="partner_id" string="Partner" required="1" />
                              <field
                                 default_focus="1"
                                 name="pricelist_id"
@@ -41,27 +41,49 @@
                                     create="false"
                                     delete="false"
                                     decoration-muted="num_rooms_available &lt; 1"
+                                    decoration-primary="value_num_rooms_selected &gt; 0"
                                     decoration-bf="value_num_rooms_selected &gt; 0"
                                 >
                                      <field
                                         name="room_type_id"
                                         readonly="1"
                                         options="{'no_open': True}"
+                                        force_save="1"
                                     />
-                                     <field name="num_rooms_available" readonly="1" />
+
+                                     <field name="checkin" />
+                                     <field name="checkout" />
+                                     <field
+                                        name="num_rooms_available"
+                                        readonly="1"
+                                        force_save="1"
+                                    />
                                      <field
                                         name="value_num_rooms_selected"
-                                        invisible="0"
+                                        invisible="1"
                                     />
                                      <field
                                         name="num_rooms_selected"
                                         options="{'no_create': True, 'no_open' : True, 'no_edit': True}"
                                         attrs="{'readonly':[('num_rooms_available','&lt;',1)]}"
+                                        force_save="1"
+                                    />
+                                    <field
+                                        name="price_per_room"
+                                        readonly="1"
+                                        force_save="1"
+                                    />
+                                    <!--
+                                        REVIEW:
+                                        A global discount is currently applied for the entire folio.
+                                        Should a different discount for each room type be considered?
+                                    -->
+                                    <field
+                                        name="price_total"
+                                        readonly="1"
+                                        force_save="1"
                                     />
 
-                                    <field name="num_room_type_values" invisible="1" />
-                                    <field name="price_per_room" readonly="1" />
-                                    <field name="price_total" readonly="1" />
                                  </tree>
                             </field>
                         </group>
@@ -69,24 +91,28 @@
                 </div>
                 <div class="row float-right border mr-2 mb-5">
                     <div class="col-3 ">
-                         <group>
+                        <group>
                             <field name="discount" widget="percentage" />
                         </group>
-                    <div class="col-3 px-0">
-                        <group>
-                            <field name="total_price" widget="monetary" />
-                        </group>
-                    </div>
+                        <div class="col-3 px-0">
+                            <group>
+                                <field name="total_price_folio" widget="monetary" />
+                            </group>
+                        </div>
                     </div>
                 </div>
                 <footer>
+                    <field name="can_create_folio" invisible="1" />
                     <button
                         name="create_folio"
                         string="Create Folio"
                         type="object"
                         class="btn-primary"
+                        attrs="{'invisible' : [('can_create_folio', '=', False)]}"
                     />
-                    or
+                    <span attrs="{'invisible' : [('can_create_folio', '=', False)]}">
+                        or
+                    </span>
                     <button
                         string="Cancel"
                         class="btn-default border"
@@ -96,7 +122,6 @@
             </form>
         </field>
     </record>
-
 
     <record id="action_wizard_folio" model="ir.actions.act_window">
         <field name="name">Folio creation</field>
