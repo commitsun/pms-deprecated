@@ -205,7 +205,7 @@ class FolioWizard(models.TransientModel):
             )
             for line in record.availability_results:
                 for _reservations_to_create in range(0, line.value_num_rooms_selected):
-                    self.env["pms.reservation"].create(
+                    res = self.env["pms.reservation"].create(
                         {
                             "folio_id": folio.id,
                             "checkin": line.checkin,
@@ -215,6 +215,7 @@ class FolioWizard(models.TransientModel):
                             "pricelist_id": folio.pricelist_id.id,
                         }
                     )
+                    res.reservation_line_ids.discount = record.discount * 100
             action = self.env.ref("pms.open_pms_folio1_form_tree_all").read()[0]
             action["views"] = [(self.env.ref("pms.pms_folio_view_form").id, "form")]
             action["res_id"] = folio.id

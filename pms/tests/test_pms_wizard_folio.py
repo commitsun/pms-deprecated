@@ -152,6 +152,8 @@ class TestPmsWizardMassiveChanges(TestHotel):
     def test_price_wizard_correct(self):
         # TEST CASE
         # Set values for the wizard and the total price is correct
+        # Also check the discount is correctly applied to get
+        #                               the total folio price
         # (no pricelist applied)
 
         # ARRANGE
@@ -163,9 +165,21 @@ class TestPmsWizardMassiveChanges(TestHotel):
         checkout = fields.date.today() + datetime.timedelta(days=1)
         days = (checkout - checkin).days
         num_double_rooms = 4
-        expected_price_total = (
-            days * self.test_room_type_double.list_price * num_double_rooms
-        )
+        discounts = [
+            {
+                "discount": 0,
+                "expected_price": days
+                * self.test_room_type_double.list_price
+                * num_double_rooms,
+            },
+            {
+                "discount": 0.5,
+                "expected_price": (
+                    days * self.test_room_type_double.list_price * num_double_rooms
+                )
+                * 0.5,
+            },
+        ]
 
         # create folio wizard with partner id => pricelist & start-end dates
         wizard_folio = self.env["pms.folio.wizard"].create(
@@ -178,7 +192,6 @@ class TestPmsWizardMassiveChanges(TestHotel):
 
         # force pricelist load
         wizard_folio.flush()
-
         wizard_folio.availability_results._compute_dynamic_selection()
 
         # availability items belonging to test property
@@ -196,15 +209,19 @@ class TestPmsWizardMassiveChanges(TestHotel):
             ]
         )
 
-        # ACT
         lines_availability_test[0].num_rooms_selected = value
 
-        # ASSERT
-        self.assertEqual(
-            wizard_folio.total_price_folio,
-            expected_price_total,
-            "The total price calculation is wrong",
-        )
+        for discount in discounts:
+            with self.subTest(k=discount):
+                # ACT
+                wizard_folio.discount = discount["discount"]
+
+                # ASSERT
+                self.assertEqual(
+                    wizard_folio.total_price_folio,
+                    discount["expected_price"],
+                    "The total price calculation is wrong",
+                )
 
     def test_price_wizard_correct_pricelist_applied(self):
         # TEST CASE
@@ -585,4 +602,61 @@ class TestPmsWizardMassiveChanges(TestHotel):
                         else reservation[key],
                         vals[key],
                         "The value of " + key + " is not correctly established",
+                    )
+
+    def test_reservation_line_discounts(self):
+        # TEST CASE
+        # set a discount and its applied to the reservation line
+
+        # ARRANGE
+        # common scenario
+        self.create_common_scenario()
+
+        # checkin & checkout
+        checkin = fields.date.today()
+        checkout = fields.date.today() + datetime.timedelta(days=1)
+        discount = 0.5
+
+        # create folio wizard with partner id => pricelist & start-end dates
+        wizard_folio = self.env["pms.folio.wizard"].create(
+            {
+                "start_date": checkin,
+                "end_date": checkout,
+                "partner_id": self.partner_id.id,
+                "pricelist_id": self.test_pricelist.id,
+                "discount": discount,
+            }
+        )
+        wizard_folio.flush()
+        wizard_folio.availability_results._compute_dynamic_selection()
+
+        # availability items belonging to test property
+        lines_availability_test = self.env["pms.folio.availability.wizard"].search(
+            [
+                ("room_type_id.pms_property_ids", "in", self.test_property.id),
+            ]
+        )
+        # set one room type double
+        value = self.env["pms.num.rooms.selection"].search(
+            [
+                ("room_type_id", "=", str(self.test_room_type_double.id)),
+                ("value", "=", 1),
+            ]
+        )
+        lines_availability_test[0].num_rooms_selected = value
+        lines_availability_test[0].value_num_rooms_selected = 1
+
+        # ACT
+        wizard_folio.create_folio()
+
+        folio = self.env["pms.folio"].search([("partner_id", "=", self.partner_id.id)])
+
+        # ASSERT
+        for reservation in folio.reservation_ids:
+            for line in reservation.reservation_line_ids:
+                with self.subTest(k=line):
+                    self.assertEqual(
+                        line.discount,
+                        discount * 100,
+                        "The discount is not correctly established",
                     )
