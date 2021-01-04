@@ -118,7 +118,7 @@ class TestPmsCheckinPartner(TestHotel):
                 "checkin": "2012-01-15",
             }
         )
-
+        import wdb; wdb.set_trace()
         # ACT & ASSERT
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.checkin1.action_on_board()

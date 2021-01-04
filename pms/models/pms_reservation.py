@@ -547,7 +547,6 @@ class PmsReservation(models.Model):
                 else:
                     reservation.partner_id = False
 
-
     @api.depends("partner_id")
     def _compute_partner_invoice_id(self):
         for reservation in self:
@@ -843,16 +842,6 @@ class PmsReservation(models.Model):
             elif not float_is_zero(line.qty_to_invoice, precision_digits=precision):
                 line.invoice_status = "to invoice"
             elif (
-                line.state == "confirm"
-                and float_compare(
-                    line.qty_delivered,
-                    len(line.reservation_line_ids),
-                    precision_digits=precision,
-                )
-                == 1
-            ):
-                line.invoice_status = "upselling"
-            elif (
                 float_compare(
                     line.qty_invoiced,
                     len(line.reservation_line_ids),
@@ -894,9 +883,9 @@ class PmsReservation(models.Model):
                     lambda r: r.move_id.state != "cancel"
                 )
                 qty_invoiced += len(
-                    invoice_lines.filtered(lambda r: r.move_id.type == "out_invoice")
+                    invoice_lines.filtered(lambda r: r.move_id.move_type == "out_invoice")
                 ) - len(
-                    invoice_lines.filtered(lambda r: r.move_id.type == "out_refund")
+                    invoice_lines.filtered(lambda r: r.move_id.move_type == "out_refund")
                 )
             record.qty_invoiced = qty_invoiced
 
@@ -1158,7 +1147,7 @@ class PmsReservation(models.Model):
     # Action methods
 
     def open_folio(self):
-        action = self.env.ref("pms.open_pms_folio1_form_tree_all").read()[0]
+        action = self.env.ref("pms.open_pms_folio1_form_tree_all").sudo().read()[0]
         if self.folio_id:
             action["views"] = [(self.env.ref("pms.pms_folio_view_form").id, "form")]
             action["res_id"] = self.folio_id.id
@@ -1167,7 +1156,7 @@ class PmsReservation(models.Model):
         return action
 
     def open_reservation_form(self):
-        action = self.env.ref("pms.open_pms_reservation_form_tree_all").read()[0]
+        action = self.env.ref("pms.open_pms_reservation_form_tree_all").sudo().read()[0]
         action["views"] = [(self.env.ref("pms.pms_reservation_view_form").id, "form")]
         action["res_id"] = self.id
         return action
