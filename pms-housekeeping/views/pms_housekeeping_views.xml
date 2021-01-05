@@ -20,15 +20,11 @@
         </field>
     </record>
 
-
-
     <record model="ir.actions.act_window" id="action_pms_house_keeping_view_form">
         <field name="name">Housekeeping</field>
         <field name="res_model">pms.housekeeping</field>
         <field name="view_mode">tree,form</field>
     </record>
-
-
 
     <menuitem
         name="Housekeeping"

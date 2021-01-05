@@ -1,32 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <data noupdate="1">
-        <!-- pms.housekeeping.task -->
-        <record id="pms_housekeeping_task_0" model="pms.housekeeping.task">
-            <field name="name">Full cleaning</field>
-        </record>
-        <record id="pms_housekeeping_task_1" model="pms.housekeeping.task">
-            <field name="name">Review</field>
-        </record>
-        <record id="pms_housekeeping_task_2" model="pms.housekeeping.task">
-            <field name="name">Half cleaning</field>
-        </record>
-
     <!-- pms.housekeeping -->
         <record id="pms_housekeeping_0" model="pms.housekeeping">
             <field name="notes">Full cleaning OK</field>
             <field name="room" ref="pms.pms_room_4" />
             <field name="employee" ref="hr.employee_jep" />
+            <field
+                name="tasks"
+                eval="[(5, 0), (0, 0, {'name': 'Exit: Full cleaning',})]"
+            />
         </record>
         <record id="pms_housekeeping_1" model="pms.housekeeping">
+            <field name="notes">Full cleaning OK</field>
+            <field name="room" ref="pms.pms_room_3" />
+            <field name="employee" ref="hr.employee_jep" />
+            <field
+                name="tasks"
+                eval="[(5, 0), (0, 0, {'name': 'Picked up: Soft cleaning',})]"
+            />
+        </record>
+        <record id="pms_housekeeping_2" model="pms.housekeeping">
+            <field name="notes">Full cleaning OK</field>
+            <field name="room" ref="pms.pms_room_4" />
+            <field name="employee" ref="hr.employee_jep" />
+            <field name="tasks" eval="[(5, 0), (0, 0, {'name': 'Clean - OK',})]" />
+        </record>
+        <record id="pms_housekeeping_3" model="pms.housekeeping">
+            <field name="notes">Full cleaning OK</field>
+            <field name="room" ref="pms.pms_room_4" />
+            <field name="employee" ref="hr.employee_vad" />
+            <field name="tasks" eval="[(5, 0), (0, 0, {'name': 'Inspected',})]" />
+        </record>
+        <record id="pms_housekeeping_4" model="pms.housekeeping">
             <field name="notes">Review Cleang it again</field>
             <field name="room" ref="pms.pms_room_2" />
             <field name="employee" ref="hr.employee_mit" />
+            <field name="tasks" eval="[(5, 0), (0, 0, {'name': 'Review',})]" />
         </record>
-        <record id="pms_housekeeping_2" model="pms.housekeeping">
+        <record id="pms_housekeeping_5" model="pms.housekeeping">
             <field name="notes">Half cleaning OK</field>
             <field name="room" ref="pms.pms_room_0" />
             <field name="employee" ref="hr.employee_jog" />
+            <field name="tasks" eval="[(5, 0), (0, 0, {'name': 'Half cleaning',})]" />
         </record>
     </data>
 </odoo>
