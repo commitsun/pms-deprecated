@@ -52,7 +52,7 @@ class ResUsers(models.Model):
                 _("The chosen property is not in the allowed properties for this user")
             )
 
-    @api.constrains("pms_property_ids")
+    @api.constrains("pms_property_ids", "company_id")
     def _check_company_in_property_ids(self):
         for record in self:
             for property in record.pms_property_ids:
