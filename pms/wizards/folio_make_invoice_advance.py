@@ -63,6 +63,8 @@ class FolioAdvancePaymentInv(models.TransientModel):
         according to their invoicing policy \
         (based on ordered or delivered quantity).",
     )
+    bill_services = fields.Boolean("Bill Services", default=True)
+    bill_rooms = fields.Boolean("Bill Rooms", default=True)
     deduct_down_payments = fields.Boolean("Deduct down payments", default=True)
     has_down_payments = fields.Boolean(
         "Has down payments", default=_default_has_down_payment, readonly=True
