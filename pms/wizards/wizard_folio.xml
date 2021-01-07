@@ -73,11 +73,6 @@
                                         readonly="1"
                                         force_save="1"
                                     />
-                                    <!--
-                                        REVIEW:
-                                        A global discount is currently applied for the entire folio.
-                                        Should a different discount for each room type be considered?
-                                    -->
                                     <field
                                         name="price_total"
                                         readonly="1"

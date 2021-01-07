@@ -131,9 +131,6 @@ class FolioWizard(models.TransientModel):
                             )
 
                     # check there are rooms of the type
-                    # REVIEW
-                    # Does it make sense to show room types for
-                    #               which there are no rooms ??
                     if room_type_iterator.total_rooms_count > 0:
 
                         # get min availability between start date & end date
@@ -163,11 +160,6 @@ class FolioWizard(models.TransientModel):
 
                     record.availability_results = cmds
 
-                    # REVIEW
-                    # Is there a more correct way to do the sorting ?
-                    #       (pycharm Warning -> Unresolved attribute
-                    #           reference 'sorted' for class 'list')
-                    #       & not working getting availability results from tests
 
                     record.availability_results = record.availability_results.sorted(
                         key=lambda s: s.num_rooms_available, reverse=True
