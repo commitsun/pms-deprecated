@@ -182,7 +182,8 @@
                     <div class="col-4">
                         <group>
                             <field name="price" />
-                            <field name="min_quantity" />
+                            <!-- REVIEW 'min_quantity'-->
+                            <!--<field name="min_quantity" />-->
                         </group>
                     </div>
                 </div>
@@ -199,6 +200,7 @@
                 >
                     <span style="text-decoration:underline;">
                         <field name="num_pricelist_items_to_overwrite" />
+
                     </span>
                     pricelist items
                     <u>will be overwritten:</u>
@@ -212,8 +214,17 @@
                 />
                 <field
                     name="pricelist_items_to_overwrite"
+                    nolabel="1"
                     attrs="{'invisible':[('massive_changes_on','=','availability_plan')]}"
-                />
+                >
+                     <tree>
+                         <field name="pricelist_id" />
+                          <field string="Applicable on" name="name" />
+                         <field name="date_start" />
+                         <field name="date_end" />
+                         <field name="price" />
+                    </tree>
+                </field>
                 <footer>
                     <button
                         name="apply_massive_changes"

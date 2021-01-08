@@ -166,24 +166,32 @@ class FolioWizard(models.TransientModel):
 
     @api.model
     def get_datetime_from_start_end(self, date):
-        tz = "Europe/Madrid"
-        dt_from = datetime.datetime.combine(
-            date,
-            datetime.time.min,
-        )
-        dt_to = datetime.datetime.combine(
-            date,
-            datetime.time.max,
-        )
-        dt_from = pytz.timezone(tz).localize(dt_from)
-        dt_to = pytz.timezone(tz).localize(dt_to)
 
-        dt_from = dt_from.astimezone(pytz.utc)
-        dt_to = dt_to.astimezone(pytz.utc)
+        dt_local_naive_from = datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            0,
+            0,
+            0,
+        )
+        dt_local_from = pytz.timezone(self.env.user.tz).localize(dt_local_naive_from)
+        dt_utc_from = dt_local_from.astimezone(pytz.utc)
+        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
 
-        dt_from = dt_from.replace(tzinfo=None)
-        dt_to = dt_to.replace(tzinfo=None)
-        return dt_from, dt_to
+        dt_local_naive_to = datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            23,
+            59,
+            59,
+        )
+        dt_local_to = pytz.timezone(self.env.user.tz).localize(dt_local_naive_to)
+        dt_utc_to = dt_local_to.astimezone(pytz.utc)
+        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
+
+        return dt_utc_naive_from, dt_utc_naive_to
 
     # actions
     def create_folio(self):

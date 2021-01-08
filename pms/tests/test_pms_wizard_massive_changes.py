@@ -301,16 +301,25 @@ class TestPmsWizardMassiveChanges(TestHotel):
 
         price = 20
         min_quantity = 3
+
+        dt_local_naive_from = datetime.datetime(
+            date_from.year, date_from.month, date_from.day, 0, 0, 0
+        )
+        dt_local_from = pytz.timezone(self.env.user.tz).localize(dt_local_naive_from)
+        dt_utc_from = dt_local_from.astimezone(pytz.utc)
+        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
+
+        dt_local_naive_to = datetime.datetime(
+            date_to.year, date_to.month, date_to.day, 23, 59, 59
+        )
+        dt_local_to = pytz.timezone(self.env.user.tz).localize(dt_local_naive_to)
+        dt_utc_to = dt_local_to.astimezone(pytz.utc)
+        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
+
         vals = {
             "pricelist_id": self.test_pricelist,
-            "date_start": datetime.datetime.combine(
-                date_from,
-                datetime.time.min,
-            ),
-            "date_end": datetime.datetime.combine(
-                date_to,
-                datetime.time.max,
-            ),
+            "date_start": date_from,
+            "date_end": date_to,
             "compute_price": "fixed",
             "applied_on": "1_product",
             "product_tmpl_id": self.test_room_type_double.product_id.product_tmpl_id,
@@ -330,26 +339,17 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "min_quantity": min_quantity,
             }
         ).apply_massive_changes()
-        vals["date_start"] = pytz.timezone("Europe/Madrid").localize(vals["date_start"])
-        vals["date_end"] = pytz.timezone("Europe/Madrid").localize(vals["date_end"])
+        vals["date_start"] = dt_utc_naive_from
+        vals["date_end"] = dt_utc_naive_to
+
         # ASSERT
         for key in vals:
             with self.subTest(k=key):
-                if key == "date_start" or key == "date_end":
-                    self.assertEqual(
-                        fields.Datetime.context_timestamp(
-                            self.test_pricelist.item_ids[0],
-                            self.test_pricelist.item_ids[0][key],
-                        ),
-                        vals[key],
-                        "The value of " + key + " is not correctly established",
-                    )
-                else:
-                    self.assertEqual(
-                        self.test_pricelist.item_ids[0][key],
-                        vals[key],
-                        "The value of " + key + " is not correctly established",
-                    )
+                self.assertEqual(
+                    self.test_pricelist.item_ids[0][key],
+                    vals[key],
+                    "The value of " + key + " is not correctly established",
+                )
 
     @freeze_time("1980-12-01")
     def test_day_of_week_pricelist_items_create(self):

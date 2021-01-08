@@ -54,12 +54,6 @@ class AvailabilityWizard(models.TransientModel):
         string="Total price", default=0, compute="_compute_price_total"
     )
 
-    splitted_availability = fields.Boolean(
-        compute="_compute_splitted_availability",
-        store=True,
-        readonly=False,
-    )
-
     @api.depends("num_rooms_selected", "checkin", "checkout")
     def _compute_price_total(self):
         for record in self:

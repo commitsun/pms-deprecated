@@ -10,6 +10,12 @@ class AvailabilityWizard(models.TransientModel):
     _name = "pms.massive.changes.wizard"
     _description = "Wizard for massive changes on Availability Plans & Pricelists."
 
+    def _default_avail_readonly(self):
+        return True if self._context.get("availability_plan_id") else False
+
+    def _default_pricelist_readonly(self):
+        return True if self._context.get("pricelist_id") else False
+
     # Fields declaration
     massive_changes_on = fields.Selection(
         [("pricelist", "Pricelist"), ("availability_plan", "Availability Plan")],
@@ -135,9 +141,10 @@ class AvailabilityWizard(models.TransientModel):
         store=False,
         readonly=True,
     )
-    avail_readonly = fields.Boolean(compute="_compute_avail_readonly")
-    pricelist_readonly = fields.Boolean(compute="_compute_pricelist_readonly")
+    avail_readonly = fields.Boolean(default=_default_avail_readonly)
+    pricelist_readonly = fields.Boolean(default=_default_pricelist_readonly)
 
+    @api.depends("massive_changes_on")
     def _compute_allowed_pricelist_ids(self):
         for record in self:
             record.allowed_pricelist_ids = self.env["product.pricelist"].search(
@@ -234,10 +241,37 @@ class AvailabilityWizard(models.TransientModel):
                 ]
 
                 if record.start_date:
-                    domain.append(("date_start", ">=", record.start_date))
+                    dt_local_naive_from = datetime.datetime(
+                        record.start_date.year,
+                        record.start_date.month,
+                        record.start_date.day,
+                        0,
+                        0,
+                        0,
+                    )
+                    dt_local_from = pytz.timezone(self.env.user.tz).localize(
+                        dt_local_naive_from
+                    )
+                    dt_utc_from = dt_local_from.astimezone(pytz.utc)
+                    dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
+                    domain.append(("date_start", ">=", dt_utc_naive_from))
 
                 if record.end_date:
-                    domain.append(("date_end", "<=", record.end_date))
+                    dt_local_naive_to = datetime.datetime(
+                        record.end_date.year,
+                        record.end_date.month,
+                        record.end_date.day,
+                        23,
+                        59,
+                        59,
+                    )
+                    dt_local_to = pytz.timezone(self.env.user.tz).localize(
+                        dt_local_naive_to
+                    )
+                    dt_utc_to = dt_local_to.astimezone(pytz.utc)
+                    dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
+                    domain.append(("date_end", "<=", dt_utc_naive_to))
+
                 if record.room_type_id:
                     domain.append(
                         (
@@ -265,7 +299,16 @@ class AvailabilityWizard(models.TransientModel):
                         and record.end_date
                     ):
                         record.pricelist_items_to_overwrite = items.filtered(
-                            lambda x: week_days_to_apply[x.date_start.timetuple()[6]]
+                            lambda x: week_days_to_apply[
+                                datetime.datetime(
+                                    x.date_end.year,
+                                    x.date_end.month,
+                                    x.date_end.day,
+                                    0,
+                                    0,
+                                    0,
+                                ).timetuple()[6]
+                            ]
                         )
                     else:
                         record.pricelist_items_to_overwrite = items
@@ -290,21 +333,9 @@ class AvailabilityWizard(models.TransientModel):
                 record.pricelist_items_to_overwrite
             )
 
-    def _compute_avail_readonly(self):
-        for record in self:
-            record.avail_readonly = (
-                True if self._context.get("availability_plan_id") else False
-            )
-
-    def _compute_pricelist_readonly(self):
-        for record in self:
-            record.pricelist_readonly = (
-                True if self._context.get("pricelist_id") else False
-            )
-
     # actions
     def apply_massive_changes(self):
-        tz = "Europe/Madrid"
+
         for record in self:
             # remove old rules
             record.rules_to_overwrite.unlink()
@@ -340,29 +371,29 @@ class AvailabilityWizard(models.TransientModel):
                     # and write all data in 1 operation
                     if record.massive_changes_on == "pricelist":
 
-                        dt_from = datetime.datetime.combine(
-                            date,
-                            datetime.time.min,
+                        dt_local_naive_from = datetime.datetime(
+                            date.year, date.month, date.day, 0, 0, 0
                         )
-                        dt_to = datetime.datetime.combine(
-                            date,
-                            datetime.time.max,
+                        dt_local_from = pytz.timezone(self.env.user.tz).localize(
+                            dt_local_naive_from
                         )
+                        dt_utc_from = dt_local_from.astimezone(pytz.utc)
+                        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
 
-                        dt_from = pytz.timezone(tz).localize(dt_from)
-                        dt_to = pytz.timezone(tz).localize(dt_to)
-
-                        dt_from = dt_from.astimezone(pytz.utc)
-                        dt_to = dt_to.astimezone(pytz.utc)
-
-                        dt_from = dt_from.replace(tzinfo=None)
-                        dt_to = dt_to.replace(tzinfo=None)
+                        dt_local_naive_to = datetime.datetime(
+                            date.year, date.month, date.day, 23, 59, 59
+                        )
+                        dt_local_to = pytz.timezone(self.env.user.tz).localize(
+                            dt_local_naive_to
+                        )
+                        dt_utc_to = dt_local_to.astimezone(pytz.utc)
+                        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
 
                         self.env["product.pricelist.item"].create(
                             {
                                 "pricelist_id": record.pricelist_id.id,
-                                "date_start": dt_from,
-                                "date_end": dt_to,
+                                "date_start": dt_utc_naive_from,
+                                "date_end": dt_utc_naive_to,
                                 "compute_price": "fixed",
                                 "applied_on": "1_product",
                                 "product_tmpl_id": room.product_id.product_tmpl_id.id,
@@ -388,5 +419,23 @@ class AvailabilityWizard(models.TransientModel):
                                 "closed_departure": record.closed_departure,
                             }
                         )
-
-        # return {}
+            if (
+                record.massive_changes_on == "pricelist"
+                and not record.pricelist_readonly
+            ):
+                action = self.env.ref("product.product_pricelist_action2").read()[0]
+                action["views"] = [
+                    (self.env.ref("pms.product_pricelist_view_form").id, "form")
+                ]
+                action["res_id"] = record.pricelist_id.id
+                return action
+            if (
+                record.massive_changes_on == "availability_plan"
+                and not record.avail_readonly
+            ):
+                action = self.env.ref("pms.room_type_availability_action").read()[0]
+                action["views"] = [
+                    (self.env.ref("pms.room_type_availability_view_form").id, "form")
+                ]
+                action["res_id"] = record.availability_plan_id.id
+                return action
