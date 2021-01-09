@@ -203,7 +203,15 @@ class FolioAdvancePaymentInv(models.TransientModel):
         folios = self.env["pms.folio"].browse(self._context.get("active_ids", []))
 
         if self.advance_payment_method == "delivered":
-            folios._create_invoices(final=self.deduct_down_payments)
+            lines_to_invoice = self._get_lines_to_invoice(
+                folios=folios,
+                bill_services=self.bill_services,
+                bill_rooms=self.bill_rooms,
+            )
+            folios._create_invoices(
+                final=self.deduct_down_payments,
+                lines_to_invoice=lines_to_invoice,
+            )
         else:
             # Create deposit product if necessary
             if not self.product_id:
@@ -263,3 +271,18 @@ class FolioAdvancePaymentInv(models.TransientModel):
             "taxes_id": [(6, 0, self.deposit_taxes_id.ids)],
             "company_id": False,
         }
+
+    @api.model
+    def _get_lines_to_invoice(self, folios, bill_services=True, bill_rooms=True):
+        lines_to_invoice = folios.sale_line_ids
+        if not self.bill_services:
+            lines_to_invoice = lines_to_invoice - lines_to_invoice.filtered(
+                lambda l: l.service_id and not l.service_id.is_board_service
+            )
+        if not self.bill_rooms:
+            lines_to_invoice = lines_to_invoice.filtered(
+                lambda l: l.reservation_id and l.reservation_line_ids
+            )
+        if not lines_to_invoice:
+            raise UserError(_("Nothing to invoice"))
+        return lines_to_invoice

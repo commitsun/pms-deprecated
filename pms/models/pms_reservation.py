@@ -99,6 +99,7 @@ class PmsReservation(models.Model):
         string="Room",
         ondelete="restrict",
         domain="[('id', 'in', allowed_room_ids)]",
+        copy=False,
     )
     allowed_room_ids = fields.Many2many(
         "pms.room",
@@ -110,6 +111,7 @@ class PmsReservation(models.Model):
         string="Folio",
         tracking=True,
         ondelete="restrict",
+        copy=False,
     )
     board_service_room_id = fields.Many2one(
         "pms.board.service.room.type",
@@ -123,6 +125,7 @@ class PmsReservation(models.Model):
         compute="_compute_room_type_id",
         store=True,
         readonly=False,
+        copy=False,
     )
     partner_id = fields.Many2one(
         "res.partner",
@@ -164,6 +167,7 @@ class PmsReservation(models.Model):
         compute="_compute_reservation_line_ids",
         store=True,
         readonly=False,
+        copy=False,
     )
     service_ids = fields.One2many(
         "pms.service",
@@ -198,6 +202,7 @@ class PmsReservation(models.Model):
         compute="_compute_checkin_partner_ids",
         store=True,
         readonly=False,
+        copy=False,
     )
     count_pending_arrival = fields.Integer(
         "Pending Arrival",
@@ -257,7 +262,9 @@ class PmsReservation(models.Model):
         copy=False,
     )
     localizator = fields.Char(
-        string="Localizator", compute="_compute_localizator", store=True
+        string="Localizator",
+        compute="_compute_localizator",
+        store=True,
     )
     adults = fields.Integer(
         "Adults",
@@ -313,10 +320,15 @@ class PmsReservation(models.Model):
         [("late", "Late"), ("intime", "In time"), ("noshow", "No Show")],
         string="Cause of cancelled",
         tracking=True,
+        copy=False,
     )
     out_service_description = fields.Text("Cause of out of service")
-    checkin = fields.Date("Check In", required=True, default=_get_default_checkin)
-    checkout = fields.Date("Check Out", required=True, default=_get_default_checkout)
+    checkin = fields.Date(
+        "Check In", required=True, default=_get_default_checkin, copy=False
+    )
+    checkout = fields.Date(
+        "Check Out", required=True, default=_get_default_checkout, copy=False
+    )
     arrival_hour = fields.Char(
         "Arrival Hour",
         default=_get_default_arrival_hour,
@@ -343,8 +355,16 @@ class PmsReservation(models.Model):
         compute="_compute_checkin_partner_count",
         search="_search_checkin_partner_pending",
     )
-    overbooking = fields.Boolean("Is Overbooking", default=False)
-    reselling = fields.Boolean("Is Reselling", default=False)
+    overbooking = fields.Boolean(
+        "Is Overbooking",
+        default=False,
+        copy=False,
+    )
+    reselling = fields.Boolean(
+        "Is Reselling",
+        default=False,
+        copy=False,
+    )
     nights = fields.Integer("Nights", compute="_compute_nights", store=True)
     origin = fields.Char("Origin", compute="_compute_origin", store=True)
     detail_origin = fields.Char(
@@ -360,7 +380,8 @@ class PmsReservation(models.Model):
         string="Internal Partner Notes", related="partner_id.comment"
     )
     folio_internal_comment = fields.Text(
-        string="Internal Folio Notes", related="folio_id.internal_comment"
+        string="Internal Folio Notes",
+        related="folio_id.internal_comment",
     )
     preconfirm = fields.Boolean("Auto confirm to Save", default=True)
     invoice_status = fields.Selection(
@@ -1237,6 +1258,19 @@ class PmsReservation(models.Model):
             )
             result.append((res.id, name))
         return result
+
+    def copy_data(self, default=None):
+        rooms_available = self.env["pms.room.type.availability.plan"].rooms_available(
+            self.checkin,
+            self.checkout,
+            room_type_id=self.room_type_id.id,
+            pricelist=self.pricelist_id.id,
+        )
+        if self.preferred_room_id.id in rooms_available.ids:
+            default["preferred_room_id"] = self.preferred_room_id.id
+        if self.room_type_id.id in rooms_available.mapped("room_type_id.id"):
+            default["room_type_id"] = self.room_type_id.id
+        return super(PmsReservation, self).copy_data(default)
 
     @api.model
     def create(self, vals):

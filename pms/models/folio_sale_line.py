@@ -172,11 +172,11 @@ class FolioSaleLine(models.Model):
         Compute the quantity invoiced. If case of a refund,
         the quantity invoiced is decreased. Note
         that this is the case only if the refund is
-        generated from the SO and that is intentional: if
+        generated from the Folio and that is intentional: if
         a refund made would automatically decrease the invoiced quantity,
         then there is a risk of reinvoicing
         it automatically, which may not be wanted at all.
-        That's why the refund has to be created from the SO
+        That's why the refund has to be created from the Folio
         """
         for line in self:
             qty_invoiced = 0.0
@@ -711,7 +711,7 @@ class FolioSaleLine(models.Model):
         self.ensure_one()
         reservation = self.reservation_id
         service = self.service_id
-        reservation_lines = self.reservation_line_ids
+        reservation_lines = self.reservation_line_ids.filtered(lambda l: not l.invoiced)
         res = {
             "display_type": self.display_type,
             "sequence": self.sequence,

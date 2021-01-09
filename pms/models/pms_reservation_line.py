@@ -65,6 +65,11 @@ class PmsReservationLine(models.Model):
         store=True,
         readonly=False,
     )
+    invoiced = fields.Boolean(
+        string="Invoiced",
+        compute="_compute_invoiced",
+        store=True,
+    )
     cancel_discount = fields.Float(
         string="Cancel Discount (%)",
         digits=("Discount"),
@@ -312,6 +317,18 @@ class PmsReservationLine(models.Model):
         ):
             return True
         return False
+
+    @api.depends("move_line_ids", "move_line_ids.move_id.state")
+    def _compute_invoiced(self):
+        for line in self:
+            qty_invoiced = 0
+            for invoice_line in line.move_line_ids:
+                if invoice_line.move_id.state != "cancel":
+                    if invoice_line.move_id.move_type == "out_invoice":
+                        qty_invoiced += 1
+                    elif invoice_line.move_id.move_type == "out_refund":
+                        qty_invoiced -= 1
+            line.invoiced = False if qty_invoiced < 1 else True
 
     # TODO: Refact method and allowed cancelled single days
     @api.depends("reservation_id.cancelled_reason")
