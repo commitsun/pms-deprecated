@@ -30,4 +30,4 @@ from . import test_pms_room_type
 from . import test_pms_wizard_massive_changes
 from . import test_pms_wizard_folio
 from . import test_pms_res_users
-from . import test_pms_amenity
+
