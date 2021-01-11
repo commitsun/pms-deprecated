@@ -17,6 +17,11 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "test pricelist 1",
             }
         )
+        self.test_pricelist2 = self.env["product.pricelist"].create(
+            {
+                "name": "test pricelist 2",
+            }
+        )
         # pms.room.type.availability.plan
         self.test_room_type_availability1 = self.env[
             "pms.room.type.availability.plan"
@@ -32,6 +37,14 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist1.id,
+                "default_availability_plan_id": self.test_room_type_availability1.id,
+            }
+        )
+        self.test_property2 = self.env["pms.property"].create(
+            {
+                "name": "Property PMS 2",
+                "company_id": self.env.ref("base.main_company").id,
+                "default_pricelist_id": self.test_pricelist2.id,
                 "default_availability_plan_id": self.test_room_type_availability1.id,
             }
         )
@@ -52,7 +65,10 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
         # pms.room.type
         self.test_room_type_double = self.env["pms.room.type"].create(
             {
-                "pms_property_ids": [self.test_property.id],
+                "pms_property_ids": [
+                    (4, self.test_property.id),
+                    (4, self.test_property2.id),
+                ],
                 "name": "Double Test",
                 "code_type": "DBL_Test",
                 "class_id": self.test_room_type_class.id,
@@ -565,4 +581,59 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             test_quota,
             rule.quota,
             "The quota should be restored after changing the reservation's pricelist",
+        )
+
+    def test_availability_closed_no_room_type_check_property(self):
+        # TEST CASE:
+        # check that availability rules are applied to the correct properties
+        # There are two properties:
+        # test_property   --> test_room_type_availability1_item1
+        # test_property2  --> test_room_type_availability1_item2
+
+        # ARRANGE
+        self.create_common_scenario()
+        self.test_room_type_availability1_item1 = self.env[
+            "pms.room.type.availability.rule"
+        ].create(
+            {
+                "availability_plan_id": self.test_room_type_availability1.id,
+                "room_type_id": self.test_room_type_double.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,  # <- (1/2)
+                "pms_property_id": self.test_property,
+            }
+        )
+        self.test_room_type_availability1_item2 = self.env[
+            "pms.room.type.availability.rule"
+        ].create(
+            {
+                "availability_plan_id": self.test_room_type_availability1.id,
+                "room_type_id": self.test_room_type_double.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,  # <- (1/2)
+                "pms_property_id": self.test_property2,
+            }
+        )
+        # ACT
+        result = self.env["pms.room.type.availability.plan"].rooms_available(
+            checkin=fields.date.today(),
+            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
+            # room_type_id=False, # <-  (2/2)
+            pricelist=self.test_pricelist1.id,
+            pms_property_id=self.test_property,
+        )
+        result2 = self.env["pms.room.type.availability.plan"].rooms_available(
+            checkin=fields.date.today(),
+            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
+            # room_type_id=False, # <-  (2/2)
+            pricelist=self.test_pricelist1.id,
+            pms_property_id=self.test_property2,
+        )
+        # ASSERT
+        self.assertFalse(result, "There must be no availability for those days")
+        self.assertEqual(
+            self.test_room_type_double,
+            result2.mapped("room_type_id"),
+            "Availability should not contain rooms of a type "
+            "which its availability rules applies",
         )
