@@ -1,6 +1,5 @@
 import datetime
 
-import pytz
 from freezegun import freeze_time
 
 from odoo import fields
@@ -302,20 +301,6 @@ class TestPmsWizardMassiveChanges(TestHotel):
         price = 20
         min_quantity = 3
 
-        dt_local_naive_from = datetime.datetime(
-            date_from.year, date_from.month, date_from.day, 0, 0, 0
-        )
-        dt_local_from = pytz.timezone(self.env.user.tz).localize(dt_local_naive_from)
-        dt_utc_from = dt_local_from.astimezone(pytz.utc)
-        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
-
-        dt_local_naive_to = datetime.datetime(
-            date_to.year, date_to.month, date_to.day, 23, 59, 59
-        )
-        dt_local_to = pytz.timezone(self.env.user.tz).localize(dt_local_naive_to)
-        dt_utc_to = dt_local_to.astimezone(pytz.utc)
-        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
-
         vals = {
             "pricelist_id": self.test_pricelist,
             "date_start": date_from,
@@ -339,8 +324,11 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "min_quantity": min_quantity,
             }
         ).apply_massive_changes()
-        vals["date_start"] = dt_utc_naive_from
-        vals["date_end"] = dt_utc_naive_to
+        vals["date_start_overnight"] = date_from
+        vals["date_end_overnight"] = date_to
+
+        del vals["date_start"]
+        del vals["date_end"]
 
         # ASSERT
         for key in vals:
@@ -398,17 +386,12 @@ class TestPmsWizardMassiveChanges(TestHotel):
 
                 # ASSERT
                 pricelist_items = self.test_pricelist.item_ids.sorted(
-                    key=lambda s: s.date_start
+                    key=lambda s: s.date_start_overnight
                 )
 
                 # ASSERT
                 self.assertTrue(
-                    (
-                        fields.Datetime.context_timestamp(
-                            pricelist_items[index], pricelist_items[index].date_start
-                        )
-                    ).timetuple()[6]
-                    == index
+                    pricelist_items[index].date_start_overnight.timetuple()[6] == index
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )

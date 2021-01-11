@@ -1,7 +1,5 @@
 import datetime
 
-import pytz
-
 from odoo import api, fields, models
 
 
@@ -241,36 +239,9 @@ class AvailabilityWizard(models.TransientModel):
                 ]
 
                 if record.start_date:
-                    dt_local_naive_from = datetime.datetime(
-                        record.start_date.year,
-                        record.start_date.month,
-                        record.start_date.day,
-                        0,
-                        0,
-                        0,
-                    )
-                    dt_local_from = pytz.timezone(self.env.user.tz).localize(
-                        dt_local_naive_from
-                    )
-                    dt_utc_from = dt_local_from.astimezone(pytz.utc)
-                    dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
-                    domain.append(("date_start", ">=", dt_utc_naive_from))
-
+                    domain.append(("date_start_overnight", ">=", record.start_date))
                 if record.end_date:
-                    dt_local_naive_to = datetime.datetime(
-                        record.end_date.year,
-                        record.end_date.month,
-                        record.end_date.day,
-                        23,
-                        59,
-                        59,
-                    )
-                    dt_local_to = pytz.timezone(self.env.user.tz).localize(
-                        dt_local_naive_to
-                    )
-                    dt_utc_to = dt_local_to.astimezone(pytz.utc)
-                    dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
-                    domain.append(("date_end", "<=", dt_utc_naive_to))
+                    domain.append(("date_end_overnight", "<=", record.end_date))
 
                 if record.room_type_id:
                     domain.append(
@@ -300,14 +271,7 @@ class AvailabilityWizard(models.TransientModel):
                     ):
                         record.pricelist_items_to_overwrite = items.filtered(
                             lambda x: week_days_to_apply[
-                                datetime.datetime(
-                                    x.date_end.year,
-                                    x.date_end.month,
-                                    x.date_end.day,
-                                    0,
-                                    0,
-                                    0,
-                                ).timetuple()[6]
+                                x.date_end_overnight.timetuple()[6]
                             ]
                         )
                     else:
@@ -367,33 +331,13 @@ class AvailabilityWizard(models.TransientModel):
                 else:
                     rooms = [record.room_type_id]
                 for room in rooms:
-                    # REVIEW -> maybe would be more efficient creating a list
-                    # and write all data in 1 operation
                     if record.massive_changes_on == "pricelist":
-
-                        dt_local_naive_from = datetime.datetime(
-                            date.year, date.month, date.day, 0, 0, 0
-                        )
-                        dt_local_from = pytz.timezone(self.env.user.tz).localize(
-                            dt_local_naive_from
-                        )
-                        dt_utc_from = dt_local_from.astimezone(pytz.utc)
-                        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
-
-                        dt_local_naive_to = datetime.datetime(
-                            date.year, date.month, date.day, 23, 59, 59
-                        )
-                        dt_local_to = pytz.timezone(self.env.user.tz).localize(
-                            dt_local_naive_to
-                        )
-                        dt_utc_to = dt_local_to.astimezone(pytz.utc)
-                        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
 
                         self.env["product.pricelist.item"].create(
                             {
                                 "pricelist_id": record.pricelist_id.id,
-                                "date_start": dt_utc_naive_from,
-                                "date_end": dt_utc_naive_to,
+                                "date_start_overnight": date,
+                                "date_end_overnight": date,
                                 "compute_price": "fixed",
                                 "applied_on": "1_product",
                                 "product_tmpl_id": room.product_id.product_tmpl_id.id,
@@ -401,7 +345,6 @@ class AvailabilityWizard(models.TransientModel):
                                 "min_quantity": record.min_quantity,
                             }
                         )
-
                     else:
                         self.env["pms.room.type.availability.rule"].create(
                             {

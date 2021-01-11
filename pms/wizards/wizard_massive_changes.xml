@@ -205,9 +205,6 @@
                     pricelist items
                     <u>will be overwritten:</u>
                 </b>
-
-
-                <!--    REVIEW:   a calendar view could be more understandable   -->
                 <field
                     name="rules_to_overwrite"
                     attrs="{'invisible':[('massive_changes_on','=','pricelist')]}"
@@ -219,9 +216,9 @@
                 >
                      <tree>
                          <field name="pricelist_id" />
-                          <field string="Applicable on" name="name" />
-                         <field name="date_start" />
-                         <field name="date_end" />
+                         <field string="Applicable on" name="name" />
+                         <field name="date_start_overnight" />
+                         <field name="date_end_overnight" />
                          <field name="price" />
                     </tree>
                 </field>

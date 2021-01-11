@@ -78,16 +78,13 @@ class AvailabilityWizard(models.TransientModel):
                     pricelist=record.folio_wizard_id.pricelist_id.id,
                 )
                 num_rooms_available_by_date.append(len(rooms_available))
-                datetimes = self.env["pms.folio.wizard"].get_datetime_from_start_end(
-                    date_iterator
-                )
 
                 # get pricelist item
                 pricelist_item = self.env["product.pricelist.item"].search(
                     [
                         ("pricelist_id", "=", record.folio_wizard_id.pricelist_id.id),
-                        ("date_start", ">=", datetimes[0]),
-                        ("date_end", "<=", datetimes[1]),
+                        ("date_start_overnight", ">=", date_iterator),
+                        ("date_end_overnight", "<=", date_iterator),
                         ("applied_on", "=", "1_product"),
                         (
                             "product_tmpl_id",

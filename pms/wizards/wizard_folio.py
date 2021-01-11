@@ -1,7 +1,5 @@
 import datetime
 
-import pytz
-
 from odoo import api, fields, models
 
 
@@ -101,13 +99,12 @@ class FolioWizard(models.TransientModel):
                         )
 
                         num_rooms_available_by_date.append(len(rooms_available))
-                        datetimes = self.get_datetime_from_start_end(date_iterator)
 
                         pricelist_item = self.env["product.pricelist.item"].search(
                             [
                                 ("pricelist_id", "=", record.pricelist_id.id),
-                                ("date_start", ">=", datetimes[0]),
-                                ("date_end", "<=", datetimes[1]),
+                                ("date_start_overnight", ">=", date_iterator),
+                                ("date_end_overnight", "<=", date_iterator),
                                 ("applied_on", "=", "1_product"),
                                 (
                                     "product_tmpl_id",
@@ -163,35 +160,6 @@ class FolioWizard(models.TransientModel):
                     record.availability_results = record.availability_results.sorted(
                         key=lambda s: s.num_rooms_available, reverse=True
                     )
-
-    @api.model
-    def get_datetime_from_start_end(self, date):
-
-        dt_local_naive_from = datetime.datetime(
-            date.year,
-            date.month,
-            date.day,
-            0,
-            0,
-            0,
-        )
-        dt_local_from = pytz.timezone(self.env.user.tz).localize(dt_local_naive_from)
-        dt_utc_from = dt_local_from.astimezone(pytz.utc)
-        dt_utc_naive_from = dt_utc_from.replace(tzinfo=None)
-
-        dt_local_naive_to = datetime.datetime(
-            date.year,
-            date.month,
-            date.day,
-            23,
-            59,
-            59,
-        )
-        dt_local_to = pytz.timezone(self.env.user.tz).localize(dt_local_naive_to)
-        dt_utc_to = dt_local_to.astimezone(pytz.utc)
-        dt_utc_naive_to = dt_utc_to.replace(tzinfo=None)
-
-        return dt_utc_naive_from, dt_utc_naive_to
 
     # actions
     def create_folio(self):
