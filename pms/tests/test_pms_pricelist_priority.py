@@ -76,8 +76,10 @@ class TestPmsPricelistRules(common.TransactionCase):
             }
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_items_sort_applied_on(self):
+        # TEST CASE:
+        # the order of pricelist items is applied according to the applied_on field
 
         # ARRANGE
         self.create_common_scenario()
@@ -87,8 +89,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "categ_id": self.product_category.id,
                 "applied_on": "2_product_category",
-                "date_start": datetime.datetime.now(),
-                "date_end": datetime.datetime.now() + datetime.timedelta(days=3),
+                "date_start_overnight": datetime.datetime.now(),
+                "date_end_overnight": datetime.datetime.now()
+                + datetime.timedelta(days=3),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -101,8 +104,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.now(),
-                "date_end": datetime.datetime.now() + datetime.timedelta(days=3),
+                "date_start_overnight": datetime.datetime.now(),
+                "date_end_overnight": datetime.datetime.now()
+                + datetime.timedelta(days=3),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -129,8 +133,9 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-16 00:00:00")
+    @freeze_time("2000-01-16")
     def test_items_sort_date(self):
+        # the shortest interval between start and end is prioritized
 
         # ARRANGE
         self.create_common_scenario()
@@ -140,8 +145,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today() + datetime.timedelta(days=3),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=3),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -154,8 +160,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=10, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -182,9 +188,11 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-05 00:00:00")
+    @freeze_time("2000-01-05")
     def test_items_sort_property(self):
 
+        # the items with one or more properties have more priority
+        # the items with 0 properties have less priority
         # ARRANGE
         self.create_common_scenario()
 
@@ -193,8 +201,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -207,8 +215,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pms_property_ids": [self.property1.id],
@@ -236,7 +244,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-20 00:00:00")
+    @freeze_time("2000-01-20")
     def test_three_items_sort_applied_on(self):
 
         # ARRANGE
@@ -247,8 +255,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=1, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -262,8 +270,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "product_id": self.room_type.product_id.id,
                 "product_tmpl_id": self.product_template.id,
                 "applied_on": "1_product",
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=1, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -277,8 +285,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "categ_id": self.product_category.id,
                 "applied_on": "2_product_category",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=1, hours=23, minutes=59),
                 "fixed_price": 60.0,
                 "pricelist_id": self.pricelist.id,
@@ -304,7 +312,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-25 00:00:00")
+    @freeze_time("2000-01-25")
     def test_three_items_sort_date(self):
 
         # ARRANGE
@@ -315,8 +323,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=6, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -329,9 +337,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=1, hours=00, minutes=00),
-                "date_end": datetime.datetime.today()
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -344,9 +352,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_3",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=2, hours=00, minutes=00),
-                "date_end": datetime.datetime.today()
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=4, hours=23, minutes=59),
                 "fixed_price": 60.0,
                 "pricelist_id": self.pricelist.id,
@@ -372,33 +380,31 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-02-01 00:00:00")
+    @freeze_time("2000-02-01")
     def test_three_items_sort_property(self):
-
+        # tc : should get item with min len property
         # ARRANGE
         self.create_common_scenario()
-
         self.item1 = self.env["product.pricelist.item"].create(
             {
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=3, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
             }
         )
-
         self.item2 = self.env["product.pricelist.item"].create(
             {
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=3, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pms_property_ids": [self.property1.id],
@@ -412,8 +418,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_3",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=3, hours=23, minutes=59),
                 "fixed_price": 60.0,
                 "pms_property_ids": [self.property1.id, self.property2.id],
@@ -432,15 +438,17 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "pricelist_id": self.pricelist.id,
             }
         )
+        reservation.flush()
         # ACT
         n_days = (reservation.checkout - reservation.checkin).days
-        expected_price = self.item3.fixed_price * n_days
+        expected_price = self.item2.fixed_price * n_days
+
         # ASSERT
         self.assertEqual(
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-02-01 00:00:00")
+    @freeze_time("2000-02-01")
     def test_sort_applied_on_before_date(self):
         # ARRANGE
         self.create_common_scenario()
@@ -450,8 +458,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=8, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -465,9 +473,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "product_id": self.room_type.product_id.id,
                 "product_tmpl_id": self.product_template.id,
                 "applied_on": "1_product",
-                "date_start": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=2, hours=00, minutes=00),
-                "date_end": datetime.datetime.today()
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pms_property_ids": [self.property1.id],
@@ -495,7 +503,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-02-10 00:00:00")
+    @freeze_time("2000-02-10")
     def test_sort_date_before_property(self):
         # ARRANGE
         self.create_common_scenario()
@@ -505,8 +513,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=10, hours=23, minutes=59),
                 "fixed_price": 40.0,
                 "pms_property_ids": [self.property1.id],
@@ -520,9 +528,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today()
+                "date_start_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=2, hours=00, minutes=00),
-                "date_end": datetime.datetime.today()
+                "date_end_overnight": datetime.datetime.today()
                 + datetime.timedelta(days=5, hours=23, minutes=59),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -550,7 +558,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_simple_price_without_items(self):
 
         # ARRANGE
@@ -574,7 +582,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_item_without_date_end(self):
         # ARRANGE
         self.create_common_scenario()
@@ -584,7 +592,7 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
+                "date_start_overnight": datetime.datetime.today(),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -608,7 +616,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_item_without_date_start(self):
         # ARRANGE
         self.create_common_scenario()
@@ -618,7 +626,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=60),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=60),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -643,7 +652,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_items_sorted_whitout_date_end(self):
 
         # ARRANGE
@@ -654,7 +663,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today() + datetime.timedelta(days=60),
+                "date_start_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=60),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -666,8 +676,10 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today() + datetime.timedelta(days=7),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=14),
+                "date_start_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=14),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -691,7 +703,7 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_items_sorted_whitout_date_start(self):
 
         # ARRANGE
@@ -702,8 +714,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -715,7 +728,8 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=60),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=60),
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
@@ -740,9 +754,9 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_items_sorted_whith_tie(self):
-
+        # should get last item created
         # ARRANGE
         self.create_common_scenario()
 
@@ -751,29 +765,29 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
             }
         )
-
         self.item2 = self.env["product.pricelist.item"].create(
             {
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 60.0,
                 "pricelist_id": self.pricelist.id,
                 "compute_price": "fixed",
             }
         )
-
         # ACT
         reservation = self.env["pms.reservation"].create(
             {
@@ -792,9 +806,9 @@ class TestPmsPricelistRules(common.TransactionCase):
             expected_price, reservation.price_subtotal, "The price is not as expected"
         )
 
-    @freeze_time("2000-01-01 00:00:00")
+    @freeze_time("2000-01-01")
     def test_three_items_sorted_whith_tie(self):
-
+        # # should get last item created
         # ARRANGE
         self.create_common_scenario()
 
@@ -803,8 +817,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_1",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 40.0,
                 "pricelist_id": self.pricelist.id,
@@ -817,8 +832,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_2",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 60.0,
                 "pricelist_id": self.pricelist.id,
@@ -831,8 +847,9 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "name": "item_3",
                 "applied_on": "0_product_variant",
                 "product_id": self.room_type.product_id.id,
-                "date_start": datetime.datetime.today(),
-                "date_end": datetime.datetime.today() + datetime.timedelta(days=7),
+                "date_start_overnight": datetime.datetime.today(),
+                "date_end_overnight": datetime.datetime.today()
+                + datetime.timedelta(days=7),
                 "pms_property_ids": [self.property1.id],
                 "fixed_price": 50.0,
                 "pricelist_id": self.pricelist.id,
@@ -850,6 +867,7 @@ class TestPmsPricelistRules(common.TransactionCase):
                 "pricelist_id": self.pricelist.id,
             }
         )
+
         n_days = (reservation.checkout - reservation.checkin).days
         expected_price = self.item3.fixed_price * n_days
 
