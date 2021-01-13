@@ -16,9 +16,6 @@ class TestPmsAmenity(TestHotel):
                 "name": "Pms_property_test1",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.ref(
-                    "pms.main_pms_room_type_availability_plan"
-                ),
             }
         )
         self.property2 = self.env["pms.property"].create(
@@ -26,9 +23,6 @@ class TestPmsAmenity(TestHotel):
                 "name": "Pms_property_test2",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.ref(
-                    "pms.main_pms_room_type_availability_plan"
-                ),
             }
         )
 
@@ -37,9 +31,6 @@ class TestPmsAmenity(TestHotel):
                 "name": "Pms_property_test3",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.ref(
-                    "pms.main_pms_room_type_availability_plan"
-                ),
             }
         )
 

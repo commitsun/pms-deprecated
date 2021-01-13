@@ -15,9 +15,6 @@ class TestRoomType(SavepointCase):
                 "name": "p2",
                 "company_id": self.m1.id,
                 "default_pricelist_id": self.ref("product.list0"),
-                "default_availability_plan_id": self.ref(
-                    "pms.main_pms_room_type_availability_plan"
-                ),
             }
         )
         self.m2 = self.env["res.company"].create(
@@ -30,9 +27,6 @@ class TestRoomType(SavepointCase):
                 "name": "p3",
                 "company_id": self.m2.id,
                 "default_pricelist_id": self.ref("product.list0"),
-                "default_availability_plan_id": self.ref(
-                    "pms.main_pms_room_type_availability_plan"
-                ),
             }
         )
 
