@@ -25,7 +25,6 @@ class TestPmsResUser(common.TransactionCase):
                 "name": "Pms_property",
                 "company_id": self.company_A.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.room_type_availability.id,
             }
         )
         self.property_A2 = self.env["pms.property"].create(
@@ -33,7 +32,6 @@ class TestPmsResUser(common.TransactionCase):
                 "name": "Pms_property2",
                 "company_id": self.company_A.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.room_type_availability.id,
             }
         )
         self.property_B1 = self.env["pms.property"].create(
@@ -41,7 +39,6 @@ class TestPmsResUser(common.TransactionCase):
                 "name": "Pms_propertyB1",
                 "company_id": self.company_B.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                "default_availability_plan_id": self.room_type_availability.id,
             }
         )
 

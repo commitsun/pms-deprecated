@@ -37,7 +37,6 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist1.id,
-                "default_availability_plan_id": self.test_room_type_availability1.id,
             }
         )
         # pms.room.type.class
@@ -128,7 +127,6 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "Property 1",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                # "default_availability_plan_id": self.availability_multiproperty.id,
             }
         )
         self.test_property2 = self.env["pms.property"].create(
@@ -136,7 +134,6 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "Property 2",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                # "default_availability_plan_id": self.availability_multiproperty.id,
             }
         )
         self.test_property3 = self.en["pms.property"].create(
@@ -144,7 +141,6 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "name": "Property 3",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                # "default_availability_plan_id": self.availability_multiproperty.id,
             }
         )
         self.availability_multiproperty = self.env[
