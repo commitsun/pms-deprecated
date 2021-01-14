@@ -418,14 +418,13 @@ class TestPmsPricelistRules(common.TransactionCase):
             },
             {
                 "name": "no overnight DATE START",
-                "expected_price": 40.0 * 3,
+                "expected_price": 40.0 + self.room_type.list_price * 2,
                 "items": [
                     {
                         "pricelist_id": self.pricelist.id,
                         "applied_on": "0_product_variant",
                         "product_id": self.room_type.product_id.id,
-                        "date_end_overnight": datetime.datetime.now()
-                        + datetime.timedelta(days=1),
+                        "date_end_overnight": datetime.datetime.now(),
                         "fixed_price": 40.0,
                     },
                 ],
@@ -439,6 +438,20 @@ class TestPmsPricelistRules(common.TransactionCase):
                         "applied_on": "0_product_variant",
                         "product_id": self.room_type.product_id.id,
                         "date_start_overnight": datetime.datetime.now(),
+                        "fixed_price": 40.0,
+                    },
+                ],
+            },
+            {
+                "name": "only applied overnight in one night",
+                "expected_price": 40.0 + self.room_type.list_price * 2,
+                "items": [
+                    {
+                        "pricelist_id": self.pricelist.id,
+                        "applied_on": "0_product_variant",
+                        "product_id": self.room_type.product_id.id,
+                        "date_start_overnight": datetime.datetime.now(),
+                        "date_end_overnight": datetime.datetime.now(),
                         "fixed_price": 40.0,
                     },
                 ],
