@@ -19,9 +19,9 @@ class PmsRoomTypeAvailability(models.Model):
 
     # Fields declaration
     name = fields.Char("Availability Plan Name", required=True)
-    pms_property_id = fields.Many2one(
+    pms_property_ids = fields.Many2many(
         comodel_name="pms.property",
-        string="Property",
+        string="Properties",
         ondelete="restrict",
     )
 
@@ -70,6 +70,7 @@ class PmsRoomTypeAvailability(models.Model):
         room_type_id=False,
         current_lines=False,
         pricelist=False,
+        pms_property_id=False,
     ):
         if current_lines and not isinstance(current_lines, list):
             current_lines = [current_lines]

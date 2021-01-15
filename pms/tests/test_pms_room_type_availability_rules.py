@@ -136,7 +136,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "default_pricelist_id": self.test_pricelist2.id,
             }
         )
-        self.test_property3 = self.en["pms.property"].create(
+        self.test_property3 = self.env["pms.property"].create(
             {
                 "name": "Property 3",
                 "company_id": self.env.ref("base.main_company").id,
@@ -149,10 +149,10 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
-                "pms_property_ids": {
-                    (4, self.test_property1),
-                    (4, self.test_property2),
-                },
+                "pms_property_ids": [
+                    (4, self.test_property1.id),
+                    (4, self.test_property2.id),
+                ],
             }
         )
 
@@ -628,7 +628,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 "room_type_id": self.test_room_type_double.id,
                 "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
                 "closed": True,
-                "pms_property_id": self.test_property1,
+                "pms_property_id": self.test_property1.id,
             }
         )
         self.test_room_type_availability_rule2 = self.env[
@@ -637,35 +637,38 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             {
                 "availability_plan_id": self.availability_multiproperty.id,
                 "room_type_id": self.test_room_type_double.id,
-                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "date": (fields.datetime.today() + datetime.timedelta(days=3)).date(),
                 "closed": False,
-                "pms_property_id": self.test_property2,
+                "pms_property_id": self.test_property2.id,
             }
         )
-        # ACT
-        avail_property1 = self.env["pms.room.type.availability.plan"].rooms_available(
-            checkin=fields.date.today(),
-            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
-            room_type_id=True,
-            pricelist=self.test_pricelist1.id,
-            pms_property_id=self.test_property1,
-        )
-        avail_property2 = self.env["pms.room.type.availability.plan"].rooms_available(
-            checkin=fields.date.today(),
-            checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
-            room_type_id=True,
-            pricelist=self.test_pricelist1.id,
-            pms_property_id=self.test_property2,
-        )
-        # ASSERT
+
         # check that for that date test_property1 doesnt have rooms available
         # (of that type:test_room_type_double),
         # instead, property2 has test_room_type_double available
-        asserts = {avail_property1: False, avail_property2: True}
+        properties = [
+            {"property": self.test_property1.id, "value": False},
+            {"property": self.test_property2.id, "value": True},
+        ]
 
-        for result, case in asserts:
-            with self.subTest(k=result, v=case):
-                self.assertEqual(result, case, "Availability is not correct")
+        for p in properties:
+            with self.subTest(k=p):
+                # ACT
+                avail_property1 = self.env[
+                    "pms.room.type.availability.plan"
+                ].rooms_available(
+                    checkin=fields.date.today(),
+                    checkout=(
+                        fields.datetime.today() + datetime.timedelta(days=4)
+                    ).date(),
+                    room_type_id=self.test_room_type_double.id,
+                    pricelist=self.test_pricelist1.id,
+                    pms_property_id=p["property"],
+                )
+                # ASSERT
+                self.assertEqual(
+                    avail_property1, p["value"], "Availability is not correct"
+                )
 
     def test_check_property_availability_room_type(self):
         # TEST CASE:
@@ -679,6 +682,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             {
                 "pms_property_ids": [
                     (4, self.test_property1.id),
+                    (4, self.test_property3.id),
                 ],
                 "name": "Special Room Test",
                 "code_type": "SP_Test",
@@ -690,10 +694,18 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
-                "pms_property_ids": {
-                    (4, self.test_property1),
-                    (4, self.test_property2),
-                },
+                "pms_property_ids": [
+                    (4, self.test_property1.id),
+                    (4, self.test_property2.id),
+                ],
+            }
+        )
+        self.availability_rule1 = self.env["pms.room.type.availability.rule"].create(
+            {
+                "availability_plan_id": self.availability_example.id,
+                "room_type_id": self.test_room_type_special.id,
+                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
+                "closed": True,
             }
         )
         # Test cases when creating a availability_rule
@@ -709,23 +721,14 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
 
         test_cases = [
             {
-                "availability_plan_id": self.availability_example.id,
-                "room_type_id": self.test_room_type_special.id,
-                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
-                "closed": True,
-                "pms_property_id": self.test_property2,
+                "pms_property_id": self.test_property2.id,
             },
             {
-                "availability_plan_id": self.availability_example.id,
-                "room_type_id": self.test_room_type_special.id,
-                "date": (fields.datetime.today() + datetime.timedelta(days=2)).date(),
-                "closed": True,
-                "pms_property_id": self.test_property3,
+                "pms_property_id": self.test_property3.id,
             },
         ]
         # ASSERT
-        #
         for test_case in test_cases:
             with self.subTest(k=test_case):
                 with self.assertRaises(ValidationError):
-                    self.env["pms.room.type.availability.rule"].create(test_case)
+                    self.env["pms.room.type.availability.rule"].write(test_case)
