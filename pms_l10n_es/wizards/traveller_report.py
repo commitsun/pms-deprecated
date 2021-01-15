@@ -15,9 +15,6 @@ class TravellerReport(models.TransientModel):
     txt_message = fields.Char()
 
     def generate_file(self):
-        # now = datetime.datetime.now()
-        # previous_day = now-datetime.timezone(days=1)
-        # range_time = [previous_day + timedelta(seconds=s) for s in range((now - previous_day).seconds + 1)]
         today = date.today()
         property = self.env["pms.property"].search([("id", "=", self.env.user.get_active_property_ids()[0])])
         lines = self.env['pms.checkin.partner'].search([
@@ -28,7 +25,7 @@ class TravellerReport(models.TransientModel):
         if property.police_number and property.name:
             content = "1|"+property.police_number+"|"+(property.name).upper()
             content += "|"
-            content += datetime.datetime.now().strftime("%Y%m%d|%H%M")
+            content += datetime.datetime.now().strftime("%Y%m%d|%H%M" )
             content += "|"+str(len(lines))
             checkin_count = 0
             for line in lines:
@@ -49,14 +46,21 @@ class TravellerReport(models.TransientModel):
                 content += (line.birthdate_date).strftime("%Y%m%d") + "|"
                 content += line.nationality_id.upper() + "|"
                 content +=(line.arrival).strftime("%Y%m%d") + "|"
-            print(content)
-            print(self.sequence_num)
-            return self.write({
-                'txt_filename': property.police_number + '.' + self.sequence_num,
-                'txt_message': _(
-                    'Generated file. Download it and give it to the police.'),
-                'txt_binary': base64.encodebytes(content.encode("iso-8859-1"))
-                })
+            txt_binary = self.env['traveller.report.wizard'].create({
+            'txt_filename': property.police_number+'.'+self.sequence_num,
+            'txt_binary': base64.b64encode(str.encode(content)),
+            'txt_message':content,
+            })
+            return {
+                'name': _('Download File'),
+                'res_id': txt_binary.id,
+                'res_model': 'traveller.report.wizard',
+                'target': 'new',
+                'type': 'ir.actions.act_window',
+                'view_id': self.env.ref('pms-l10n-es.traveller_report_wizard').id,
+                'view_mode': 'form',
+                'view_type': 'form',
+            }
     @api.model
     def create(self, vals):
         if vals.get('sequence_num', 'New') == 'New':

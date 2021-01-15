@@ -16,7 +16,7 @@
                         </div>
                     <group colspan="1">
                         <div>
-                            <p><field name="txt_message"/></p>
+                            <p><field name="txt_message" readonly="1"/></p>
                         </div>
                     </group>
                 </sheet>
