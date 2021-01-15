@@ -56,6 +56,12 @@ class PmsCheckinPartner(models.Model):
         store=True,
         readonly=False,
     )
+    nationality_id = fields.Char(
+        "Nationality ID",
+        compute="_compute_nationality",
+        store=True,
+        readonly=False
+    )
 
     @api.depends("partner_id", "partner_id.lastname")
     def _compute_lastname(self):
@@ -100,6 +106,12 @@ class PmsCheckinPartner(models.Model):
         for record in self:
             if not record.gender:
                 record.gender = record.partner_id.gender
+
+    @api.depends("partner_id", "partner_id.lastname")
+    def _compute_nationality(self):
+        for record in self:
+            if not record.nationality_id:
+                record.nationality_id = record.partner_id.nationality_id
 
     @api.model
     def _checkin_mandatory_fields(self, depends=False):
