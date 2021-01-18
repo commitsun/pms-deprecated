@@ -667,7 +667,7 @@ class TestPmsRoomTypeAvailabilityRules(TestHotel):
                 )
                 # ASSERT
                 self.assertEqual(
-                    avail_property1, p["value"], "Availability is not correct"
+                    len(avail_property1), p["value"], "Availability is not correct"
                 )
 
     def test_check_property_availability_room_type(self):

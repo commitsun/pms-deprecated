@@ -88,7 +88,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     _sql_constraints = [
         (
             "room_type_registry_unique",
-            "unique(availability_plan_id, room_type_id, date)",
+            "unique(availability_plan_id, room_type_id, date, pms_property_id)",
             "Only can exists one availability rule in the same \
                          day for the same room type!",
         )
