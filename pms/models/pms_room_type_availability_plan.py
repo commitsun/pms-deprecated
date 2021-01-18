@@ -89,8 +89,12 @@ class PmsRoomTypeAvailability(models.Model):
         )
 
         domain_rooms = [
-            ("id", "not in", rooms_not_avail if len(rooms_not_avail) > 0 else [])
+            ("id", "not in", rooms_not_avail if len(rooms_not_avail) > 0 else []),
         ]
+
+        if pms_property_id:
+            domain_rooms.append(("pms_property_id", "=", pms_property_id))
+
         domain_rules = [
             ("date", ">=", checkin),
             ("date", "<=", checkout),
@@ -118,6 +122,11 @@ class PmsRoomTypeAvailability(models.Model):
                 free_rooms = free_rooms.filtered(
                     lambda x: x.room_type_id.id not in room_types_to_remove
                 )
+
+        # if pms_property_id:
+        #     free_rooms = free_rooms.filtered(
+        #         lambda x: x.pms_property_id = pms_property_id
+        #     )
 
         return free_rooms.sorted(key=lambda r: r.sequence)
 
