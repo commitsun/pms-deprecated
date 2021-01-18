@@ -66,12 +66,7 @@ class ProductPricelist(models.Model):
         self, products_qty_partner, date, uom_id, prod_tmpl_ids, prod_ids, categ_ids
     ):
 
-        if (
-            "date_overnight" in self._context
-            and self._context["date_overnight"]
-            and "property" in self._context
-            and self._context["property"]
-        ):
+        if "property" in self._context and self._context["property"]:
             self.env["product.pricelist.item"].flush(
                 ["price", "currency_id", "company_id"]
             )
