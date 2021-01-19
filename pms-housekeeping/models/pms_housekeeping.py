@@ -10,10 +10,30 @@ class HouseKeeping(models.Model):
     # HouseKeeping 'log'
 
     # Fields declaration
-    cleandate = fields.Datetime(
-        string="Clean dateate", default=lambda self: fields.Datetime.now()
+
+    task_date = fields.Date(
+        string="Clean date", default=lambda self: fields.Datetime.now()
     )
-    room = fields.Many2one("pms.room", string="Room")
-    employee = fields.Many2one("hr.employee", string="Employee")
-    tasks = fields.Many2many("pms.housekeeping.task", string="Tasks")
+    task_start = fields.Datetime(string="Task start at")
+    task_end = fields.Datetime(string="Task end at")
+    room_id = fields.Many2one("pms.room", string="Room")
+    employee_id = fields.Many2one("hr.employee", string="Employee")
+    task_id = fields.Many2one("pms.housekeeping.task", string="Task")
     notes = fields.Text("Internal Notes")
+    state = fields.Selection(
+        string="Task State",
+        selection=[
+            ("draft", "Draft"),
+            ("to_do", "To Do"),
+            ("in_progress", "In Progress"),
+            ("done", "Done"),
+        ],
+    )
+
+    # Default Methods ang Gets
+    def name_get(self):
+        result = []
+        for task in self:
+            name = task.task_id.name
+            result.append((task.id, name))
+        return result

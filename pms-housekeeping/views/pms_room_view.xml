@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="inheit_pms_room_view_form" model="ir.ui.view">
+        <field name="name">view.model.form</field>
+        <field name="model">pms.room</field>
+        <field name="inherit_id" ref="pms.pms_room_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='information_pms_room']" position="inside">
+                <group colspan="4" col="4">
+                    <field name="clean_status" string="Clean Status" />
+                    <field
+                        name="clean_status_now"
+                        string="Clean Status now"
+                        attrs="{'readonly': True}"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pms_room_rack_kanban" model="ir.ui.view">
+        <field name="name">Room rack kanban view</field>
+        <field name="model">pms.room</field>
+        <field name="type">kanban</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="16" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <kanban
+                default_group_by="floor_id"
+                class="o_res_partner_kanban"
+                sample="1"
+                create="false"
+            >
+                <field name="name" />
+                <!-- <field name="employee"/>
+                <field name="clean_status"/> -->
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click_edit">
+                            <div>
+                                <div>
+                                    <field name="clean_status_now" />
+                                </div>
+                                <div style="font-size: 1.2em;">
+                                    <field name="name" />
+                                </div>
+                                <div>
+                                    <field name="clean_status" />
+                                </div>
+                                <div class="float-right">
+                                    <field
+                                        name="housekeeping_ids"
+                                        widget="many2many_tags"
+                                    />
+                                </div>
+                                <!-- <div class="float-right" style="text-align: center">
+
+                                    <t t-if="record.employee.raw_value">
+                                        <div class="o_kanban_image">
+                                            <img alt="Employee image" t-att-src="kanban_image('hr.employee', 'image_128', record.employee.raw_value)"/>
+                                            <div style="white-space: nowrap; overflow: hidden;">
+                                                <field name="employee" placeholder="Employee Name"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-if="!record.employee.raw_value">
+                                        <span class="fa fa-exclamation-triangle" style="font-size: 52px;color: #f3a0a0;"></span>
+                                        <p>Not asigned</p>
+                                    </t>
+                                </div> -->
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+</odoo>

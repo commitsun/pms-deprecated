@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
-
     <record id="view_pms_housekeeping_tree" model="ir.ui.view">
         <field name="name">Housekeeping view</field>
         <field name="model">pms.housekeeping</field>
@@ -10,11 +8,12 @@
         <field name="priority" eval="16" />
         <field name="active" eval="True" />
         <field name="arch" type="xml">
-            <tree string=" Property Ubications">
-                <field name="cleandate" colspan="1" />
-                <field name="room" colspan="1" />
-                <field name="employee" colspan="1" />
-                <field name="tasks" colspan="1" />
+            <tree string="Housekeeping tasks">
+                <field name="task_date" colspan="1" />
+                <field name="state" colspan="1" />
+                <field name="room_id" colspan="1" />
+                <field name="employee_id" colspan="1" />
+                <field name="task_id" colspan="1" />
                 <field name="notes" colspan="1" />
             </tree>
         </field>
@@ -26,12 +25,32 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+<record model="ir.actions.act_window" id="action_pms_room_rack_kanban">
+    <field name="name">Housekeeping</field>
+    <field name="res_model">pms.room</field>
+    <field name="view_mode">kanban</field>
+</record>
+
     <menuitem
         name="Housekeeping"
-        id="menu_action_pms_house_keeping_view_form"
-        action="action_pms_house_keeping_view_form"
+        id="menu_action_pms_house_keeping"
         sequence="30"
         parent="pms.pms_reports_menu"
+    />
+    <menuitem
+        name="Tasks Log"
+        id="menu_action_pms_house_keeping_view_form"
+        action="action_pms_house_keeping_view_form"
+        sequence="10"
+        parent="pms-housekeeping.menu_action_pms_house_keeping"
+    />
+
+    <menuitem
+        name="Rack"
+        id="menu_action_pms_house_keeping_view_rack"
+        action="pms-housekeeping.action_pms_room_rack_kanban"
+        sequence="20"
+        parent="pms-housekeeping.menu_action_pms_house_keeping"
     />
 
 </odoo>

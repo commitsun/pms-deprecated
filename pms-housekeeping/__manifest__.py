@@ -1,5 +1,4 @@
-# Copyright 2020 Jose Luis Algara (Alda Hotels <https://www.aldahotels.es>)
-
+# Copyright 2020-21 Jose Luis Algara (Alda Hotels <https://www.aldahotels.es>)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
@@ -15,8 +14,11 @@
         "hr",
     ],
     "data": [
+        # "wizard/housekeeping_rack.xml",
         "views/pms_housekeeping_task_view.xml",
         "views/pms_housekeeping_views.xml",
+        "views/pms_room_view.xml",
+        "views/pms_reservation_view.xml",
         "security/ir.model.access.csv",
     ],
     "demo": [

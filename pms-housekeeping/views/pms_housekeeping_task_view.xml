@@ -12,7 +12,7 @@
         <tree string=" Property Ubications">
             <field name="active" colspan="1" />
             <field name="name" colspan="1" />
-            <field name="pms_property_ids" colspan="1" />
+            <!-- <field name="pms_property_ids" colspan="1" /> -->
         </tree>
     </field>
 </record>
