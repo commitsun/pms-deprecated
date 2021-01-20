@@ -91,14 +91,14 @@ class PmsRoomTypeAvailability(models.Model):
         domain_rooms = [
             ("id", "not in", rooms_not_avail if len(rooms_not_avail) > 0 else []),
         ]
-
-        if pms_property_id:
-            domain_rooms.append(("pms_property_id", "=", pms_property_id))
-
         domain_rules = [
             ("date", ">=", checkin),
             ("date", "<=", checkout),
         ]
+
+        if pms_property_id:
+            domain_rooms.append(("pms_property_id", "=", pms_property_id))
+            domain_rules.append(("pms_property_id", "=", pms_property_id))
 
         if room_type_id:
             domain_rooms.append(("room_type_id", "=", room_type_id))
