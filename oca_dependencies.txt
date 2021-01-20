@@ -1,2 +1,5 @@
 partner-contact
 reporting-engine
+queue
+connector
+connector https://github.com/nuobit/connector 14.0-mig-connector
