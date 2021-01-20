@@ -478,7 +478,7 @@ class TestPmsPricelistRules(common.TransactionCase):
                         "pricelist_id": self.pricelist.id,
                     }
                 )
-                reservation_price = reservation.price_total
+                reservation_price = reservation.price_subtotal
                 self.env["pms.reservation"].browse(reservation.id).unlink()
                 self.env["product.pricelist.item"].browse(items).unlink()
 
