@@ -43,11 +43,32 @@ class AccountMoveLine(models.Model):
         string="Folio Lines",
         copy=False,
     )
+    folio_ids = fields.Many2many(
+        "pms.folio",
+        "payment_folio_rel",
+        "move_id",
+        "folio_id",
+        string="Folios",
+        ondelete="cascade",
+        compute="_compute_folio_ids",
+        readonly=False,
+        store=True,
+    )
     name = fields.Char(
         compute="_compute_name",
         readonly=False,
         store=True,
     )
+
+    @api.depends("service_ids", "reservation_ids")
+    def _compute_folio_ids(self):
+        for record in self:
+            if record.service_ids:
+                record.folio_ids = record.mapped("service_ids.folio_id")
+            elif record.reservation_ids:
+                record.folio_ids = record.mapped("reservation_ids.folio_id")
+            elif not record.folio_ids:
+                record.folio_ids = False
 
     def invoice_filter_days(self):
         action = self.env["ir.actions.act_window"]._for_xml_id(

@@ -94,6 +94,14 @@ class PmsFolio(models.Model):
         required=True,
         default=lambda self: self.env.company,
     )
+    move_line_ids = fields.Many2many(
+        "account.move.line",
+        "payment_folio_rel",
+        "folio_id",
+        "move_id",
+        string="Payments",
+        readonly=True,
+    )
     analytic_account_id = fields.Many2one(
         "account.analytic.account",
         "Analytic Account",
@@ -148,8 +156,6 @@ class PmsFolio(models.Model):
         ondelete="restrict",
         domain=[("channel_type", "=", "direct")],
     )
-    payment_ids = fields.One2many("account.payment", "folio_id", readonly=True)
-    # return_ids = fields.One2many("payment.return", "folio_id", readonly=True)
     transaction_ids = fields.Many2many(
         "payment.transaction",
         "folio_transaction_rel",
@@ -194,6 +200,19 @@ class PmsFolio(models.Model):
         search="_search_invoice_ids",
         readonly=True,
         copy=False,
+    )
+    payment_state = fields.Selection(
+        selection=[
+            ("not_paid", "Not Paid"),
+            ("paid", "Paid"),
+            ("partial", "Partially Paid"),
+        ],
+        string="Payment Status",
+        store=True,
+        readonly=True,
+        copy=False,
+        tracking=True,
+        compute="_compute_amount",
     )
     partner_invoice_id = fields.Many2one(
         "res.partner",
@@ -354,6 +373,7 @@ class PmsFolio(models.Model):
             services_without_room = folio.service_ids.filtered(
                 lambda s: not s.reservation_id
             )
+            # TODO: Not delete old sale line ids
             for reservation in reservations:
                 sale_lines.append(
                     (
@@ -630,39 +650,67 @@ class PmsFolio(models.Model):
             )
 
     # TODO: Add return_ids to depends
-    @api.depends("amount_total", "payment_ids", "reservation_type", "state")
+    @api.depends(
+        "amount_total",
+        "reservation_type",
+        "state",
+        "move_line_ids",
+        "move_line_ids.parent_state",
+        "sale_line_ids.invoice_lines",
+        "sale_line_ids.invoice_lines.move_id.payment_state",
+    )
     def _compute_amount(self):
-        acc_pay_obj = self.env["account.payment"]
         for record in self:
             if record.reservation_type in ("staff", "out"):
                 vals = {
                     "pending_amount": 0,
                     "invoices_paid": 0,
-                    # "refund_amount": 0,
                 }
                 record.update(vals)
             else:
-                total_inv_refund = 0
-                payments = acc_pay_obj.search([("folio_id", "=", record.id)])
-                total_paid = sum(pay.amount for pay in payments)
-                # return_lines = self.env["payment.return.line"].search(
-                #     [
-                #         ("move_line_ids", "in", payments.mapped("move_line_ids.id")),
-                #         ("return_id.state", "=", "done"),
-                #     ]
-                # )
-                # total_inv_refund = sum(
-                #   pay_return.amount for pay_return in return_lines
-                # )
+                journals = record.pms_property_id._get_payment_methods()
+                paid_out = 0
+                for journal in journals:
+                    paid_out += sum(
+                        self.env["account.move.line"]
+                        .search(
+                            [
+                                ("folio_ids", "in", record.id),
+                                (
+                                    "account_id",
+                                    "in",
+                                    tuple(
+                                        journal.default_account_id.ids
+                                        + journal.payment_debit_account_id.ids
+                                        + journal.payment_credit_account_id.ids
+                                    ),
+                                ),
+                                (
+                                    "display_type",
+                                    "not in",
+                                    ("line_section", "line_note"),
+                                ),
+                                ("move_id.state", "!=", "cancel"),
+                            ]
+                        )
+                        .mapped("balance")
+                    )
                 total = record.amount_total
                 # REVIEW: Must We ignored services in cancelled folios
                 # pending amount?
                 if record.state == "cancelled":
                     total = total - sum(record.service_ids.mapped("price_total"))
+                # Compute 'payment_state'.
+                if total <= paid_out:
+                    payment_state = "paid"
+                elif paid_out < total:
+                    payment_state = "partial"
+                else:
+                    payment_state = "not_paid"
                 vals = {
-                    "pending_amount": total - total_paid + total_inv_refund,
-                    "invoices_paid": total_paid,
-                    # "refund_amount": total_inv_refund,
+                    "pending_amount": total - paid_out,
+                    "invoices_paid": paid_out,
+                    "payment_state": payment_state,
                 }
                 record.update(vals)
 
@@ -670,26 +718,9 @@ class PmsFolio(models.Model):
 
     def action_pay(self):
         self.ensure_one()
-        partner = self.partner_id.id
-        amount = self.pending_amount
-        view_id = self.env.ref("pms.account_payment_view_form_folio").id
-        return {
-            "name": _("Register Payment"),
-            "view_type": "form",
-            "view_mode": "form",
-            "res_model": "account.payment",
-            "type": "ir.actions.act_window",
-            "view_id": view_id,
-            "context": {
-                "default_folio_id": self.id,
-                "default_amount": amount,
-                "default_payment_type": "inbound",
-                "default_partner_type": "customer",
-                "default_partner_id": partner,
-                "default_communication": self.name,
-            },
-            "target": "new",
-        }
+        action = self.env.ref("pms.action_payment_folio").sudo().read()[0]
+        action["res_id"] = self.id
+        return action
 
     def open_moves_folio(self):
         invoices = self.mapped("move_ids")

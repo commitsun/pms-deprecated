@@ -25,7 +25,7 @@
                         'invisible': [('reservation_line_ids', '=', [])]
                     }"
                 />
-                <field name="reservation_line_ids" invisible="0" />
+                <field name="reservation_line_ids" invisible="1" />
             </xpath>
             <!-- <xpath
                 expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']"

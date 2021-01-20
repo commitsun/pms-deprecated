@@ -42,3 +42,6 @@ from . import pms_board_service_line
 from . import account_move_line
 from . import pms_cancelation_rule
 from . import folio_sale_line
+from . import account_bank_statement_line
+from . import account_bank_statement
+from . import account_journal
