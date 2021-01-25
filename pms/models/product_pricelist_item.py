@@ -34,27 +34,30 @@ class ProductPricelistItem(models.Model):
     def _compute_allowed_property_ids(self):
         for record in self:
             properties = []
-            if not (
-                record.pricelist_id.pms_property_ids
-                or record.product_id.pms_property_ids
-            ):
+            if record.applied_on == "0_product_variant":
+                product = record.product_id
+            elif record.applied_on == "1_product":
+                product = record.product_tmpl_id
+            else:
+                product.pms_property_ids = False
+            if not (record.pricelist_id.pms_property_ids or product.pms_property_ids):
                 record.allowed_property_ids = False
             else:
                 if record.pricelist_id.pms_property_ids:
-                    if record.product_id.pms_property_ids:
+                    if product.pms_property_ids:
                         properties = list(
                             set(record.pricelist_id.pms_property_ids.ids)
-                            & set(record.product_id.pms_property_ids.ids)
+                            & set(product.pms_property_ids.ids)
                         )
                         record.allowed_property_ids = self.env["pms.property"].search(
                             [("id", "in", properties)]
                         )
                     else:
-                        record.allowed_property_ids = (
-                            record.pricelist_id.pms_property_ids
-                        )
+                        record.allowed_property_ids = product.pms_property_ids
                 else:
-                    record.allowed_property_ids = record.product_id.pms_property_ids
+                    record.allowed_property_ids = product.pms_property_ids
+            # else:
+            #   record.allowed_property_ids = False
 
     @api.constrains(
         "allowed_property_ids",

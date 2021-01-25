@@ -26,14 +26,6 @@ class PmsRoomType(models.Model):
         delegate=True,
         ondelete="cascade",
     )
-    pms_property_ids = fields.Many2many(
-        "pms.property",
-        "pms_property_room_type_rel",
-        "room_type_id",
-        "pms_property_id",
-        ondelete="restrict",
-        string="Properties",
-    )
     room_ids = fields.One2many("pms.room", "room_type_id", "Rooms")
     class_id = fields.Many2one("pms.room.type.class", "Property Type Class")
     board_service_room_type_ids = fields.One2many(
