@@ -127,3 +127,24 @@ class TestPmsPricelist(common.TransactionCase):
                     "pms_property_ids": [self.property3.id],
                 }
             )
+
+    def test_cancelation_rule_property(self):
+        # ARRANGE
+        self.create_common_scenario()
+        Pricelist = self.env["product.pricelist"]
+        # ACT
+        self.cancelation_rule = self.env["pms.cancelation.rule"].create(
+            {
+                "name": "Cancelation Rule Test",
+                "pms_property_ids": [self.property1.id, self.property3.id],
+            }
+        )
+        # ASSERT
+        with self.assertRaises(ValidationError):
+            Pricelist.create(
+                {
+                    "name": "Pricelist Test",
+                    "pms_property_ids": [self.property1.id, self.property2.id],
+                    "cancelation_rule_id": self.cancelation_rule.id,
+                }
+            )

@@ -8,7 +8,13 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     pms_property_ids = fields.Many2many(
-        "pms.property", string="Properties", required=False, ondelete="restrict"
+        comodel_name="pms.property",
+        relation="product_template_property_rel",
+        column1="product_tmpl_id",
+        column2="property_id",
+        string="Properties",
+        required=False,
+        ondelete="restrict",
     )
     per_day = fields.Boolean("Unit increment per day")
     per_person = fields.Boolean("Unit increment per person")
