@@ -15,3 +15,15 @@ class HouseKeepingTask(models.Model):
     pms_property_ids = fields.Many2many(
         "pms.property", string="Properties", required=False, ondelete="restrict"
     )
+    clean_type = fields.Selection(
+        string="Clean type",
+        selection=[
+            ("occupied", "Occupied"),
+            ("exit", "Exit"),
+            ("picked_up", "Picked up"),
+            ("staff", "Staff"),
+            ("clean", "Clean"),
+            ("inspected", "Inspected"),
+            ("dont_disturb", "Don't disturb"),
+        ],
+    )

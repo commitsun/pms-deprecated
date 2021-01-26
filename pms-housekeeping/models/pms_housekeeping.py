@@ -12,13 +12,13 @@ class HouseKeeping(models.Model):
     # Fields declaration
 
     task_date = fields.Date(
-        string="Clean date", default=lambda self: fields.Datetime.now()
+        string="Clean date", default=lambda self: fields.Datetime.now(), required=True
     )
     task_start = fields.Datetime(string="Task start at")
     task_end = fields.Datetime(string="Task end at")
     room_id = fields.Many2one("pms.room", string="Room")
     employee_id = fields.Many2one("hr.employee", string="Employee")
-    task_id = fields.Many2one("pms.housekeeping.task", string="Task")
+    task_id = fields.Many2one("pms.housekeeping.task", string="Task", required=True)
     notes = fields.Text("Internal Notes")
     state = fields.Selection(
         string="Task State",
@@ -28,6 +28,7 @@ class HouseKeeping(models.Model):
             ("in_progress", "In Progress"),
             ("done", "Done"),
         ],
+        default="draft",
     )
 
     # Default Methods ang Gets
@@ -36,4 +37,8 @@ class HouseKeeping(models.Model):
         for task in self:
             name = task.task_id.name
             result.append((task.id, name))
+            # Debug Stop -------------------
+        # import wdb
+        # wdb.set_trace()
+        # Debug Stop -------------------
         return result

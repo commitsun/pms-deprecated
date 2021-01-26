@@ -25,31 +25,40 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-<record model="ir.actions.act_window" id="action_pms_room_rack_kanban">
-    <field name="name">Housekeeping</field>
-    <field name="res_model">pms.room</field>
-    <field name="view_mode">kanban</field>
-</record>
+    <record model="ir.actions.act_window" id="action_pms_house_keeping_view_today_form">
+        <field name="name">Housekeeping</field>
+        <field name="res_model">pms.housekeeping</field>
+        <field
+            name="domain"
+        >[('task_date', '=',(context_today().strftime('%Y-%m-%d')))]</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 
     <menuitem
         name="Housekeeping"
         id="menu_action_pms_house_keeping"
-        sequence="30"
-        parent="pms.pms_reports_menu"
+        sequence="17"
+        parent="pms.pms_management_menu"
     />
     <menuitem
-        name="Tasks Log"
-        id="menu_action_pms_house_keeping_view_form"
-        action="action_pms_house_keeping_view_form"
+        name="Room Rack"
+        id="menu_action_pms_house_keeping_view_rack"
+        action="pms-housekeeping.action_pms_room_rack_kanban"
         sequence="10"
         parent="pms-housekeeping.menu_action_pms_house_keeping"
     />
-
     <menuitem
-        name="Rack"
-        id="menu_action_pms_house_keeping_view_rack"
-        action="pms-housekeeping.action_pms_room_rack_kanban"
+        name="Today Tasks"
+        id="menu_action_pms_house_keeping_view_today_form"
+        action="action_pms_house_keeping_view_today_form"
         sequence="20"
+        parent="pms-housekeeping.menu_action_pms_house_keeping"
+    />
+    <menuitem
+        name="Tasks History"
+        id="menu_action_pms_house_keeping_view_form"
+        action="action_pms_house_keeping_view_form"
+        sequence="30"
         parent="pms-housekeeping.menu_action_pms_house_keeping"
     />
 

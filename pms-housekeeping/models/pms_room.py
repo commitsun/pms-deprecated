@@ -9,8 +9,15 @@ from odoo import fields, models
 class PmsRoom(models.Model):
     _inherit = "pms.room"
 
+    housekeeping_ids = fields.One2many(
+        string="Housekeeping tasks",
+        comodel_name="pms.housekeeping",
+        inverse_name="room_id",
+        domain=[("task_date", "=", datetime.now().date())],
+    )
+
     clean_status = fields.Selection(
-        string="Clean Status",
+        string="Clean type",
         selection=[
             ("occupied", "Occupied"),
             ("exit", "Exit"),
@@ -20,21 +27,13 @@ class PmsRoom(models.Model):
             ("inspected", "Inspected"),
             ("dont_disturb", "Don't disturb"),
         ],
-        default="clean",
-    )
-
-    housekeeping_ids = fields.One2many(
-        string="Housekeeping tasks",
-        comodel_name="pms.housekeeping",
-        inverse_name="room_id",
-        compute="_compute_housekeeping_tasks",
-        store=True,
-        readonly=True,
-    )
-
-    clean_status_now = fields.Char(
-        "Clean Status 2",
         compute="_compute_clean_status",
+        # store=True,
+    )
+
+    employee_id = fields.Many2one("hr.employee", string="Asigned employee")
+    employee_picture = fields.Binary(
+        string="Employee picture", related="employee_id.image_1920"
     )
 
     def _compute_housekeeping_tasks(self):
@@ -45,21 +44,16 @@ class PmsRoom(models.Model):
                     ("task_date", "=", datetime.now().date()),
                 ]
             )
-            # Debug Stop -------------------
-            # import wdb
-            # wdb.set_trace()
-            # Debug Stop -------------------
             self.housekeeping_ids = tasks
         return tasks
 
     # @api.depends('clean_status_now')
     def _compute_clean_status(self):
         for room in self:
-            room.clean_status_now = room.get_clean_status()
+            room.clean_status = room.get_clean_status()
         return
 
     # Business methods
-
     def get_clean_status(self, date_clean=datetime.now().date(), margin_days=5):
         status = "NONE"
         reservations = self.env["pms.reservation.line"].search(
@@ -88,8 +82,9 @@ class PmsRoom(models.Model):
             elif len(lasts_res) != 0:
                 status = "clean"
             else:
-                # TODO hace cauntos dias se limpio o repaso.??
+                # TODO hace cuantos dias se limpio o repaso.??
                 status = "picked_up"
+            return status
         else:
             if yesterday_res.reservation_id != today_res.reservation_id:
                 status = "exit"
@@ -102,3 +97,24 @@ class PmsRoom(models.Model):
                     status = "occupied"
                     # TODO hace cauntos dias que la ocupa.??
         return status
+
+    def add_today_tasks(self):
+        for room in self:
+            # Debug Stop -------------------
+            # import wdb
+            # wdb.set_trace()
+            # Debug Stop -------------------
+            tasks = self.env["pms.housekeeping.task"].search(
+                [("clean_type", "=", room.clean_status)]
+            )
+            for task in tasks:
+                new_task = self.env["pms.housekeeping"]
+                new_task = new_task.create(
+                    {
+                        "room_id": room.id,
+                        "employee_id": room.employee_id.id,
+                        "task_id": task.id,
+                        "state": "draft",
+                    }
+                )
+        return

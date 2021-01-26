@@ -9,13 +9,112 @@
             <xpath expr="//page[@name='information_pms_room']" position="inside">
                 <group colspan="4" col="4">
                     <field name="clean_status" string="Clean Status" />
-                    <field
-                        name="clean_status_now"
-                        string="Clean Status now"
-                        attrs="{'readonly': True}"
-                    />
+                    <!-- <field name="clean_type" string="Clean Type" attrs="{'readonly': True}" /> -->
                 </group>
             </xpath>
+        </field>
+    </record>
+
+    <record id="view_pms_room_rack_form" model="ir.ui.view">
+        <field name="name">Room rack form view</field>
+        <field name="model">pms.room</field>
+        <field name="type">form</field>
+        <field name="priority" eval="40" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <form string="Property Room">
+                <group col="4" colspan="4" name="header">
+                    <field
+                        name="name"
+                        readonly="1"
+                        nolabel="1"
+                        style="font-size: 2em;"
+                    />
+                    <group col="1">
+                        <field name="employee_id" />
+                    </group>
+                    <group col="1">
+                        <field
+                            name="employee_picture"
+                            widget="image"
+                            class="oe_left oe_avatar"
+                            nolabel="1"
+                            readonly="1"
+                        />
+                    </group>
+                </group>
+                <group col="4" colspan="4" name="status" string="Clean type and status">
+                    <field
+                        name="clean_status"
+                        readonly="1"
+                        nolabel="1"
+                        style="font-size: 2em;"
+                    />
+                    <!-- <group col="1">
+                        <field name="clean_status" />
+                    </group> -->
+                </group>
+
+                <separator string="Task Lines" colspan="4" />
+
+                <field
+                    name="housekeeping_ids"
+                    readonly="0"
+                    context="{'default_state': 'to_do',
+                                                                      'default_employee_id': employee_id,
+                                                                      'tree_view_ref':'view_pms_room_rack_tree',
+                                                                      'form_view_ref':'view_pms_room_rack_form',
+                                                                      'default_room_id': id}"
+                />
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pms_room_rack_tree" model="ir.ui.view">
+        <field name="name">Room rack tree view</field>
+        <field name="model">pms.room</field>
+        <field name="type">tree</field>
+        <field name="priority" eval="20" />
+        <field name="active" eval="True" />
+        <field name="arch" type="xml">
+            <tree string="Property Room">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="capacity" />
+                <!-- <field name="clean_type" /> -->
+                <field name="clean_status" />
+                <field name="employee_id" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_filter_room_rack" model="ir.ui.view">
+        <field name="model">pms.room</field>
+        <field name="arch" type="xml">
+            <search string="Housekeeping filters">
+                <field name="employee_id" />
+                <field name="floor_id" />
+                <!-- <filter name="filter_occupied" string="Occupied" domain="[('clean_status','=','occupied')]"/> -->
+
+                <searchpanel>
+                    <field
+                        name="floor_id"
+                        string="Floor"
+                        enable_counters="1"
+                        select="multi"
+                        icon="fa-building"
+                    />
+                    <field
+                        name="employee_id"
+                        string="Employee"
+                        enable_counters="1"
+                        select="multi"
+                        icon="fa-user"
+                    />
+                    <!-- <field name="clean_status" string="Clean Type" enable_counters="1" select="multi"/> -->
+                </searchpanel>
+            </search>
         </field>
     </record>
 
@@ -28,48 +127,88 @@
         <field name="active" eval="True" />
         <field name="arch" type="xml">
             <kanban
-                default_group_by="floor_id"
+                default_group_by="employee_id"
+                default_order="floor_id"
                 class="o_res_partner_kanban"
                 sample="1"
+                group_create="false"
                 create="false"
             >
                 <field name="name" />
-                <!-- <field name="employee"/>
-                <field name="clean_status"/> -->
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click_edit">
-                            <div>
-                                <div>
-                                    <field name="clean_status_now" />
+                            <div class="o_dropdown_kanban dropdown">
+                                <!-- Top-right drop down menu here... -->
+                            </div>
+                            <div class="oe_kanban_body">
+                                <!-- Content elements and fields go here... -->
+                                <t t-if="record.employee_id.raw_value">
+                                    <div class="o_kanban_image float-right">
+                                        <img
+                                            alt="Employee image"
+                                            t-att-src="kanban_image('hr.employee', 'image_128', record.employee_id.raw_value)"
+                                        />
+                                        <div
+                                            style="white-space: nowrap; overflow: hidden;"
+                                        >
+                                            <field
+                                                name="employee_id"
+                                                placeholder="Employee Name"
+                                            />
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="!record.employee_id.raw_value">
+                                    <div class="o_kanban_image float-right">
+                                        <span
+                                            class="fa fa-exclamation-triangle"
+                                            style="font-size: 52px;color: #f3a0a0;"
+                                        />
+                                        <div
+                                            style="white-space: nowrap; overflow: hidden;"
+                                        >
+                                            <p>Unassigned</p>
+                                        </div>
+                                    </div>
+                                </t>
+                                <div style="font-size: 1.12em;">
+                                    <field name="clean_status" />
                                 </div>
                                 <div style="font-size: 1.2em;">
                                     <field name="name" />
+
+                                       <!-- class="oe_stat_button" -->
                                 </div>
-                                <div>
-                                    <field name="clean_status" />
+                            </div>
+                                    <button
+                                type="object"
+                                name="add_today_tasks"
+                                help="Add the housekeeping tasks"
+                            >
+                                        <span class="fa fa-plus-square" />
+                                    </button>
+
+
+                            <div class="oe_kanban_footer">
+                                <div class="oe_kanban_footer_left">
+                                    <!-- Left hand footer... -->
+
+                                    <div>
+                                        <!-- <field name="clean_type" /> -->
+                                    </div>
                                 </div>
-                                <div class="float-right">
+                                <div class="oe_kanban_footer_right">
+                                    <!-- Right hand footer... -->
                                     <field
                                         name="housekeeping_ids"
                                         widget="many2many_tags"
+                                        domain="[('state', '=', 'draft')]"
                                     />
                                 </div>
-                                <!-- <div class="float-right" style="text-align: center">
-
-                                    <t t-if="record.employee.raw_value">
-                                        <div class="o_kanban_image">
-                                            <img alt="Employee image" t-att-src="kanban_image('hr.employee', 'image_128', record.employee.raw_value)"/>
-                                            <div style="white-space: nowrap; overflow: hidden;">
-                                                <field name="employee" placeholder="Employee Name"/>
-                                            </div>
-                                        </div>
-                                    </t>
-                                    <t t-if="!record.employee.raw_value">
-                                        <span class="fa fa-exclamation-triangle" style="font-size: 52px;color: #f3a0a0;"></span>
-                                        <p>Not asigned</p>
-                                    </t>
-                                </div> -->
+                            </div>
+                            <div class="oe_clear" />
+                            <div>
                             </div>
                         </div>
                     </t>
@@ -77,5 +216,21 @@
             </kanban>
         </field>
     </record>
+    <record model="ir.actions.act_window" id="action_pms_room_rack_kanban">
+        <field name="name">Housekeeping</field>
+        <field name="res_model">pms.room</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
+        (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_pms_room_rack_kanban')}),
+        (0, 0, {'view_mode': 'tree', 'view_id': ref('view_pms_room_rack_tree')}),
+        (0, 0, {'view_mode': 'form', 'view_id': ref('view_pms_room_rack_form')})]"
+        />
+    </record>
+<!--
+    <menuitem name="Housekeeping" id="menu_action_pms_house_keeping" sequence="17" parent="pms.pms_management_menu" />
+    <menuitem name="Tasks Log" id="menu_action_pms_house_keeping_view_form" action="action_pms_house_keeping_view_form" sequence="10" parent="pms-housekeeping.menu_action_pms_house_keeping" />
+    <menuitem name="Rack" id="menu_action_pms_house_keeping_view_rack" action="pms-housekeeping.action_pms_room_rack_kanban" sequence="20" parent="pms-housekeeping.menu_action_pms_house_keeping" /> -->
 
 </odoo>

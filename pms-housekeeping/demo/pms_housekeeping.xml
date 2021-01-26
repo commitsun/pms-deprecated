@@ -4,9 +4,11 @@
         <!-- pms.housekeeping.task -->
         <record id="pms_housekeeping_task_0" model="pms.housekeeping.task">
             <field name="name">Full clean</field>
+            <field name="clean_type">exit</field>
         </record>
         <record id="pms_housekeeping_task_1" model="pms.housekeeping.task">
             <field name="name">Soft clean</field>
+            <field name="clean_type">occupied</field>
         </record>
         <record id="pms_housekeeping_task_2" model="pms.housekeeping.task">
             <field name="name">Review</field>
