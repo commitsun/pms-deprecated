@@ -1,9 +1,12 @@
 # Copyright 2021 Jose Luis Algara (Alda Hotels <https://www.aldahotels.es>)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
 from datetime import datetime, timedelta
 
 from odoo import fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class PmsRoom(models.Model):
@@ -31,21 +34,10 @@ class PmsRoom(models.Model):
         # store=True,
     )
 
-    employee_id = fields.Many2one("hr.employee", string="Asigned employee")
+    employee_id = fields.Many2one("hr.employee", string="Assigned employee")
     employee_picture = fields.Binary(
         string="Employee picture", related="employee_id.image_1920"
     )
-
-    def _compute_housekeeping_tasks(self):
-        for room in self:
-            tasks = self.env["pms.housekeeping"].search(
-                [
-                    ("room_id", "=", room.id),
-                    ("task_date", "=", datetime.now().date()),
-                ]
-            )
-            self.housekeeping_ids = tasks
-        return tasks
 
     # @api.depends('clean_status_now')
     def _compute_clean_status(self):
@@ -54,8 +46,10 @@ class PmsRoom(models.Model):
         return
 
     # Business methods
-    def get_clean_status(self, date_clean=datetime.now().date(), margin_days=5):
+    def get_clean_status(self, date_clean=False, margin_days=5):
         status = "NONE"
+        if not date_clean:
+            date_clean = fields.Date.today()
         reservations = self.env["pms.reservation.line"].search(
             [
                 ("room_id", "=", self.id),
@@ -95,21 +89,21 @@ class PmsRoom(models.Model):
                     status = "dont_disturb"
                 else:
                     status = "occupied"
-                    # TODO hace cauntos dias que la ocupa.??
+                    # TODO hace cuantos dias que la ocupa.??
         return status
 
     def add_today_tasks(self):
+        # Debug Stop -------------------
+        # import wdb
+        # wdb.set_trace()
+        # Debug Stop -------------------
         for room in self:
-            # Debug Stop -------------------
-            # import wdb
-            # wdb.set_trace()
-            # Debug Stop -------------------
             tasks = self.env["pms.housekeeping.task"].search(
                 [("clean_type", "=", room.clean_status)]
             )
             for task in tasks:
                 new_task = self.env["pms.housekeeping"]
-                new_task = new_task.create(
+                new_task.create(
                     {
                         "room_id": room.id,
                         "employee_id": room.employee_id.id,
@@ -117,4 +111,11 @@ class PmsRoom(models.Model):
                         "state": "draft",
                     }
                 )
+        return
+
+    def add_all_today_tasks(self):
+        rooms = self.env["pms.room"].search([])
+        _logger.warning("Init Add All today Task")
+        for room in rooms:
+            room.add_today_tasks()
         return

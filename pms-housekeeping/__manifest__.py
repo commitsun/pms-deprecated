@@ -20,6 +20,7 @@
         "views/pms_room_view.xml",
         "views/pms_reservation_view.xml",
         "security/ir.model.access.csv",
+        "data/cron_jobs.xml",
     ],
     "demo": [
         "demo/pms_housekeeping.xml",

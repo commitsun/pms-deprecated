@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <record id="inheit_pms_room_view_form" model="ir.ui.view">
+    <record id="inherit_pms_room_view_form" model="ir.ui.view">
         <field name="name">view.model.form</field>
         <field name="model">pms.room</field>
         <field name="inherit_id" ref="pms.pms_room_view_form" />
@@ -61,10 +61,10 @@
                     name="housekeeping_ids"
                     readonly="0"
                     context="{'default_state': 'to_do',
-                                                                      'default_employee_id': employee_id,
-                                                                      'tree_view_ref':'view_pms_room_rack_tree',
-                                                                      'form_view_ref':'view_pms_room_rack_form',
-                                                                      'default_room_id': id}"
+                              'default_employee_id': employee_id,
+                              'tree_view_ref':'view_pms_room_rack_tree',
+                              'form_view_ref':'view_pms_room_rack_form',
+                              'default_room_id': id}"
                 />
 
             </form>
@@ -82,7 +82,6 @@
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="capacity" />
-                <!-- <field name="clean_type" /> -->
                 <field name="clean_status" />
                 <field name="employee_id" />
             </tree>
@@ -134,6 +133,16 @@
                 group_create="false"
                 create="false"
             >
+<!--                <header>-->
+<!--                    <button name="add_all_today_tasks"-->
+<!--                    type="object"-->
+<!--                    string="Return Books"-->
+<!--                    attrs="{'invisible':-->
+<!--                    [('state', 'in', ['new', 'done'])]}"-->
+<!--                    class="oe_highlight" />-->
+<!--                </header>-->
+
+
                 <field name="name" />
                 <templates>
                     <t t-name="kanban-box">
@@ -162,6 +171,7 @@
                                 <t t-if="!record.employee_id.raw_value">
                                     <div class="o_kanban_image float-right">
                                         <span
+                                            title="warning"
                                             class="fa fa-exclamation-triangle"
                                             style="font-size: 52px;color: #f3a0a0;"
                                         />
@@ -181,18 +191,16 @@
                                        <!-- class="oe_stat_button" -->
                                 </div>
                             </div>
-                                    <button
-                                type="object"
-                                name="add_today_tasks"
-                                help="Add the housekeeping tasks"
-                            >
-                                        <span class="fa fa-plus-square" />
-                                    </button>
 
 
                             <div class="oe_kanban_footer">
                                 <div class="oe_kanban_footer_left">
                                     <!-- Left hand footer... -->
+                                    <field
+                                        name="housekeeping_ids"
+                                        widget="many2many_tags"
+                                        domain="[('state', '=', 'draft')]"
+                                    />
 
                                     <div>
                                         <!-- <field name="clean_type" /> -->
@@ -200,11 +208,16 @@
                                 </div>
                                 <div class="oe_kanban_footer_right">
                                     <!-- Right hand footer... -->
-                                    <field
-                                        name="housekeeping_ids"
-                                        widget="many2many_tags"
-                                        domain="[('state', '=', 'draft')]"
-                                    />
+                                    <a
+                                        type="object"
+                                        name="add_today_tasks"
+                                        help="Add the housekeeping tasks"
+                                    >
+                                        <span
+                                            class="fa fa-plus-square"
+                                            title="Add all today tasks"
+                                        />
+                                    </a>
                                 </div>
                             </div>
                             <div class="oe_clear" />
@@ -228,9 +241,5 @@
         (0, 0, {'view_mode': 'form', 'view_id': ref('view_pms_room_rack_form')})]"
         />
     </record>
-<!--
-    <menuitem name="Housekeeping" id="menu_action_pms_house_keeping" sequence="17" parent="pms.pms_management_menu" />
-    <menuitem name="Tasks Log" id="menu_action_pms_house_keeping_view_form" action="action_pms_house_keeping_view_form" sequence="10" parent="pms-housekeeping.menu_action_pms_house_keeping" />
-    <menuitem name="Rack" id="menu_action_pms_house_keeping_view_rack" action="pms-housekeeping.action_pms_room_rack_kanban" sequence="20" parent="pms-housekeeping.menu_action_pms_house_keeping" /> -->
 
 </odoo>
