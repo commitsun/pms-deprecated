@@ -670,3 +670,31 @@ class TestRoomTypeCodePropertyUniqueness(TestRoomType):
 
         # ASSERT
         self.assertEqual(room_type.id, r3.id, "Expected room type not found")
+
+    def test_check_property_room_type_class(self):
+        #ARRANGE
+        room_type_class = self.env["pms.room.type.class"].create(
+            {
+                "name": "Room Type Class",
+                "pms_property_ids": [
+                    (4, self.p2.id),
+                ]
+            },
+        )
+        #ACT & ASSERT
+        with self.assertRaises(
+            ValidationError, msg="Room Type has been created and it shouldn't"
+        ):
+            self.env["pms.room.type"].create(
+                {
+                    "name": "Room Type",
+                    "code_type": "c1",
+                    "class_id": room_type_class.id,
+                    "pms_property_ids": [
+                        (4, self.p1.id),
+                        (4, self.p2.id),
+                    ],
+                }
+            )
+
+

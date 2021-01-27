@@ -149,6 +149,16 @@ class PmsRoomType(models.Model):
                     ):
                         raise ValidationError(msg)
 
+    @api.constrains("pms_property_ids")
+    def _check_integrity_property_class(self):
+        for record in self:
+            if record.pms_property_ids and record.class_id:
+                for pms_property in record.pms_property_ids:
+                    if pms_property.id not in record.class_id.pms_property_ids.ids:
+                        raise ValidationError(
+                            "Property isn't allowed in Room Type Class"
+                        )
+
     # ORM Overrides
     @api.model
     def create(self, vals):
