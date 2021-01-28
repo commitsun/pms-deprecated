@@ -15,6 +15,13 @@
         </record>
         <record id="pms_housekeeping_task_3" model="pms.housekeeping.task">
             <field name="name">Inspect</field>
+            <field name="def_employee_id" ref="hr.employee_vad" />
+            <field name="clean_type">exit</field>
+        </record>
+        <record id="pms_housekeeping_task_4" model="pms.housekeeping.task">
+            <field name="name">Inspect</field>
+            <field name="def_employee_id" ref="hr.employee_vad" />
+            <field name="clean_type">occupied</field>
         </record>
         <!-- pms.housekeeping -->
         <record id="pms_housekeeping_0" model="pms.housekeeping">

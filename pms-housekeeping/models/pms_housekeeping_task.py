@@ -27,3 +27,6 @@ class HouseKeepingTask(models.Model):
             ("dont_disturb", "Don't disturb"),
         ],
     )
+    def_employee_id = fields.Many2one(
+        "hr.employee", string="Employee assigned by default"
+    )

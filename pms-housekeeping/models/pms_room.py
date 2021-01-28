@@ -9,6 +9,19 @@ from odoo import fields, models
 _logger = logging.getLogger(__name__)
 
 
+def kanban_card_color(state):
+    colors = {
+        "occupied": 2,
+        "exit": 3,
+        "picked_up": 7,
+        "staff": 11,
+        "clean": 4,
+        "inspected": 10,
+        "dont_disturb": 9,
+    }
+    return colors[state]
+
+
 class PmsRoom(models.Model):
     _inherit = "pms.room"
 
@@ -34,9 +47,13 @@ class PmsRoom(models.Model):
         # store=True,
     )
 
-    employee_id = fields.Many2one("hr.employee", string="Assigned employee")
+    clean_employee_id = fields.Many2one(
+        "hr.employee",
+        string="Default employee",
+        help="Cleaning employee assigned by default",
+    )
     employee_picture = fields.Binary(
-        string="Employee picture", related="employee_id.image_1920"
+        string="Employee picture", related="clean_employee_id.image_1920"
     )
 
     # @api.depends('clean_status_now')
@@ -93,22 +110,28 @@ class PmsRoom(models.Model):
         return status
 
     def add_today_tasks(self):
-        # Debug Stop -------------------
-        # import wdb
-        # wdb.set_trace()
-        # Debug Stop -------------------
         for room in self:
             tasks = self.env["pms.housekeeping.task"].search(
                 [("clean_type", "=", room.clean_status)]
             )
             for task in tasks:
                 new_task = self.env["pms.housekeeping"]
+                employee = (
+                    task.def_employee_id.id
+                    if len(task.def_employee_id) > 0
+                    else room.clean_employee_id.id
+                )
+                # Debug Stop -------------------
+                # import wdb
+                # wdb.set_trace()
+                # Debug Stop -------------------
                 new_task.create(
                     {
                         "room_id": room.id,
-                        "employee_id": room.employee_id.id,
+                        "employee_id": employee,
                         "task_id": task.id,
                         "state": "draft",
+                        "color": kanban_card_color(room.clean_status),
                     }
                 )
         return

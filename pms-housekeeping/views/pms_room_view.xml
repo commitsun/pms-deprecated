@@ -31,7 +31,7 @@
                         style="font-size: 2em;"
                     />
                     <group col="1">
-                        <field name="employee_id" />
+                        <field name="clean_employee_id" />
                     </group>
                     <group col="1">
                         <field
@@ -61,7 +61,7 @@
                     name="housekeeping_ids"
                     readonly="0"
                     context="{'default_state': 'to_do',
-                              'default_employee_id': employee_id,
+                              'default_employee_id': clean_employee_id,
                               'tree_view_ref':'view_pms_room_rack_tree',
                               'form_view_ref':'view_pms_room_rack_form',
                               'default_room_id': id}"
@@ -83,7 +83,7 @@
                 <field name="name" />
                 <field name="capacity" />
                 <field name="clean_status" />
-                <field name="employee_id" />
+                <field name="clean_employee_id" />
             </tree>
         </field>
     </record>
@@ -92,24 +92,32 @@
         <field name="model">pms.room</field>
         <field name="arch" type="xml">
             <search string="Housekeeping filters">
-                <field name="employee_id" />
+                <field name="clean_employee_id" />
                 <field name="floor_id" />
+                <field name="room_type_id" />
                 <!-- <filter name="filter_occupied" string="Occupied" domain="[('clean_status','=','occupied')]"/> -->
 
                 <searchpanel>
+                    <field
+                        name="room_type_id"
+                        string="Room type"
+                        enable_counters="1"
+                        select="multi"
+                        icon="fa-bed"
+                    />
+                    <field
+                        name="clean_employee_id"
+                        string="Employee"
+                        enable_counters="1"
+                        select="multi"
+                        icon="fa-user"
+                    />
                     <field
                         name="floor_id"
                         string="Floor"
                         enable_counters="1"
                         select="multi"
-                        icon="fa-building"
-                    />
-                    <field
-                        name="employee_id"
-                        string="Employee"
-                        enable_counters="1"
-                        select="multi"
-                        icon="fa-user"
+                        icon="fa-hospital-o"
                     />
                     <!-- <field name="clean_status" string="Clean Type" enable_counters="1" select="multi"/> -->
                 </searchpanel>
@@ -126,23 +134,13 @@
         <field name="active" eval="True" />
         <field name="arch" type="xml">
             <kanban
-                default_group_by="employee_id"
+                default_group_by="floor_id"
                 default_order="floor_id"
                 class="o_res_partner_kanban"
                 sample="1"
                 group_create="false"
                 create="false"
             >
-<!--                <header>-->
-<!--                    <button name="add_all_today_tasks"-->
-<!--                    type="object"-->
-<!--                    string="Return Books"-->
-<!--                    attrs="{'invisible':-->
-<!--                    [('state', 'in', ['new', 'done'])]}"-->
-<!--                    class="oe_highlight" />-->
-<!--                </header>-->
-
-
                 <field name="name" />
                 <templates>
                     <t t-name="kanban-box">
@@ -152,44 +150,13 @@
                             </div>
                             <div class="oe_kanban_body">
                                 <!-- Content elements and fields go here... -->
-                                <t t-if="record.employee_id.raw_value">
-                                    <div class="o_kanban_image float-right">
-                                        <img
-                                            alt="Employee image"
-                                            t-att-src="kanban_image('hr.employee', 'image_128', record.employee_id.raw_value)"
-                                        />
-                                        <div
-                                            style="white-space: nowrap; overflow: hidden;"
-                                        >
-                                            <field
-                                                name="employee_id"
-                                                placeholder="Employee Name"
-                                            />
-                                        </div>
-                                    </div>
-                                </t>
-                                <t t-if="!record.employee_id.raw_value">
-                                    <div class="o_kanban_image float-right">
-                                        <span
-                                            title="warning"
-                                            class="fa fa-exclamation-triangle"
-                                            style="font-size: 52px;color: #f3a0a0;"
-                                        />
-                                        <div
-                                            style="white-space: nowrap; overflow: hidden;"
-                                        >
-                                            <p>Unassigned</p>
-                                        </div>
-                                    </div>
-                                </t>
-                                <div style="font-size: 1.12em;">
+                                <div style="font-size: 1.5em;">
+                                    <field name="name" />
+                                       <!-- class="oe_stat_button" -->
+                                </div><div style="font-size: 1.1em;">
                                     <field name="clean_status" />
                                 </div>
-                                <div style="font-size: 1.2em;">
-                                    <field name="name" />
 
-                                       <!-- class="oe_stat_button" -->
-                                </div>
                             </div>
 
 
@@ -201,7 +168,6 @@
                                         widget="many2many_tags"
                                         domain="[('state', '=', 'draft')]"
                                     />
-
                                     <div>
                                         <!-- <field name="clean_type" /> -->
                                     </div>

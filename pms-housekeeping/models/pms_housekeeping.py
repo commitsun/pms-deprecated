@@ -30,6 +30,7 @@ class HouseKeeping(models.Model):
         ],
         default="draft",
     )
+    color = fields.Integer("Color Index")
 
     # Default Methods ang Gets
     def name_get(self):
@@ -37,8 +38,4 @@ class HouseKeeping(models.Model):
         for task in self:
             name = task.task_id.name
             result.append((task.id, name))
-            # Debug Stop -------------------
-        # import wdb
-        # wdb.set_trace()
-        # Debug Stop -------------------
         return result
