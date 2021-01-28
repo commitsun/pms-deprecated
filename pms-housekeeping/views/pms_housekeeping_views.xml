@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <record id="view_pms_housekeeping_tree" model="ir.ui.view">
-        <field name="name">Housekeeping view</field>
+        <field name="name">Housekeeping tree view</field>
         <field name="model">pms.housekeeping</field>
         <field name="type">tree</field>
         <field name="mode">primary</field>
@@ -14,8 +14,41 @@
                 <field name="room_id" colspan="1" />
                 <field name="employee_id" colspan="1" />
                 <field name="task_id" colspan="1" />
+                <field name="task_start" />
+                <field name="task_end" />
                 <field name="notes" colspan="1" />
             </tree>
+        </field>
+    </record>
+
+    <record id="view_pms_housekeeping_form" model="ir.ui.view">
+        <field name="name">Housekeeping form view</field>
+        <field name="model">pms.housekeeping</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Housekeeping">
+                <sheet>
+                    <group>
+                        <group col="2" colspan="2">
+                            <field name="task_id" />
+                        </group>
+                        <group col="4" colspan="2">
+                            <field name="task_date" />
+                            <field name="task_start" />
+                            <field name="state" />
+                            <field name="task_end" />
+                        </group>
+                        <group col="4" colspan="2">
+                            <field name="room_id" />
+                            <field name="employee_id" />
+                        </group>
+                        <group>
+                            <field name="notes" />
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -51,10 +84,10 @@
                                 <a
                                     class="dropdown-toggle btn"
                                     data-toggle="dropdown"
-                                    role="menu"
+                                    role="button"
                                     href="#"
                                 >
-                                    <span class="fa fa-ellipsis-v" />
+                                    <span class="fa fa-ellipsis-v" title="menu" />
                                 </a>
                                 <div class="dropdown-menu" role="menu">
                                     <!-- Edit and Delete actions, if available: -->

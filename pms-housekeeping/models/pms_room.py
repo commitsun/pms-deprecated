@@ -121,10 +121,6 @@ class PmsRoom(models.Model):
                     if len(task.def_employee_id) > 0
                     else room.clean_employee_id.id
                 )
-                # Debug Stop -------------------
-                # import wdb
-                # wdb.set_trace()
-                # Debug Stop -------------------
                 new_task.create(
                     {
                         "room_id": room.id,

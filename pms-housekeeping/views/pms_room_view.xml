@@ -168,6 +168,7 @@
                                         widget="many2many_tags"
                                         domain="[('state', '=', 'draft')]"
                                     />
+                                    Default: <field name="clean_employee_id" />
                                     <div>
                                         <!-- <field name="clean_type" /> -->
                                     </div>
