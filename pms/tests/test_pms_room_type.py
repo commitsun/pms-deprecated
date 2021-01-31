@@ -678,7 +678,7 @@ class TestRoomTypeCodePropertyUniqueness(TestRoomType):
                 "name": "Room Type Class",
                 "pms_property_ids": [
                     (4, self.p2.id),
-                ]
+                ],
             },
         )
         # ACT & ASSERT
@@ -692,9 +692,7 @@ class TestRoomTypeCodePropertyUniqueness(TestRoomType):
                     "class_id": room_type_class.id,
                     "pms_property_ids": [
                         (4, self.p2.id),
-
                     ],
                 }
             )
-            r.pms_property_ids = self.p1.id
-
+            r.pms_property_ids = [(4, self.p1.id)]
