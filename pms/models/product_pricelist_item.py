@@ -39,8 +39,8 @@ class ProductPricelistItem(models.Model):
             elif record.applied_on == "1_product":
                 product = record.product_tmpl_id
             else:
-                product.pms_property_ids = False
-            if not (record.pricelist_id.pms_property_ids or product.pms_property_ids):
+                product = False
+            if not record.pricelist_id.pms_property_ids or not product:
                 record.allowed_property_ids = False
             else:
                 if record.pricelist_id.pms_property_ids:
