@@ -32,6 +32,7 @@ class PmsRoom(models.Model):
         "pms.property",
         required=True,
         ondelete="restrict",
+        default=lambda self: self.env.user.get_active_property_ids()[0],
     )
     room_type_id = fields.Many2one(
         "pms.room.type", "Property Room Type", required=True, ondelete="restrict"
