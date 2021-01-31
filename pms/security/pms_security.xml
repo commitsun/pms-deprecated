@@ -135,7 +135,7 @@
         </record>
         <record id="pms_clousure_reason_property_rule" model="ir.rule">
             <field name="name">PMS Clousure Reason Property Rule</field>
-            <field name="model_id" ref="model_pms_clousure_reason" />
+            <field name="model_id" ref="model_room_closure_reason" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_ids','=',False),('pms_property_ids', 'in',
@@ -198,7 +198,7 @@
         </record>
         <record id="pms_product_pricelist_property_rule" model="ir.rule">
             <field name="name">PMS Product Pricelist Property Rule</field>
-            <field name="model_id" ref="model_pms_product_pricelist" />
+            <field name="model_id" ref="model_product_pricelist" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_ids','=',False),('pms_property_ids', 'in',
@@ -225,7 +225,7 @@
         </record>
         <record id="pms_account_move_property_rule" model="ir.rule">
             <field name="name">PMS Account Move Property Rule</field>
-            <field name="model_id" ref="model_pms_account_move" />
+            <field name="model_id" ref="model_account_move" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_id','=',False),('pms_property_id', 'in',
@@ -234,7 +234,7 @@
         </record>
         <record id="pms_account_journal_property_rule" model="ir.rule">
             <field name="name">PMS Account Journal Property Rule</field>
-            <field name="model_id" ref="model_pms_account_journal" />
+            <field name="model_id" ref="model_account_journal" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_ids','=',False),('pms_property_ids', 'in',
