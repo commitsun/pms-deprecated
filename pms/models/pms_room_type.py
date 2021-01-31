@@ -121,21 +121,8 @@ class PmsRoomType(models.Model):
                 for pms_property in record.pms_property_ids:
                     if pms_property.id not in record.class_id.pms_property_ids.ids:
                         raise ValidationError(
-                            "Property isn't allowed in Room Type Class"
+                            _("Property isn't allowed in Room Type Class")
                         )
-
-    @api.constrains("pms_property_ids", "company_id")
-    def _check_property_company_integrity(self):
-        for rec in self:
-            if rec.company_id and rec.pms_property_ids:
-                property_companies = rec.pms_property_ids.mapped("company_id")
-                if len(property_companies) > 1 or rec.company_id != property_companies:
-                    raise ValidationError(
-                        _(
-                            "The company of the properties must match "
-                            "the company on the room type"
-                        )
-                    )
 
     @api.constrains("code_type", "pms_property_ids", "company_id")
     def _check_code_property_company_uniqueness(self):
