@@ -35,7 +35,6 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist.id,
-                "default_availability_plan_id": self.test_availability_plan.id,
             }
         )
         self.test_property.flush()
