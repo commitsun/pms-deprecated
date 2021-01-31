@@ -1,7 +1,7 @@
 # Copyright 2019 Pablo Quesada
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.http import request
 
 
@@ -40,8 +40,9 @@ class ResUsers(models.Model):
             active_property_ids = list(
                 map(int, request.httprequest.cookies.get("pms_pids", "").split(","))
             )
-            if any(pid not in user_property_ids for pid in active_property_ids):
-                raise AccessError(_("Access to unauthorized or invalid properties."))
+            active_property_ids = [
+                pid for pid in active_property_ids if pid in user_property_ids
+            ]
             return self.env["pms.property"].browse(active_property_ids).ids
         return user_property_ids
 
@@ -55,8 +56,8 @@ class ResUsers(models.Model):
     @api.constrains("pms_property_ids", "company_id")
     def _check_company_in_property_ids(self):
         for record in self:
-            for property in record.pms_property_ids:
-                if property.company_id not in record.company_ids:
+            for pms_property in record.pms_property_ids:
+                if pms_property.company_id not in record.company_ids:
                     raise ValidationError(
                         _("Some properties do not belong to the allowed companies")
                     )
