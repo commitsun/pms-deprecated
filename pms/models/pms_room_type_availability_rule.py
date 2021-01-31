@@ -142,7 +142,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     def _check_property_integrity(self):
         for rec in self:
             if rec.pms_property_id and rec.allowed_property_ids:
-                if rec.pms_property_id not in rec.allowed_property_ids:
+                if rec.pms_property_id.id not in rec.allowed_property_ids:
                     raise ValidationError(_("Property not allowed"))
 
     # @api.constrains(
