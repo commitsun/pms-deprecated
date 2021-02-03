@@ -5,11 +5,7 @@
             <field name="name">PMS L10N Traveller Report</field>
             <field name="code">traveller.report.wizard</field>
             <field name="padding">3</field>
-<<<<<<< HEAD
-            <field name="number_next">0</field>
-=======
             <field name="number_next">1</field>
->>>>>>> 131523d... [WIP]pms_l10n_es: traveller report with limit in sequence
             <field name="number_increment">1</field>
         </record>
     </data>
