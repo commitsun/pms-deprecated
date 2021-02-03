@@ -17,6 +17,7 @@
                 <field name="task_start" />
                 <field name="task_end" />
                 <field name="notes" colspan="1" />
+                <field name="lostfound" />
             </tree>
         </field>
     </record>
@@ -42,8 +43,9 @@
                             <field name="room_id" />
                             <field name="employee_id" />
                         </group>
-                        <group>
+                        <group col="4" colspan="2">
                             <field name="notes" />
+                            <field name="lostfound" />
                         </group>
                     </group>
 

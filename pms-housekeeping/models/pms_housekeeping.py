@@ -20,6 +20,7 @@ class HouseKeeping(models.Model):
     employee_id = fields.Many2one("hr.employee", string="Employee")
     task_id = fields.Many2one("pms.housekeeping.task", string="Task", required=True)
     notes = fields.Text("Internal Notes")
+    lostfound = fields.Text("Lost and Found")
     state = fields.Selection(
         string="Task State",
         selection=[
