@@ -11,7 +11,14 @@
         <field name="doall" eval="False" />
         <field name="state">code</field>
         <field name="model_id" ref="model_traveller_report_wizard" />
+<<<<<<< HEAD
         <field name="nextcall" eval="datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%d 03:00:00')" />
+=======
+        <field
+                name="nextcall"
+                eval="datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%d 03:00:00')"
+            />
+>>>>>>> 131523d... [WIP]pms_l10n_es: traveller report with limit in sequence
         <field name="code">model.generate_file()</field>
     </record>
     </data>

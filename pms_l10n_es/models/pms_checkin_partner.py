@@ -57,10 +57,7 @@ class PmsCheckinPartner(models.Model):
         readonly=False,
     )
     nationality_id = fields.Char(
-        "Nationality ID",
-        compute="_compute_nationality",
-        store=True,
-        readonly=False
+        "Nationality ID", compute="_compute_nationality", store=True, readonly=False
     )
 
     @api.depends("partner_id", "partner_id.lastname")

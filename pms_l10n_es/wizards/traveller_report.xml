@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <?xml version="1.0"?>
+=======
+<?xml version="1.0" ?>
+>>>>>>> 131523d... [WIP]pms_l10n_es: traveller report with limit in sequence
 <odoo>
     <record id="traveller_report_wizard" model="ir.ui.view">
         <field name="name">Traveller Report</field>
@@ -6,6 +10,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+<<<<<<< HEAD
                     <group string="Create Police File" colspan="1">
                             <field name="sequence_num" ref="seq_pms_traveller_report" invisible="1"/>
                     </group>
@@ -17,6 +22,26 @@
                     <group colspan="1">
                         <div>
                             <p><field name="txt_message" readonly="1"/></p>
+=======
+                        <div>
+                            <button
+                            name="generate_file"
+                            class="btn btn-primary btn-sm"
+                            type="object"
+                            string="Generate Police file"
+                        />
+                            <field name="txt_filename" invisible="1" />
+                            <field
+                            name="txt_binary"
+                            filename="txt_filename"
+                            readonly="1"
+                            style="margin-left: 20px;"
+                        />
+                        </div>
+                    <group colspan="1">
+                        <div>
+                            <p><field name="txt_message" readonly="1" /></p>
+>>>>>>> 131523d... [WIP]pms_l10n_es: traveller report with limit in sequence
                         </div>
                     </group>
                 </sheet>
@@ -35,7 +60,11 @@
         id="menu_traveller_report"
         name="Police File Download"
         sequence="30"
+<<<<<<< HEAD
         parent="pms.pms_reports_menu"
+=======
+        parent="pms.pms_configuration_menu"
+>>>>>>> 131523d... [WIP]pms_l10n_es: traveller report with limit in sequence
         action="action_traveller_report"
     />
 </odoo>
