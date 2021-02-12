@@ -6,7 +6,7 @@ import logging
 from itertools import groupby
 
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import float_is_zero
 
 _logger = logging.getLogger(__name__)
@@ -1228,6 +1228,15 @@ class PmsFolio(models.Model):
                 raise models.ValidationError(
                     _("The Sale Channel does not correspond to the agency's")
                 )
+
+    @api.constrains(
+        "closure_reason_id",
+    )
+    def _check_property_integrity(self):
+        for rec in self:
+            if rec.pms_property_id:
+                    if rec.pms_property_id.id not in rec.closure_reason_id.pms_property_ids.ids:
+                        raise ValidationError(_("Property not allowed"))
 
     @api.model
     def _prepare_down_payment_section_line(self, **optional_values):
