@@ -166,11 +166,11 @@ class TestPmsFolio(TestHotel):
         self.create_multiproperty_scenario()
         cl_reason = self.env["room.closure.reason"].create(
             {
-                "name":"closure_reason_test",
+                "name": "closure_reason_test",
                 "pms_property_ids": [
                     (4, self.property1.id),
                     (4, self.property2.id),
-                ]
+                ],
             }
         )
 

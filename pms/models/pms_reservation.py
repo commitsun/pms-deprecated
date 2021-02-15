@@ -109,6 +109,7 @@ class PmsReservation(models.Model):
         tracking=True,
         ondelete="restrict",
         copy=False,
+        check_company=True,
     )
     board_service_room_id = fields.Many2one(
         "pms.board.service.room.type",
@@ -187,6 +188,7 @@ class PmsReservation(models.Model):
         compute="_compute_service_ids",
         store=True,
         readonly=False,
+        check_company=True,
     )
     pricelist_id = fields.Many2one(
         "product.pricelist",
@@ -1302,7 +1304,6 @@ class PmsReservation(models.Model):
             if record.agency_id and not record.agency_id.is_agency:
                 raise ValidationError(_("booking agency with wrong configuration: "))
 
-
     @api.constrains("pms_property_id", "preferred_room_id")
     def _check_room_property_integrity(self):
         for record in self:
@@ -1316,28 +1317,31 @@ class PmsReservation(models.Model):
     def _check_room_type_property_integrity(self):
         for record in self:
             if record.pms_property_id and record.room_type_id.pms_property_ids:
-                if record.pms_property_id.id not in record.room_type_id.pms_property_ids.ids:
-                    raise ValidationError(
-                        _("Property isn't allowed in Room Type")
-                    )
+                if (
+                    record.pms_property_id.id
+                    not in record.room_type_id.pms_property_ids.ids
+                ):
+                    raise ValidationError(_("Property isn't allowed in Room Type"))
 
     @api.constrains("pms_property_id", "pricelist_id")
     def _check_pricelist_property_integrity(self):
         for record in self:
             if record.pms_property_id and record.pricelist_id.pms_property_ids:
-                if record.pms_property_id.id not in record.pricelist_id.pms_property_ids.ids:
-                    raise ValidationError(
-                        _("Property isn't allowed in Room Type")
-                    )
+                if (
+                    record.pms_property_id.id
+                    not in record.pricelist_id.pms_property_ids.ids
+                ):
+                    raise ValidationError(_("Property isn't allowed in Room Type"))
 
     @api.constrains("pms_property_id", "board_service_room_id")
     def _check_board_service_property_integrity(self):
         for record in self:
             if record.pms_property_id and record.board_service_room_id.pms_property_ids:
-                if record.pms_property_id.id not in record.board_service_room_id.pms_property_ids.ids:
-                    raise ValidationError(
-                        _("Property isn't allowed in Room Type")
-                    )
+                if (
+                    record.pms_property_id.id
+                    not in record.board_service_room_id.pms_property_ids.ids
+                ):
+                    raise ValidationError(_("Property isn't allowed in Room Type"))
 
     # Action methods
 
@@ -1419,7 +1423,6 @@ class PmsReservation(models.Model):
 
     @api.model
     def create(self, vals):
-        print(vals)
         folio_vals = False
         if "folio_id" in vals:
             folio = self.env["pms.folio"].browse(vals["folio_id"])
@@ -1432,15 +1435,9 @@ class PmsReservation(models.Model):
                 # (To allow to create reservations direct)
             if "pms_property_id" in vals:
                 if folio_vals:
-                    folio_vals.update(
-                        {
-                            "pms_property_id": vals["pms_property_id"]
-                        }
-                    )
+                    folio_vals.update({"pms_property_id": vals["pms_property_id"]})
                 else:
-                    folio_vals = {
-                        "pms_property_id": vals["pms_property_id"]
-                    }
+                    folio_vals = {"pms_property_id": vals["pms_property_id"]}
             folio = self.env["pms.folio"].create(folio_vals)
         vals.update(
             {
