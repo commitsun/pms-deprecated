@@ -94,14 +94,12 @@ class TestPmsReservations(TestHotel):
             }
         )
         self.room_type_class = self.env["pms.room.type.class"].create(
-            {
-                "name": "Room Class"
-            }
+            {"name": "Room Class"}
         )
 
         self.board_service = self.env["pms.board.service"].create(
             {
-             "name": "Board Service Test",
+                "name": "Board Service Test",
             }
         )
 
@@ -800,10 +798,9 @@ class TestPmsReservations(TestHotel):
         r1.action_reservation_checkout()
 
         # ASSERT
-        self.assertEqual(r1.state,
-                         "done",
-                         "The reservation status should be done after checkout.")
-
+        self.assertEqual(
+            r1.state, "done", "The reservation status should be done after checkout."
+        )
 
     def test_multiproperty_checks(self):
         """
@@ -818,7 +815,7 @@ class TestPmsReservations(TestHotel):
         |   pricelist   |      property2, property3    |
         +---------------+------+------+------+----+----+
         """
-        #ARRANGE
+        # ARRANGE
         self.create_multiproperty_scenario()
         self.reservation_test = self.env["pms.reservation"].create(
             {
@@ -867,18 +864,10 @@ class TestPmsReservations(TestHotel):
             }
         )
         test_cases = [
-            {
-                "preferred_room_id": room.id
-            },
-            {
-                "room_type_id": room_type_test.id
-            },
-            {
-                "pricelist_id": pricelist.id
-            },
-            {
-                "board_service_room_id": board_service_room_type.id
-            }
+            {"preferred_room_id": room.id},
+            {"room_type_id": room_type_test.id},
+            {"pricelist_id": pricelist.id},
+            {"board_service_room_id": board_service_room_type.id},
         ]
 
         for test_case in test_cases:

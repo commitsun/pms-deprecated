@@ -17,6 +17,7 @@ class PmsFolio(models.Model):
     _description = "PMS Folio"
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin"]
     _order = "date_order"
+    _check_company_auto = True
 
     # Default Methods ang Gets
     def name_get(self):
@@ -60,6 +61,7 @@ class PmsFolio(models.Model):
         readonly=False,
         states={"done": [("readonly", True)]},
         help="Room reservation detail.",
+        check_company=True,
     )
     number_of_rooms = fields.Integer(
         "Number of Rooms",
@@ -73,6 +75,7 @@ class PmsFolio(models.Model):
         states={"done": [("readonly", True)]},
         help="Services detail provide to customer and it will "
         "include in main Invoice.",
+        check_company=True,
     )
     sale_line_ids = fields.One2many(
         "folio.sale.line",
@@ -1235,8 +1238,11 @@ class PmsFolio(models.Model):
     def _check_property_integrity(self):
         for rec in self:
             if rec.pms_property_id:
-                    if rec.pms_property_id.id not in rec.closure_reason_id.pms_property_ids.ids:
-                        raise ValidationError(_("Property not allowed"))
+                if (
+                    rec.pms_property_id.id
+                    not in rec.closure_reason_id.pms_property_ids.ids
+                ):
+                    raise ValidationError(_("Property not allowed"))
 
     @api.model
     def _prepare_down_payment_section_line(self, **optional_values):
