@@ -159,7 +159,19 @@ class PmsReservation(models.Model):
     )
     pms_property_id = fields.Many2one(
         "pms.property",
+        related="folio_id.pms_property_id",
+        store=True,
         default=lambda self: self.env.user.get_active_property_ids()[0],
+    )
+    allowed_property_ids = fields.Many2many(
+        comodel_name="pms.property",
+        relation="reservation_property_rel",
+        column1="reservation_id",
+        column2="property_id",
+        string="Allowed properties",
+        store=True,
+        readonly=True,
+        compute="_compute_allowed_property_ids",
     )
     reservation_line_ids = fields.One2many(
         "pms.reservation.line",
@@ -1290,6 +1302,43 @@ class PmsReservation(models.Model):
             if record.agency_id and not record.agency_id.is_agency:
                 raise ValidationError(_("booking agency with wrong configuration: "))
 
+
+    @api.constrains("pms_property_id", "preferred_room_id")
+    def _check_room_property_integrity(self):
+        for record in self:
+            if record.pms_property_id and record.preferred_room_id.pms_property_id:
+                if record.pms_property_id != record.preferred_room_id.pms_property_id:
+                    raise ValidationError(
+                        _("Property doesn't match with room property")
+                    )
+
+    @api.constrains("pms_property_id", "room_type_id")
+    def _check_room_type_property_integrity(self):
+        for record in self:
+            if record.pms_property_id and record.room_type_id.pms_property_ids:
+                if record.pms_property_id.id not in record.room_type_id.pms_property_ids.ids:
+                    raise ValidationError(
+                        _("Property isn't allowed in Room Type")
+                    )
+
+    @api.constrains("pms_property_id", "pricelist_id")
+    def _check_pricelist_property_integrity(self):
+        for record in self:
+            if record.pms_property_id and record.pricelist_id.pms_property_ids:
+                if record.pms_property_id.id not in record.pricelist_id.pms_property_ids.ids:
+                    raise ValidationError(
+                        _("Property isn't allowed in Room Type")
+                    )
+
+    @api.constrains("pms_property_id", "board_service_room_id")
+    def _check_board_service_property_integrity(self):
+        for record in self:
+            if record.pms_property_id and record.board_service_room_id.pms_property_ids:
+                if record.pms_property_id.id not in record.board_service_room_id.pms_property_ids.ids:
+                    raise ValidationError(
+                        _("Property isn't allowed in Room Type")
+                    )
+
     # Action methods
 
     def open_folio(self):
@@ -1370,21 +1419,35 @@ class PmsReservation(models.Model):
 
     @api.model
     def create(self, vals):
+        print(vals)
+        folio_vals = False
         if "folio_id" in vals:
             folio = self.env["pms.folio"].browse(vals["folio_id"])
-        elif "partner_id" in vals:
-            folio_vals = {
-                "partner_id": int(vals.get("partner_id")),
-            }
-            # Create the folio in case of need
-            # (To allow to create reservations direct)
-            folio = self.env["pms.folio"].create(folio_vals)
-            vals.update(
-                {
-                    "folio_id": folio.id,
-                    "reservation_type": vals.get("reservation_type"),
+        else:
+            if "partner_id" in vals:
+                folio_vals = {
+                    "partner_id": int(vals.get("partner_id")),
                 }
-            )
+                # Create the folio in case of need
+                # (To allow to create reservations direct)
+            if "pms_property_id" in vals:
+                if folio_vals:
+                    folio_vals.update(
+                        {
+                            "pms_property_id": vals["pms_property_id"]
+                        }
+                    )
+                else:
+                    folio_vals = {
+                        "pms_property_id": vals["pms_property_id"]
+                    }
+            folio = self.env["pms.folio"].create(folio_vals)
+        vals.update(
+            {
+                "folio_id": folio.id,
+                "reservation_type": vals.get("reservation_type"),
+            }
+        )
         record = super(PmsReservation, self).create(vals)
         if record.preconfirm:
             record.confirm()
