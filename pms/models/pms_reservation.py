@@ -1423,21 +1423,21 @@ class PmsReservation(models.Model):
 
     @api.model
     def create(self, vals):
-        folio_vals = False
-        if "folio_id" in vals:
-            folio = self.env["pms.folio"].browse(vals["folio_id"])
+        folio_vals = {}
+        if "partner_id" in vals and "folio_id" not in vals:
+            folio_vals = {
+                "partner_id": int(vals.get("partner_id")),
+            }
+            # Create the folio in case of need
+            # (To allow to create reservations direct)
+        if "pms_property_id" not in vals:
+            raise ValidationError(_("Property must be indicated"))
         else:
-            if "partner_id" in vals:
-                folio_vals = {
-                    "partner_id": int(vals.get("partner_id")),
+            folio_vals.update(
+                {
+                    "pms_property_id": vals["pms_property_id"],
                 }
-                # Create the folio in case of need
-                # (To allow to create reservations direct)
-            if "pms_property_id" in vals:
-                if folio_vals:
-                    folio_vals.update({"pms_property_id": vals["pms_property_id"]})
-                else:
-                    folio_vals = {"pms_property_id": vals["pms_property_id"]}
+            )
             folio = self.env["pms.folio"].create(folio_vals)
         vals.update(
             {

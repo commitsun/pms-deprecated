@@ -102,7 +102,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_create_reservation_start_date(self):
+    def test_create_reservation_start_date(self):
         # TEST CASE
         # reservation should start on checkin day
 
@@ -129,7 +129,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_create_reservation_end_date(self):
+    def test_create_reservation_end_date(self):
         # TEST CASE
         # reservation should end on checkout day
 
@@ -156,7 +156,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation01(self):
+    def test_split_reservation01(self):
         """
         # TEST CASE
         The reservation shouldn't be splitted
@@ -194,7 +194,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation02(self):
+    def test_split_reservation02(self):
         """
         # TEST CASE
         The reservation shouldn't be splitted
@@ -226,7 +226,7 @@ class TestPmsReservations(TestHotel):
         self.assertFalse(r_test.splitted, "The reservation shouldn't be splitted")
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation03(self):
+    def test_split_reservation03(self):
         """
         # TEST CASE
         The reservation should be splitted in 2 rooms
@@ -312,7 +312,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation04(self):
+    def test_split_reservation04(self):
         """
         # TEST CASE
         The reservation should be splitted in 3 rooms
@@ -413,7 +413,7 @@ class TestPmsReservations(TestHotel):
         )
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation05(self):
+    def test_split_reservation05(self):
         """
         # TEST CASE
         The preferred room_id is not available
@@ -454,7 +454,7 @@ class TestPmsReservations(TestHotel):
             r_test.flush()
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation06(self):
+    def test_split_reservation06(self):
         """
         # TEST CASE
         There's no availability in the preferred_room_id provided
@@ -496,7 +496,7 @@ class TestPmsReservations(TestHotel):
             r_test.flush()
 
     @freeze_time("1980-11-01")
-    def _test_split_reservation07(self):
+    def test_split_reservation07(self):
         """
         # TEST CASE
         There's no availability
@@ -565,7 +565,7 @@ class TestPmsReservations(TestHotel):
                 }
             )
 
-    def _test_manage_children_raise(self):
+    def test_manage_children_raise(self):
         # TEST CASE
         # reservation with 2 adults and 1 children occupyin
         # shouldn be higher than room capacity
@@ -584,7 +584,7 @@ class TestPmsReservations(TestHotel):
             )
 
     @freeze_time("1981-11-01")
-    def _test_order_priority_to_assign(self):
+    def test_order_priority_to_assign(self):
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -614,7 +614,7 @@ class TestPmsReservations(TestHotel):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def _test_order_priority_left_for_checkin(self):
+    def test_order_priority_left_for_checkin(self):
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -644,7 +644,7 @@ class TestPmsReservations(TestHotel):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def _test_order_priority_left_for_checkout(self):
+    def test_order_priority_left_for_checkout(self):
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -674,7 +674,7 @@ class TestPmsReservations(TestHotel):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def _test_order_priority_state_onboard_and_pending_amount(self):
+    def test_order_priority_state_onboard_and_pending_amount(self):
         # ARRANGE
         self.create_common_scenario()
         host = self.env["res.partner"].create(
@@ -717,7 +717,7 @@ class TestPmsReservations(TestHotel):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def _test_reservation_action_assign(self):
+    def test_reservation_action_assign(self):
         # TEST CASE
         # the reservation action assign
         # change the reservation to 'to_assign' = False
@@ -738,7 +738,7 @@ class TestPmsReservations(TestHotel):
         self.assertFalse(res.to_assign, "The reservation should be marked as assigned")
 
     @freeze_time("1981-11-01")
-    def _test_reservation_action_cancel(self):
+    def test_reservation_action_cancel(self):
         # TEST CASE
         # the reservation action cancel
         # change the state of the reservation to 'cancelled'
@@ -759,7 +759,7 @@ class TestPmsReservations(TestHotel):
         self.assertEqual(res.state, "cancelled", "The reservation should be cancelled")
 
     @freeze_time("1981-11-01")
-    def _test_reservation_action_checkout(self):
+    def test_reservation_action_checkout(self):
         # TEST CASE
         # the reservation action checkout
         # change the state of the reservation to 'done'
