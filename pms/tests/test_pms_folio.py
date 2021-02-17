@@ -109,7 +109,7 @@ class TestPmsFolio(TestHotel):
                 "checkin": datetime.datetime.now(),
                 "checkout": datetime.datetime.now() + datetime.timedelta(days=3),
                 "agency_id": agency.id,
-                "pms_property_id":self.property.id,
+                "pms_property_id": self.property.id,
             }
         )
         folio = PmsFolio.create(
