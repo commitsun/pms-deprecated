@@ -1424,27 +1424,28 @@ class PmsReservation(models.Model):
     @api.model
     def create(self, vals):
         folio_vals = {}
-        if "partner_id" in vals and "folio_id" not in vals:
-            folio_vals = {
-                "partner_id": int(vals.get("partner_id")),
-            }
-            # Create the folio in case of need
-            # (To allow to create reservations direct)
-        if "pms_property_id" not in vals:
-            raise ValidationError(_("Property must be indicated"))
-        else:
-            folio_vals.update(
+        if "folio_id" not in vals:
+            if "partner_id" in vals:
+                folio_vals = {
+                    "partner_id": int(vals.get("partner_id")),
+                }
+                # Create the folio in case of need
+                # (To allow to create reservations direct)
+            if "pms_property_id" not in vals:
+                raise ValidationError(_("Property must be indicated"))
+            else:
+                folio_vals.update(
+                    {
+                        "pms_property_id": vals["pms_property_id"],
+                    }
+                )
+                folio = self.env["pms.folio"].create(folio_vals)
+            vals.update(
                 {
-                    "pms_property_id": vals["pms_property_id"],
+                    "folio_id": folio.id,
+                    "reservation_type": vals.get("reservation_type"),
                 }
             )
-            folio = self.env["pms.folio"].create(folio_vals)
-        vals.update(
-            {
-                "folio_id": folio.id,
-                "reservation_type": vals.get("reservation_type"),
-            }
-        )
         record = super(PmsReservation, self).create(vals)
         if record.preconfirm:
             record.confirm()

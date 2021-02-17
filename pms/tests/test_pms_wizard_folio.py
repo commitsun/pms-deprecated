@@ -444,6 +444,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id":  self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -495,6 +496,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -552,6 +554,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -620,6 +623,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
                 "discount": discount,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()

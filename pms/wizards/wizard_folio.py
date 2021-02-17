@@ -158,6 +158,7 @@ class FolioWizard(models.TransientModel):
                 {
                     "pricelist_id": record.pricelist_id.id,
                     "partner_id": record.partner_id.id,
+                    "pms_property_id": record.pms_property_id.id,
                 }
             )
             for line in record.availability_results:
@@ -170,6 +171,7 @@ class FolioWizard(models.TransientModel):
                             "room_type_id": line.room_type_id.id,
                             "partner_id": folio.partner_id.id,
                             "pricelist_id": folio.pricelist_id.id,
+                            "pms_property_id": folio.pms_property_id.id,
                         }
                     )
                     res.reservation_line_ids.discount = record.discount * 100

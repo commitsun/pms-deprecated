@@ -85,6 +85,7 @@ class TestPmsFolio(TestHotel):
 
     def test_commission_and_partner_correct(self):
         # ARRANGE
+        self.create_common_scenario()
         PmsFolio = self.env["pms.folio"]
         PmsReservation = self.env["pms.reservation"]
         PmsPartner = self.env["res.partner"]
@@ -108,6 +109,7 @@ class TestPmsFolio(TestHotel):
                 "checkin": datetime.datetime.now(),
                 "checkout": datetime.datetime.now() + datetime.timedelta(days=3),
                 "agency_id": agency.id,
+                "pms_property_id":self.property.id,
             }
         )
         folio = PmsFolio.create(
