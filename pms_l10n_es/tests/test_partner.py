@@ -70,7 +70,7 @@ class TestResPartner(common.SavepointCase):
             "checkout": today + datetime.timedelta(days=3),
             "partner_id": partner.id,
             "adults": 1,
-            "pms_property_id": self.property_test.id
+            "pms_property_id": self.property_test.id,
         }
         # action
         reservation = self.env["pms.reservation"].create(reservation_vals)
