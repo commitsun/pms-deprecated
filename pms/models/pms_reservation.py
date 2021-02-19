@@ -117,6 +117,10 @@ class PmsReservation(models.Model):
         compute="_compute_board_service_room_id",
         store=True,
         readonly=False,
+        domain="["
+        "'|',"
+        "('pms_property_ids', 'in', pms_property_id),"
+        "('pms_property_ids', '=', False)]",
     )
     room_type_id = fields.Many2one(
         "pms.room.type",
@@ -127,6 +131,9 @@ class PmsReservation(models.Model):
         store=True,
         readonly=False,
         copy=False,
+        domain="['|',"
+        "('pms_property_ids', 'in', pms_property_id),"
+        "('pms_property_ids', '=', False)]",
     )
     partner_id = fields.Many2one(
         "res.partner",
@@ -154,7 +161,12 @@ class PmsReservation(models.Model):
         store=True,
         readonly=False,
     )
-    closure_reason_id = fields.Many2one(related="folio_id.closure_reason_id")
+    closure_reason_id = fields.Many2one(
+        related="folio_id.closure_reason_id",
+        domain="['|',"
+        "(pms_property_id, 'in', 'pms_property_ids'),"
+        "('pms_property_ids', '=', False)]",
+    )
     company_id = fields.Many2one(
         related="folio_id.company_id", string="Company", store=True, readonly=True
     )
@@ -162,17 +174,8 @@ class PmsReservation(models.Model):
         "pms.property",
         related="folio_id.pms_property_id",
         store=True,
+        readonly=False,
         default=lambda self: self.env.user.get_active_property_ids()[0],
-    )
-    allowed_property_ids = fields.Many2many(
-        comodel_name="pms.property",
-        relation="reservation_property_rel",
-        column1="reservation_id",
-        column2="property_id",
-        string="Allowed properties",
-        store=True,
-        readonly=True,
-        compute="_compute_allowed_property_ids",
     )
     reservation_line_ids = fields.One2many(
         "pms.reservation.line",
@@ -189,6 +192,9 @@ class PmsReservation(models.Model):
         store=True,
         readonly=False,
         check_company=True,
+        domain="['|',"
+        "('pms_property_id', '=', pms_property_id),"
+        "('pms_property_id', '=', False)]",
     )
     pricelist_id = fields.Many2one(
         "product.pricelist",
@@ -197,6 +203,9 @@ class PmsReservation(models.Model):
         compute="_compute_pricelist_id",
         store=True,
         readonly=False,
+        domain="['|',"
+        "('pms_property_ids', 'in', pms_property_id),"
+        "('pms_property_ids', '=', False)]",
     )
     commission_percent = fields.Float(
         string="Commission percent (%)",
@@ -1329,7 +1338,7 @@ class PmsReservation(models.Model):
                     record.pms_property_id.id
                     not in record.pricelist_id.pms_property_ids.ids
                 ):
-                    raise ValidationError(_("Property isn't allowed in Room Type"))
+                    raise ValidationError(_("Property isn't allowed in Pricelist"))
 
     @api.constrains("pms_property_id", "board_service_room_id")
     def _check_board_service_property_integrity(self):
@@ -1339,7 +1348,7 @@ class PmsReservation(models.Model):
                     record.pms_property_id.id
                     not in record.board_service_room_id.pms_property_ids.ids
                 ):
-                    raise ValidationError(_("Property isn't allowed in Room Type"))
+                    raise ValidationError(_("Property isn't allowed in Board Service"))
 
     # Action methods
 

@@ -94,7 +94,7 @@ class TestPmsReservations(TestHotel):
             }
         )
         self.room_type_class = self.env["pms.room.type.class"].create(
-            {"name": "Room Class"}
+            {"name": "Room Class", "code_class": "RCTEST"}
         )
 
         self.board_service = self.env["pms.board.service"].create(

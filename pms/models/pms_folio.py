@@ -76,6 +76,9 @@ class PmsFolio(models.Model):
         help="Services detail provide to customer and it will "
         "include in main Invoice.",
         check_company=True,
+        domain="['|',"
+        "('pms_property_id', '=', pms_property_id),"
+        "('pms_property_id', '=', False)]",
     )
     sale_line_ids = fields.One2many(
         "folio.sale.line",
@@ -125,6 +128,9 @@ class PmsFolio(models.Model):
         store=True,
         readonly=False,
         help="Pricelist for current folio.",
+        domain="['|',"
+        "(pms_property_id, 'in', 'pms_property_ids'),"
+        "('pms_property_ids', '=', False)]",
     )
     commission = fields.Float(
         string="Commission",
@@ -231,7 +237,12 @@ class PmsFolio(models.Model):
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position", string="Fiscal Position"
     )
-    closure_reason_id = fields.Many2one("room.closure.reason")
+    closure_reason_id = fields.Many2one(
+        "room.closure.reason",
+        domain="['|',"
+        "(pms_property_id, 'in', 'pms_property_ids'),"
+        "('pms_property_ids', '=', False)]",
+    )
     segmentation_ids = fields.Many2many(
         "res.partner.category", string="Segmentation", ondelete="restrict"
     )
