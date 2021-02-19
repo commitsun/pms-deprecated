@@ -174,8 +174,17 @@ class PmsReservation(models.Model):
         "pms.property",
         related="folio_id.pms_property_id",
         store=True,
-        readonly=False,
         default=lambda self: self.env.user.get_active_property_ids()[0],
+    )
+    allowed_property_ids = fields.Many2many(
+        comodel_name="pms.property",
+        relation="reservation_property_rel",
+        column1="reservation_id",
+        column2="property_id",
+        string="Allowed properties",
+        store=True,
+        readonly=True,
+        compute="_compute_allowed_property_ids",
     )
     reservation_line_ids = fields.One2many(
         "pms.reservation.line",
@@ -1339,6 +1348,7 @@ class PmsReservation(models.Model):
                     not in record.pricelist_id.pms_property_ids.ids
                 ):
                     raise ValidationError(_("Property isn't allowed in Pricelist"))
+
 
     @api.constrains("pms_property_id", "board_service_room_id")
     def _check_board_service_property_integrity(self):
