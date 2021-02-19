@@ -37,7 +37,7 @@ class TestPmsFolio(TestHotel):
                 "name": "Double Test",
                 "code_type": "DBL_Test",
                 "class_id": self.room_type_class.id,
-                "price": 25
+                "price": 25,
             }
         )
         # create room
@@ -169,7 +169,6 @@ class TestPmsFolio(TestHotel):
             date=fields.date.today(),
         )
         self.assertFalse(r_test.folio_id.pending_amount)
-
 
     def test_partial_pay_folio(self):
         # TEST CASE
