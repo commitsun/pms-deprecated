@@ -503,7 +503,6 @@
                                             name="open_service_ids"
                                             attrs="{'invisible': [('per_day','=',False)]}"
                                         />
-                                        <field name="price_unit" />
                                         <field name="discount" />
                                         <field name="tax_ids" widget="many2many_tags" />
                                         <field name="price_subtotal" />
@@ -513,6 +512,7 @@
                                             <tree string="Days">
                                                 <field name="date" />
                                                 <field name="day_qty" />
+                                                <field name="price_unit" />
                                             </tree>
                                         </field>
                                     </tree>

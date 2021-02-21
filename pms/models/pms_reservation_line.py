@@ -328,14 +328,10 @@ class PmsReservationLine(models.Model):
     def _compute_cancel_discount(self):
         for line in self:
             line.cancel_discount = 0
+            # TODO: Review cancel logic
             # reservation = line.reservation_id
             # pricelist = reservation.pricelist_id
             # if reservation.state == "cancelled":
-            #     # TODO: Set 0 qty on cancel room services change to compute day_qty
-            #     # (view constrain service_line_days)
-            #     for service in reservation.service_ids:
-            #         service.service_line_ids.write({"day_qty": 0})
-            #         service._compute_days_qty()
             #     if (
             #         reservation.cancelled_reason
             #         and pricelist

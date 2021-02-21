@@ -71,18 +71,6 @@ class FolioSaleLine(models.Model):
         else:
             return False
 
-    @api.depends("service_id", "service_id.price_unit")
-    def _compute_price_unit(self):
-        """
-        Compute unit prices of services
-        On reservations the unit price is compute by group in folio
-        """
-        for record in self:
-            if record.service_id:
-                record.price_unit = record.service_id.price_unit
-            elif not record.price_unit:
-                record.price_unit = False
-
     @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids")
     def _compute_amount(self):
         """
@@ -363,6 +351,10 @@ class FolioSaleLine(models.Model):
         "pms.reservation.line",
         string="Nights",
     )
+    service_line_ids = fields.Many2many(
+        "pms.service.line",
+        string="Service Lines",
+    )
     sequence = fields.Integer(string="Sequence", default=10)
 
     invoice_lines = fields.Many2many(
@@ -389,8 +381,6 @@ class FolioSaleLine(models.Model):
     price_unit = fields.Float(
         "Unit Price",
         digits="Product Price",
-        compute="_compute_price_unit",
-        store=True,
     )
 
     price_subtotal = fields.Monetary(
@@ -550,13 +540,13 @@ class FolioSaleLine(models.Model):
         help="Technical field for UX purpose.",
     )
 
-    @api.depends("reservation_line_ids", "service_id")
+    @api.depends("reservation_line_ids", "service_line_ids")
     def _compute_product_uom_qty(self):
         for line in self:
             if line.reservation_line_ids:
                 line.product_uom_qty = len(line.reservation_line_ids)
-            elif line.service_id:
-                line.product_uom_qty = line.service_id.product_qty
+            elif line.service_line_ids:
+                line.product_uom_qty = sum(line.service_line_ids.mapped("day_qty"))
             elif not line.product_uom_qty:
                 line.product_uom_qty = False
 

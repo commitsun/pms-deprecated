@@ -128,13 +128,6 @@ class PmsService(models.Model):
         ],
         string="Sales Channel",
     )
-    price_unit = fields.Float(
-        "Unit Price",
-        digits=("Product Price"),
-        compute="_compute_price_unit",
-        store=True,
-        readonly=False,
-    )
     discount = fields.Float(string="Discount (%)", digits=("Discount"), default=0.0)
     qty_to_invoice = fields.Float(
         compute="_compute_get_to_invoice_qty",
@@ -214,6 +207,7 @@ class PmsService(models.Model):
                                 # cached (otherwise double the date)
                                 pass
                             elif not old_line:
+                                price_unit = service._get_price_unit_line(idate)
                                 lines.append(
                                     (
                                         0,
@@ -221,6 +215,7 @@ class PmsService(models.Model):
                                         {
                                             "date": idate,
                                             "day_qty": day_qty,
+                                            "price_unit": price_unit,
                                         },
                                     )
                                 )
@@ -246,12 +241,11 @@ class PmsService(models.Model):
                                 ]
                             )
                         )
-                        _logger.info(service)
-                        _logger.info(lines)
                         service.service_line_ids = lines
                     else:
                         # TODO: Review (business logic refact) no per_day logic service
                         if not service.service_line_ids:
+                            price_unit = service._get_price_unit_line()
                             service.service_line_ids = [
                                 (
                                     0,
@@ -259,6 +253,7 @@ class PmsService(models.Model):
                                     {
                                         "date": fields.Date.today(),
                                         "day_qty": day_qty,
+                                        "price_unit": price_unit,
                                     },
                                 )
                             ]
@@ -266,6 +261,7 @@ class PmsService(models.Model):
                     # TODO: Service without reservation(room) but with folio¿?
                     # example: tourist tour in group
                     if not service.service_line_ids:
+                        price_unit = service._get_price_unit_line()
                         service.service_line_ids = [
                             (
                                 0,
@@ -273,6 +269,7 @@ class PmsService(models.Model):
                                 {
                                     "date": fields.Date.today(),
                                     "day_qty": day_qty,
+                                    "price_unit": price_unit,
                                 },
                             )
                         ]
@@ -300,79 +297,6 @@ class PmsService(models.Model):
             qty = sum(service.service_line_ids.mapped("day_qty"))
             service.product_qty = qty
 
-    @api.depends(
-        "product_id",
-        "service_line_ids",
-        "reservation_id.pricelist_id",
-        "reservation_id.pms_property_id",
-        "pms_property_id",
-    )
-    def _compute_price_unit(self):
-        for service in self:
-            folio = service.folio_id
-            reservation = service.reservation_id
-            origin = reservation if reservation else folio
-            if origin:
-                if service._recompute_price():
-                    partner = origin.partner_id
-                    pricelist = origin.pricelist_id
-                    if reservation and service.is_board_service:
-                        board_room_type = reservation.board_service_room_id
-                        if board_room_type.price_type == "fixed":
-                            service.price_unit = (
-                                self.env["pms.board.service.room.type.line"]
-                                .search(
-                                    [
-                                        (
-                                            "pms_board_service_room_type_id",
-                                            "=",
-                                            board_room_type.id,
-                                        ),
-                                        ("product_id", "=", service.product_id.id),
-                                    ]
-                                )
-                                .amount
-                            )
-                        else:
-                            service.price_unit = (
-                                reservation.price_total
-                                * self.env["pms.board.service.room.type.line"]
-                                .search(
-                                    [
-                                        (
-                                            "pms_board_service_room_type_id",
-                                            "=",
-                                            board_room_type.id,
-                                        ),
-                                        ("product_id", "=", service.product_id.id),
-                                    ]
-                                )
-                                .amount
-                            ) / 100
-                    else:
-                        product = service.product_id.with_context(
-                            lang=partner.lang,
-                            partner=partner.id,
-                            quantity=service.product_qty,
-                            date=folio.date_order if folio else fields.Date.today(),
-                            pricelist=pricelist.id,
-                            uom=service.product_id.uom_id.id,
-                            fiscal_position=False,
-                            property=service.pms_property_id.id,
-                        )
-                        service.price_unit = self.env[
-                            "account.tax"
-                        ]._fix_tax_included_price_company(
-                            service._get_display_price(product),
-                            product.taxes_id,
-                            service.tax_ids,
-                            origin.company_id,
-                        )
-                else:
-                    service.price_unit = service._origin.price_unit
-            else:
-                service.price_unit = 0
-
     @api.depends("reservation_id")
     def _compute_folio_id(self):
         for record in self:
@@ -380,30 +304,6 @@ class PmsService(models.Model):
                 record.folio_id = record.reservation_id.folio_id
             elif not record.folio_id:
                 record.folio_id = False
-
-    def _recompute_price(self):
-        # REVIEW: Conditional to avoid overriding already calculated prices,
-        # I'm not sure it's the best way
-        self.ensure_one()
-        # folio/reservation origin service
-        folio_origin = self._origin.folio_id
-        reservation_origin = self._origin.reservation_id
-        origin = reservation_origin if reservation_origin else folio_origin
-        # folio/reservation new service
-        folio_new = self.folio_id
-        reservation_new = self.reservation_id
-        new = reservation_new if reservation_new else folio_new
-        price_fields = [
-            "pricelist_id",
-            "reservation_type",
-            "pms_property_id",
-        ]
-        if (
-            any(origin[field] != new[field] for field in price_fields)
-            or self._origin.price_unit == 0
-        ):
-            return True
-        return False
 
     @api.depends("qty_invoiced", "product_qty", "folio_id.state")
     def _compute_get_to_invoice_qty(self):
@@ -488,26 +388,36 @@ class PmsService(models.Model):
             else:
                 line.invoice_status = "no"
 
-    @api.depends("product_qty", "discount", "price_unit", "tax_ids")
+    @api.depends("product_qty", "discount", "service_line_ids.price_unit", "tax_ids")
     def _compute_amount_service(self):
         for service in self:
-            folio = service.folio_id
-            reservation = service.reservation_id
-            currency = folio.currency_id if folio else reservation.currency_id
-            product = service.product_id
-            price = service.price_unit * (1 - (service.discount or 0.0) * 0.01)
-            taxes = service.tax_ids.compute_all(
-                price, currency, service.product_qty, product=product
-            )
-            service.update(
-                {
-                    "price_tax": sum(
-                        t.get("amount", 0.0) for t in taxes.get("taxes", [])
-                    ),
-                    "price_total": taxes["total_included"],
-                    "price_subtotal": taxes["total_excluded"],
-                }
-            )
+            amount_service = 0
+            for line in service.service_line_ids:
+                amount_service += line.day_qty * line.price_unit
+            if amount_service > 0:
+                currency = service.currency_id
+                product = service.product_id
+                price = amount_service * (1 - (service.discount or 0.0) * 0.01)
+                # REVIEW: Hack qty = 1 becouse price (based on amount_service)
+                # is total price, not unit price
+                taxes = service.tax_ids.compute_all(price, currency, 1, product=product)
+                service.update(
+                    {
+                        "price_tax": sum(
+                            t.get("amount", 0.0) for t in taxes.get("taxes", [])
+                        ),
+                        "price_total": taxes["total_included"],
+                        "price_subtotal": taxes["total_excluded"],
+                    }
+                )
+            else:
+                service.update(
+                    {
+                        "price_tax": 0,
+                        "price_total": 0,
+                        "price_subtotal": 0,
+                    }
+                )
 
     # Action methods
     def open_service_ids(self):
@@ -578,3 +488,65 @@ class PmsService(models.Model):
         if self.product_id.per_person:
             qty = self.reservation_id.adults
         return qty
+
+    def _get_price_unit_line(self, date=False):
+        self.ensure_one()
+        folio = self.folio_id
+        reservation = self.reservation_id
+        origin = reservation if reservation else folio
+        if origin:
+            partner = origin.partner_id
+            pricelist = origin.pricelist_id
+            if reservation and self.is_board_service:
+                board_room_type = reservation.board_service_room_id
+                if board_room_type.price_type == "fixed":
+                    return (
+                        self.env["pms.board.service.room.type.line"]
+                        .search(
+                            [
+                                (
+                                    "pms_board_service_room_type_id",
+                                    "=",
+                                    board_room_type.id,
+                                ),
+                                ("product_id", "=", self.product_id.id),
+                            ]
+                        )
+                        .amount
+                    )
+                else:
+                    return (
+                        reservation.price_total
+                        * self.env["pms.board.service.room.type.line"]
+                        .search(
+                            [
+                                (
+                                    "pms_board_service_room_type_id",
+                                    "=",
+                                    board_room_type.id,
+                                ),
+                                ("product_id", "=", self.product_id.id),
+                            ]
+                        )
+                        .amount
+                    ) / 100
+            else:
+                product = self.product_id.with_context(
+                    lang=partner.lang,
+                    partner=partner.id,
+                    quantity=self.product_qty,
+                    date=folio.date_order if folio else fields.Date.today(),
+                    pricelist=pricelist.id,
+                    date_overnight=date,
+                    uom=self.product_id.uom_id.id,
+                    fiscal_position=False,
+                    property=self.pms_property_id.id,
+                )
+                return self.env["account.tax"]._fix_tax_included_price_company(
+                    self._get_display_price(product),
+                    product.taxes_id,
+                    self.tax_ids,
+                    origin.company_id,
+                )
+        else:
+            return 0

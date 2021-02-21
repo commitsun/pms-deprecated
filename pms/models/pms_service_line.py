@@ -29,11 +29,9 @@ class PmsServiceLine(models.Model):
     )
     date = fields.Date("Date")
     day_qty = fields.Integer("Units")
-    price_total = fields.Float(
-        "Price Total", compute="_compute_price_total", store=True
-    )
     price_unit = fields.Float(
-        "Unit Price", related="service_id.price_unit", readonly=True, store=True
+        "Unit Price",
+        digits=("Product Price"),
     )
     room_id = fields.Many2one(
         string="Room", related="service_id.reservation_id", readonly=True, store=True
@@ -45,19 +43,62 @@ class PmsServiceLine(models.Model):
         "Cancelation Discount", compute="_compute_cancel_discount"
     )
 
-    # Compute and Search methods
-    @api.depends("day_qty", "service_id.price_total")
-    def _compute_price_total(self):
-        """
-        Used to reports
-        """
-        for record in self:
-            if record.service_id.product_qty != 0:
-                record.price_total = (
-                    record.service_id.price_total * record.day_qty
-                ) / record.service_id.product_qty
-            else:
-                record.price_total = 0
+    # Depends
+    # TODO: Refact method and allowed cancelled single days
+    @api.depends("service_id.reservation_id.cancelled_reason")
+    def _compute_cancel_discount(self):
+        for line in self:
+            line.cancel_discount = 0
+            # TODO: Review cancel logic
+            # reservation = line.reservation_id.reservation_id
+            # pricelist = reservation.pricelist_id
+            # if reservation.state == "cancelled":
+            #     if (
+            #         reservation.cancelled_reason
+            #         and pricelist
+            #         and pricelist.cancelation_rule_id
+            #     ):
+            #         date_start_dt = fields.Date.from_string(
+            #             reservation.checkin
+            #         )
+            #         date_end_dt = fields.Date.from_string(
+            #             reservation.checkout
+            #         )
+            #         days = abs((date_end_dt - date_start_dt).days)
+            #         rule = pricelist.cancelation_rule_id
+            #         if reservation.cancelled_reason == "late":
+            #             discount = 100 - rule.penalty_late
+            #             if rule.apply_on_late == "first":
+            #                 days = 1
+            #             elif rule.apply_on_late == "days":
+            #                 days = rule.days_late
+            #         elif reservation.cancelled_reason == "noshow":
+            #             discount = 100 - rule.penalty_noshow
+            #             if rule.apply_on_noshow == "first":
+            #                 days = 1
+            #             elif rule.apply_on_noshow == "days":
+            #                 days = rule.days_late - 1
+            #         elif reservation.cancelled_reason == "intime":
+            #             discount = 100
+
+            #         checkin = reservation.checkin
+            #         dates = []
+            #         for i in range(0, days):
+            #             dates.append(
+            #                 (
+            #                     fields.Date.from_string(checkin) + timedelta(days=i)
+            #                 ).strftime(DEFAULT_SERVER_DATE_FORMAT)
+            #             )
+            #         reservation.reservation_line_ids.filtered(
+            #             lambda r: r.date in dates
+            #         ).update({"cancel_discount": discount})
+            #         reservation.reservation_line_ids.filtered(
+            #             lambda r: r.date not in dates
+            #         ).update({"cancel_discount": 100})
+            #     else:
+            #         reservation.reservation_line_ids.update({"cancel_discount": 0})
+            # else:
+            #     reservation.reservation_line_ids.update({"cancel_discount": 0})
 
     # Constraints and onchanges
     @api.constrains("day_qty")

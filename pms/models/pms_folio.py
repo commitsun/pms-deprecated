@@ -445,18 +445,31 @@ class PmsFolio(models.Model):
                 for item in group_lines.items():
                     sale_lines.append((0, False, item[1]))
                 for service in reservation.service_ids:
-                    # On service the price, and discounts fields are
-                    # compute in the sale.order.line
-                    sale_lines.append(
-                        (
-                            0,
-                            False,
-                            {
+                    # Service days with different prices,
+                    # go to differente sale lines
+                    group_service_lines = {}
+                    for service_line in service.service_line_ids:
+                        service_group_key = (
+                            service_line.price_unit,
+                            service_line.discount,
+                            service_line.cancel_discount,
+                        )
+                        if service_group_key not in group_service_lines:
+                            # On service the price, and discounts fields are
+                            # compute in the sale.order.line
+                            group_lines[group_key] = {
                                 "name": service.name,
                                 "service_id": service.id,
-                            },
-                        )
-                    )
+                                "discount": service_line.discount,
+                                "price_unit": service_line.price_unit,
+                                "service_line_ids": [(4, service_line.id)],
+                            }
+                        else:
+                            group_lines[group_key][("service_line_ids")].append(
+                                (4, service_line.id)
+                            )
+                    for item in group_lines.items():
+                        sale_lines.append((0, False, item[1]))
             if services_without_room:
                 sale_lines.append(
                     (
