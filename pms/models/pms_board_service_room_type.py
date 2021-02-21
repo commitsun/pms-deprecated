@@ -66,12 +66,11 @@ class PmsBoardServiceRoomType(models.Model):
         "pms.board.service.room.type.line", "pms_board_service_room_type_id"
     )
     # TODO:review relation with pricelist and properties
-
-    price_type = fields.Selection(
-        [("fixed", "Fixed"), ("percent", "Percent")],
-        string="Type",
-        default="fixed",
-        required=True,
+    pms_property_ids = fields.Many2many(
+        "pms.property",
+        string="Properties",
+        required=False,
+        ondelete="restrict",
     )
     amount = fields.Float(
         "Amount", digits=("Product Price"), compute="_compute_board_amount", store=True

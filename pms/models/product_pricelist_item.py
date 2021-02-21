@@ -18,6 +18,7 @@ class ProductPricelistItem(models.Model):
         string="End Date Overnight",
         help="End date to apply daily pricelist items",
     )
+    on_board_service = fields.Boolean("Those included in Board Services")
 
     allowed_property_ids = fields.Many2many(
         "pms.property",

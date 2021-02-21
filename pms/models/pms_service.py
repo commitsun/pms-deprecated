@@ -497,56 +497,26 @@ class PmsService(models.Model):
         if origin:
             partner = origin.partner_id
             pricelist = origin.pricelist_id
+            board_room_type = False
             if reservation and self.is_board_service:
                 board_room_type = reservation.board_service_room_id
-                if board_room_type.price_type == "fixed":
-                    return (
-                        self.env["pms.board.service.room.type.line"]
-                        .search(
-                            [
-                                (
-                                    "pms_board_service_room_type_id",
-                                    "=",
-                                    board_room_type.id,
-                                ),
-                                ("product_id", "=", self.product_id.id),
-                            ]
-                        )
-                        .amount
-                    )
-                else:
-                    return (
-                        reservation.price_total
-                        * self.env["pms.board.service.room.type.line"]
-                        .search(
-                            [
-                                (
-                                    "pms_board_service_room_type_id",
-                                    "=",
-                                    board_room_type.id,
-                                ),
-                                ("product_id", "=", self.product_id.id),
-                            ]
-                        )
-                        .amount
-                    ) / 100
-            else:
-                product = self.product_id.with_context(
-                    lang=partner.lang,
-                    partner=partner.id,
-                    quantity=self.product_qty,
-                    date=folio.date_order if folio else fields.Date.today(),
-                    pricelist=pricelist.id,
-                    date_overnight=date,
-                    uom=self.product_id.uom_id.id,
-                    fiscal_position=False,
-                    property=self.pms_property_id.id,
-                )
-                return self.env["account.tax"]._fix_tax_included_price_company(
-                    self._get_display_price(product),
-                    product.taxes_id,
-                    self.tax_ids,
-                    origin.company_id,
-                )
+            product = self.product_id.with_context(
+                lang=partner.lang,
+                partner=partner.id,
+                quantity=self.product_qty,
+                date=folio.date_order if folio else fields.Date.today(),
+                pricelist=pricelist.id,
+                date_overnight=date,
+                board_service=board_room_type.id if board_room_type else False,
+                uom=self.product_id.uom_id.id,
+                fiscal_position=False,
+                property=self.pms_property_id.id,
+            )
+            return self.env["account.tax"]._fix_tax_included_price_company(
+                self._get_display_price(product),
+                product.taxes_id,
+                self.tax_ids,
+                origin.company_id,
+            )
         else:
             return 0
