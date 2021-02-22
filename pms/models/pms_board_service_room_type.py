@@ -17,12 +17,17 @@ class PmsBoardServiceRoomType(models.Model):
         result = []
         for res in self:
             if res.pricelist_id:
-                name = u"{} ({})".format(
+                name = u"{} ({}/{})".format(
                     res.pms_board_service_id.name,
+                    res.pms_room_type_id.name,
                     res.pricelist_id.name,
                 )
             else:
-                name = u"{} ({})".format(res.pms_board_service_id.name, _("Generic"))
+                name = u"{} ({}/{})".format(
+                    res.pms_board_service_id.name,
+                    res.pms_room_type_id.name,
+                    _("Generic"),
+                )
             result.append((res.id, name))
         return result
 
@@ -121,7 +126,7 @@ class PmsBoardServiceRoomType(models.Model):
                     )
 
     @api.constrains("by_default", "pricelist_id")
-    def constrains_duplicated_board_defaul(self):
+    def constrains_duplicated_board_default(self):
         for record in self:
             default_boards = (
                 record.pms_room_type_id.board_service_room_type_ids.filtered(

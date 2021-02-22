@@ -86,6 +86,8 @@ class ProductPricelist(models.Model):
             and self._context["property"]
             and self._context.get("date_overnight")
         ):
+            board_service_id = self._context.get("board_service")
+            on_board_service_bool = True if board_service_id else False
             self.env["product.pricelist.item"].flush(
                 ["price", "currency_id", "company_id"]
             )
@@ -99,12 +101,17 @@ class ProductPricelist(models.Model):
                             ON item.pricelist_id = cab.product_pricelist_id
                        LEFT JOIN pms_property_product_pricelist_item_rel lin
                             ON item.id = lin.product_pricelist_item_id
+                       LEFT JOIN board_service_pricelist_item_rel board
+                            ON item.id = board.pricelist_item_id
                 WHERE  (lin.pms_property_id = %s OR lin.pms_property_id IS NULL)
                    AND (cab.pms_property_id = %s OR cab.pms_property_id IS NULL)
                    AND (item.product_tmpl_id IS NULL
                         OR item.product_tmpl_id = ANY(%s))
                    AND (item.product_id IS NULL OR item.product_id = ANY(%s))
                    AND (item.categ_id IS NULL OR item.categ_id = ANY(%s))
+                   AND (item.on_board_service = %s)
+                   AND (board.board_service_id IS NULL
+                        OR board.board_service_id = ANY(%s))
                    AND (item.pricelist_id = %s)
                    AND (item.date_start IS NULL OR item.date_start <=%s)
                    AND (item.date_end IS NULL OR item.date_end >=%s)
@@ -132,6 +139,8 @@ class ProductPricelist(models.Model):
                     prod_tmpl_ids,
                     prod_ids,
                     categ_ids,
+                    on_board_service_bool,
+                    board_service_id,
                     self.id,
                     date,
                     date,
