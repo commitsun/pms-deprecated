@@ -17,6 +17,7 @@ class PmsFolio(models.Model):
     _description = "PMS Folio"
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin"]
     _order = "date_order"
+    _check_company_auto = True
 
     # Default Methods ang Gets
     def name_get(self):
@@ -60,6 +61,7 @@ class PmsFolio(models.Model):
         readonly=False,
         states={"done": [("readonly", True)]},
         help="Room reservation detail.",
+        check_company=True,
     )
     number_of_rooms = fields.Integer(
         "Number of Rooms",
@@ -73,6 +75,10 @@ class PmsFolio(models.Model):
         states={"done": [("readonly", True)]},
         help="Services detail provide to customer and it will "
         "include in main Invoice.",
+        check_company=True,
+        domain="['|',"
+        "('pms_property_id','=',pms_property_id),"
+        "('pms_property_id','=',False)]",
     )
     sale_line_ids = fields.One2many(
         "folio.sale.line",
@@ -121,6 +127,9 @@ class PmsFolio(models.Model):
         store=True,
         readonly=False,
         help="Pricelist for current folio.",
+        domain="['|',"
+        "(pms_property_id, 'in', 'pms_property_ids'),"
+        "('pms_property_id','=',False)]",
     )
     commission = fields.Float(
         string="Commission",
@@ -231,7 +240,12 @@ class PmsFolio(models.Model):
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position", string="Fiscal Position"
     )
-    closure_reason_id = fields.Many2one("room.closure.reason")
+    closure_reason_id = fields.Many2one(
+        "room.closure.reason",
+        domain="['|',"
+        "(pms_property_id, 'in', 'pms_property_ids'),"
+        "('pms_property_ids', '=', False)]",
+    )
     segmentation_ids = fields.Many2many(
         "res.partner.category", string="Segmentation", ondelete="restrict"
     )
@@ -1248,6 +1262,18 @@ class PmsFolio(models.Model):
                 raise models.ValidationError(
                     _("The Sale Channel does not correspond to the agency's")
                 )
+
+    @api.constrains(
+        "closure_reason_id",
+    )
+    def _check_property_integrity(self):
+        for rec in self:
+            if rec.pms_property_id:
+                if (
+                    rec.pms_property_id.id
+                    not in rec.closure_reason_id.pms_property_ids.ids
+                ):
+                    raise ValidationError(_("Property not allowed"))
 
     @api.model
     def _prepare_down_payment_section_line(self, **optional_values):
