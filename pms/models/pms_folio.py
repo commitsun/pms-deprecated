@@ -129,7 +129,7 @@ class PmsFolio(models.Model):
         help="Pricelist for current folio.",
         domain="['|',"
         "(pms_property_id, 'in', 'pms_property_ids'),"
-        "('pms_property_id','=',False)]",
+        "('pms_property_ids','=',False)]",
     )
     commission = fields.Float(
         string="Commission",
