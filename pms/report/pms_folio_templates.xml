@@ -147,7 +147,10 @@
                                         </td>
 
                                         <td name="td_priceunit" class="text-right">
-                                                <span t-esc="price" />
+                                                <span
+                                                    t-esc="price"
+                                                    t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                                />
                                         </td>
                                         <td t-if="line.discount" class="text-right">
                                             <span t-field="line.discount" />
@@ -164,10 +167,12 @@
                                             <span
                                                     t-esc="price * line.product_uom_qty"
                                                     groups="account.group_show_line_subtotals_tax_excluded"
+                                                    t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
                                                 />
                                             <span
                                                     t-esc="price * line.product_uom_qty"
                                                     groups="account.group_show_line_subtotals_tax_included"
+                                                    t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
                                                 />
                                         </td>
                                     </t>
@@ -195,7 +200,10 @@
                                                     name="td_priceunit"
                                                     class="text-right"
                                                 >
-                                                        <span t-esc="price" />
+                                                        <span
+                                                            t-esc="price"
+                                                            t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                                        />
                                                 </td>
                                                 <td
                                                     t-if="line.discount"
@@ -215,10 +223,12 @@
                                                     <span
                                                         t-esc="price * line.product_uom_qty"
                                                         groups="account.group_show_line_subtotals_tax_excluded"
+                                                        t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
                                                     />
                                                     <span
                                                         t-esc="price * line.product_uom_qty"
                                                         groups="account.group_show_line_subtotals_tax_included"
+                                                        t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
                                                     />
                                                 </td>
                                            </t>
