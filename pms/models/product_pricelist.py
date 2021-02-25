@@ -80,7 +80,6 @@ class ProductPricelist(models.Model):
     def _compute_price_rule_get_items(
         self, products_qty_partner, date, uom_id, prod_tmpl_ids, prod_ids, categ_ids
     ):
-
         if (
             "property" in self._context
             and self._context["property"]
@@ -109,9 +108,6 @@ class ProductPricelist(models.Model):
                         OR item.product_tmpl_id = ANY(%s))
                    AND (item.product_id IS NULL OR item.product_id = ANY(%s))
                    AND (item.categ_id IS NULL OR item.categ_id = ANY(%s))
-                   AND (item.on_board_service = %s)
-                   AND (board.board_service_id IS NULL
-                        OR board.board_service_id = ANY(%s))
                    AND (item.pricelist_id = %s)
                    AND (item.date_start IS NULL OR item.date_start <=%s)
                    AND (item.date_end IS NULL OR item.date_end >=%s)
@@ -139,8 +135,8 @@ class ProductPricelist(models.Model):
                     prod_tmpl_ids,
                     prod_ids,
                     categ_ids,
-                    on_board_service_bool,
-                    board_service_id,
+                    #on_board_service_bool,
+                    #board_service_id,
                     self.id,
                     date,
                     date,
