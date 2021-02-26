@@ -75,7 +75,7 @@ class AvailabilityWizard(models.TransientModel):
                     date_iterator,
                     date_iterator + datetime.timedelta(days=1),
                     room_type_id=record.room_type_id.id,
-                    pricelist=record.folio_wizard_id.pricelist_id.id,
+                    pricelist_id=record.folio_wizard_id.pricelist_id.id,
                 )
                 num_rooms_available_by_date.append(len(rooms_available))
                 partner = record.folio_wizard_id.partner_id

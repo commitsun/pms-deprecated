@@ -183,6 +183,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "start_date": checkin,
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
+                "pms_property_id": self.test_property.id,
             }
         )
 
@@ -265,6 +266,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -395,6 +397,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -444,6 +447,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -495,6 +499,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -552,6 +557,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()
@@ -585,6 +591,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
             "room_type_id": self.test_room_type_double,
             "partner_id": self.partner_id.id,
             "pricelist_id": folio.pricelist_id.id,
+            "pms_property_id": self.test_property.id,
         }
 
         # ASSERT
@@ -593,7 +600,8 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 with self.subTest(k=key):
                     self.assertEqual(
                         reservation[key].id
-                        if key in ["folio_id", "partner_id", "pricelist_id"]
+                        if key
+                        in ["folio_id", "partner_id", "pricelist_id", "pms_property_id"]
                         else reservation[key],
                         vals[key],
                         "The value of " + key + " is not correctly established",
@@ -620,6 +628,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "partner_id": self.partner_id.id,
                 "pricelist_id": self.test_pricelist.id,
                 "discount": discount,
+                "pms_property_id": self.test_property.id,
             }
         )
         wizard_folio.flush()

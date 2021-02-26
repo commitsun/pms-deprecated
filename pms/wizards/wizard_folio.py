@@ -85,7 +85,13 @@ class FolioWizard(models.TransientModel):
 
                 cmds = [(5, 0, 0)]
 
-                for room_type_iterator in self.env["pms.room.type"].search([]):
+                for room_type_iterator in self.env["pms.room.type"].search(
+                    [
+                        "|",
+                        ("pms_property_ids", "=", False),
+                        ("pms_property_ids", "in", record.pms_property_id.id),
+                    ]
+                ):
 
                     num_rooms_available_by_date = []
                     room_type_total_price_per_room = 0
@@ -100,7 +106,8 @@ class FolioWizard(models.TransientModel):
                             date_iterator,
                             date_iterator + datetime.timedelta(days=1),
                             room_type_id=room_type_iterator.id,
-                            pricelist=record.pricelist_id.id,
+                            pricelist_id=record.pricelist_id.id,
+                            pms_property_id=record.pms_property_id.id,
                         )
 
                         num_rooms_available_by_date.append(len(rooms_available))
@@ -158,6 +165,7 @@ class FolioWizard(models.TransientModel):
                 {
                     "pricelist_id": record.pricelist_id.id,
                     "partner_id": record.partner_id.id,
+                    "pms_property_id": record.pms_property_id.id,
                 }
             )
             for line in record.availability_results:
@@ -170,6 +178,7 @@ class FolioWizard(models.TransientModel):
                             "room_type_id": line.room_type_id.id,
                             "partner_id": folio.partner_id.id,
                             "pricelist_id": folio.pricelist_id.id,
+                            "pms_property_id": record.pms_property_id.id,
                         }
                     )
                     res.reservation_line_ids.discount = record.discount * 100
