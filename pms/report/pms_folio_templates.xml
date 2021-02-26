@@ -131,7 +131,7 @@
                                             <t t-if="service.is_board_service">
                                                     <t
                                                         t-set="price"
-                                                        t-value="service.price_unit + price"
+                                                        t-value="service.product_qty/line.product_uom_qty*service.price_unit + price"
                                                     />
                                             </t>
                                         </t>
@@ -201,9 +201,9 @@
                                                     class="text-right"
                                                 >
                                                         <span
-                                                            t-esc="price"
-                                                            t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
-                                                        />
+                                                        t-esc="price"
+                                                        t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                                    />
                                                 </td>
                                                 <td
                                                     t-if="line.discount"
@@ -245,7 +245,10 @@
                                             </td>
 
                                             <td name="td_priceunit" class="text-right">
-                                                    <span t-esc="line.price_unit" />
+                                                    <span
+                                                t-esc="line.price_unit"
+                                                t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                            />
                                             </td>
                                             <td t-if="line.discount" class="text-right">
                                                 <span t-field="line.discount" />
