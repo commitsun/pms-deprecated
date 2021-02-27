@@ -29,7 +29,7 @@
                                 name="pricelist_id"
                                 string="Pricelist"
                                 required="1"
-                                domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', pms_property_ids)]"
+                                domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', pms_property_id)]"
                             />
                         </group>
                     </div>

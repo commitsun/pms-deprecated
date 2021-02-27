@@ -4,6 +4,7 @@ import datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 
 
 class PmsRoomTypeAvailability(models.Model):
@@ -122,6 +123,14 @@ class PmsRoomTypeAvailability(models.Model):
         pms_property_id=False,
     ):
         Avail = self.env["pms.room.type.availability"]
+        if isinstance(checkin, str):
+            checkin = datetime.datetime.strptime(
+                checkin, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
+        if isinstance(checkout, str):
+            checkout = datetime.datetime.strptime(
+                checkout, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
         domain = [
             ("date", ">=", checkin),
             ("date", "<=", checkout - datetime.timedelta(1)),
@@ -194,6 +203,14 @@ class PmsRoomTypeAvailability(models.Model):
     ):
         Avail = self.env["pms.room.type.availability"]
         count_free_rooms = len(self.env["pms.room.type"].browse(room_type_id).room_ids)
+        if isinstance(checkin, str):
+            checkin = datetime.datetime.strptime(
+                checkin, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
+        if isinstance(checkout, str):
+            checkout = datetime.datetime.strptime(
+                checkout, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
         for avail in Avail.search(
             [
                 ("date", ">=", checkin),
@@ -216,6 +233,14 @@ class PmsRoomTypeAvailability(models.Model):
         pricelist=False,
         pms_property_id=False,
     ):
+        if isinstance(checkin, str):
+            checkin = datetime.datetime.strptime(
+                checkin, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
+        if isinstance(checkout, str):
+            checkout = datetime.datetime.strptime(
+                checkout, DEFAULT_SERVER_DATE_FORMAT
+            ).date()
         for date_iterator in [
             checkin + datetime.timedelta(days=x)
             for x in range(0, (checkout - checkin).days)

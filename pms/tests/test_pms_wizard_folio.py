@@ -150,7 +150,6 @@ class TestPmsWizardMassiveChanges(TestHotel):
         # Set values for the wizard and the total price is correct
         # Also check the discount is correctly applied to get
         #                               the total folio price
-        # (no pricelist applied)
 
         # ARRANGE
         # common scenario
@@ -184,6 +183,7 @@ class TestPmsWizardMassiveChanges(TestHotel):
                 "end_date": checkout,
                 "partner_id": self.partner_id.id,
                 "pms_property_id": self.test_property.id,
+                "pricelist_id": self.test_pricelist.id,
             }
         )
 
@@ -207,7 +207,6 @@ class TestPmsWizardMassiveChanges(TestHotel):
         )
 
         lines_availability_test[0].num_rooms_selected = value
-
         for discount in discounts:
             with self.subTest(k=discount):
                 # ACT
