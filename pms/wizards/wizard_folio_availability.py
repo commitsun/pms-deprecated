@@ -55,7 +55,7 @@ class AvailabilityWizard(models.TransientModel):
         string="Total price", default=0, compute="_compute_price_total"
     )
     pms_property_id = fields.Many2one(
-        related="folio_wizard_id",
+        related="folio_wizard_id.pms_property_id",
         string="Property",
     )
 

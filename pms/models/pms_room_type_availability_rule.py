@@ -85,6 +85,9 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     avail_id = fields.Many2one(
         string="Avail record",
         comodel_name="pms.room.type.availability",
+        compute="_compute_avail_id",
+        store=True,
+        readonly=False,
         ondelete="restrict",
     )
     real_avail = fields.Integer(
@@ -109,17 +112,11 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     def _compute_avail_id(self):
         for record in self:
             if record.room_type_id and record.pms_property_id and record.date:
-                avail = self.env["pms.room.type.avail"].search(
+                avail = self.env["pms.room.type.availability"].search(
                     [
-                        "date",
-                        "=",
-                        record.date,
-                        "room_type",
-                        "=",
-                        record.room_type_id,
-                        "pms_property_id",
-                        "=",
-                        record.pms_property_id,
+                        ("date", "=", record.date),
+                        ("room_type_id", "=", record.room_type_id.id),
+                        ("pms_property_id", "=", record.pms_property_id.id),
                     ]
                 )
                 if avail:
@@ -128,8 +125,8 @@ class PmsRoomTypeAvailabilityRule(models.Model):
                     record.avail_id = self.env["pms.room.type.availability"].create(
                         {
                             "date": record.date,
-                            "room_type_id": record.room_type_id,
-                            "pms_property_id": record.pms_property_id,
+                            "room_type_id": record.room_type_id.id,
+                            "pms_property_id": record.pms_property_id.id,
                         }
                     )
             else:

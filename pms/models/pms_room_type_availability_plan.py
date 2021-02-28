@@ -190,7 +190,7 @@ class PmsRoomTypeAvailability(models.Model):
                 for item in rule_items:
                     if self.any_rule_applies(checkin, checkout, item):
                         return 0
-                avail = min(rule_items.plan_avail)
+                avail = min(rule_items.mapped("plan_avail"))
         return avail
 
     def get_count_real_free_rooms(
