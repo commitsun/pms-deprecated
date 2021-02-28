@@ -718,7 +718,9 @@ class FolioSaleLine(models.Model):
             )
         reservation = self.reservation_id
         service = self.service_id
-        reservation_lines = self.reservation_line_ids.filtered(lambda l: not l.invoiced and l.reservation_id)
+        reservation_lines = self.reservation_line_ids.filtered(
+            lambda l: not l.invoiced and l.reservation_id
+        )
         lines_to_invoice = list()
         if self.reservation_id:
             for i in range(0, int(qty)):
@@ -782,7 +784,7 @@ class FolioSaleLine(models.Model):
         """
         return self.filtered(
             lambda line: line.state not in ("draft")
-                         and (line.invoice_lines or not line.is_downpayment)
+            and (line.invoice_lines or not line.is_downpayment)
         )
 
     # def unlink(self):

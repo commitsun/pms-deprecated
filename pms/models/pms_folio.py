@@ -1005,10 +1005,9 @@ class PmsFolio(models.Model):
         if not lines_to_invoice:
             lines_to_invoice = dict()
             for line in self.sale_line_ids:
-                if line.display_type:
-                    lines_to_invoice[line.id] = 0
-                else:
-                    lines_to_invoice[line.id] = line.qty_to_invoice
+                lines_to_invoice[line.id] = (
+                    0 if line.display_type else line.qty_to_invoice
+                )
         invoice_vals_list = self.get_invoice_vals_list(
             final=final, lines_to_invoice=lines_to_invoice
         )
