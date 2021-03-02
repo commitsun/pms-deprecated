@@ -70,10 +70,6 @@
                     t-value="any(l.discount for l in doc.sale_line_ids)"
                 />
 
-            <t
-                    t-set="is_checked"
-                    t-value="any(l.reservation_id.board_service_room_id.pms_board_service_id.show_detail_report for l in doc.sale_line_ids)"
-                />
             <table class="table table-sm o_main_table">
                 <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                 <thead style="display: table-row-group">
@@ -83,7 +79,7 @@
                         <th name="th_priceunit" class="text-right">Unit Price</th>
                         <th
                                 name="th_discount"
-                                t-if="display_discount and is_checked"
+                                t-if="display_discount"
                                 class="text-right"
                             >
                             <span>Disc.%</span>
@@ -162,7 +158,7 @@
                                             />
                                         </td>
                                         <td
-                                            t-if="is_checked and display_discount"
+                                            t-if="display_discount"
                                             class="text-right"
                                         >
                                             <span t-field="line.discount" />
