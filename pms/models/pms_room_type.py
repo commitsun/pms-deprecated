@@ -30,14 +30,21 @@ class PmsRoomType(models.Model):
         "pms.room",
         "room_type_id",
         "Rooms",
-        domain="[('pms_property_id','in', pms_property_ids)]",
+        domain="["
+        "'|', "
+        "('pms_property_id', '=', False), "
+        "('pms_property_id','in', pms_property_ids)"
+        "]",
     )
     class_id = fields.Many2one(
         "pms.room.type.class",
         "Property Type Class",
         required=True,
-        domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', "
-        "pms_property_ids)]",
+        domain="["
+        "'|', "
+        "('pms_property_ids', '=', False), "
+        "('pms_property_ids', 'in', pms_property_ids)"
+        "]",
     )
     board_service_room_type_ids = fields.One2many(
         "pms.board.service.room.type",
@@ -53,8 +60,11 @@ class PmsRoomType(models.Model):
         "amenity_ids",
         string="Room Type Amenities",
         help="List of Amenities.",
-        domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', "
-        "pms_property_ids)]",
+        domain="["
+        "'|', "
+        "('pms_property_ids', '=', False), "
+        "('pms_property_ids', 'in', pms_property_ids)"
+        "]",
     )
     code_type = fields.Char(
         "Code",
