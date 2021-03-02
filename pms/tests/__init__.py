@@ -36,3 +36,4 @@ from . import test_pms_room
 from . import test_pms_board_service_line
 from . import test_pms_board_service_room_type
 from . import test_pms_board_service_room_type_line
+from . import test_pms_folio_invoice
