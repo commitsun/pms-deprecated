@@ -9,13 +9,25 @@ class PmsRoomAmenityType(models.Model):
     _description = "Amenities Type"
 
     # Fields declaration
-    name = fields.Char("Amenity Type Name", translate=True, required=True)
+    name = fields.Char(
+        string="Amenity Type Name",
+        required=True,
+        translate=True,
+    )
     pms_property_ids = fields.Many2many(
-        "pms.property", string="Properties", required=False, ondelete="restrict"
+        string="Properties",
+        comodel_name="pms.property",
+        required=False,
+        ondelete="restrict",
     )
     room_amenity_ids = fields.One2many(
-        "pms.amenity", "room_amenity_type_id", "Amenities in this category"
+        comodel_name="pms.amenity",
+        inverse_name="room_amenity_type_id",
+        string="Amenities in this category"
     )
-    active = fields.Boolean("Active", default=True)
+    active = fields.Boolean(
+        string="Active",
+        default=True
+    )
 
     # TODO: Constrain coherence pms_property_ids with amenities pms_property_ids
