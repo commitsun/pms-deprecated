@@ -9,54 +9,42 @@ class PmsRoomAmenity(models.Model):
     _name = "pms.amenity"
     _description = "Room amenities"
 
-    # Fields declaration
-    name = fields.Char("Amenity Name", translate=True, required=True)
+    name = fields.Char(
+        string="Amenity Name",
+        required=True,
+        translate=True,
+    )
     pms_property_ids = fields.Many2many(
-        "pms.property",
         string="Properties",
+        comodel_name="pms.property",
+        relation="pms_amenity_pms_property_rel",
+        column1="amenity",
+        column2="pms_property",
         required=False,
-        ondelete="restrict",
     )
     room_amenity_type_id = fields.Many2one(
-        "pms.amenity.type",
-        "Amenity Category",
+        string="Amenity Category",
+        comodel_name="pms.amenity.type",
         domain="['|', ('pms_property_ids', '=', False),('pms_property_ids', 'in', "
         "pms_property_ids)]",
     )
     default_code = fields.Char("Internal Reference")
     active = fields.Boolean("Active", default=True)
-
-    # TODO: Constrain coherence pms_property_ids with amenity types pms_property_ids
-    allowed_property_ids = fields.Many2many(
-        "pms.property",
-        "allowed_amenity_move_rel",
-        "amenity_id",
-        "property_id",
-        string="Allowed Properties",
-        store=True,
-        readonly=True,
-        compute="_compute_allowed_property_ids",
+    default_code = fields.Char(
+        string="Internal Reference",
     )
-
-    @api.depends(
-        "room_amenity_type_id.pms_property_ids",
+    active = fields.Boolean(
+        string="Active",
+        default=True,
     )
-    def _compute_allowed_property_ids(self):
-        for amenity in self:
-            if amenity.room_amenity_type_id.pms_property_ids:
-                amenity.allowed_property_ids = (
-                    amenity.room_amenity_type_id.pms_property_ids
-                )
-            else:
-                amenity.allowed_property_ids = False
 
     @api.constrains(
-        "allowed_property_ids",
+        "pms_amenity_type_id",
         "pms_property_ids",
     )
     def _check_property_integrity(self):
         for rec in self:
-            if rec.pms_property_ids and rec.allowed_property_ids:
-                for prop in rec.pms_property_ids:
-                    if prop not in rec.allowed_property_ids:
-                        raise ValidationError(_("Property not allowed in amenity type"))
+            if rec.pms_amenity_type_id and rec.pms_amenity_type_id.pms_property_ids:
+                res = rec.pms_property_ids - rec.pms_amenity_type_id.pms_property_ids
+                if res:
+                    raise ValidationError(_("Property not allowed"))

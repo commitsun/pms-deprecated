@@ -1,14 +1,14 @@
 # Copyright 2017  Alexandre Díaz
 # Copyright 2017  Dario Lodeiros
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class PmsRoomAmenityType(models.Model):
     _name = "pms.amenity.type"
     _description = "Amenities Type"
 
-    # Fields declaration
     name = fields.Char(
         string="Amenity Type Name",
         required=True,
@@ -16,18 +16,29 @@ class PmsRoomAmenityType(models.Model):
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
-        comodel_name="pms.property",
         required=False,
-        ondelete="restrict",
+        comodel_name="pms.property",
+        relation="pms_amenity_type_pms_property_rel",
+        column1="amenity_type_id",
+        column2="pms_property_id",
     )
-    room_amenity_ids = fields.One2many(
+    pms_amenity_ids = fields.One2many(
+        string="Amenities in this category",
         comodel_name="pms.amenity",
-        inverse_name="room_amenity_type_id",
-        string="Amenities in this category"
+        inverse_name="pms_amenity_type_id",
     )
     active = fields.Boolean(
         string="Active",
-        default=True
+        default=True,
     )
 
-    # TODO: Constrain coherence pms_property_ids with amenities pms_property_ids
+    @api.constrains(
+        "pms_property_ids",
+        "pms_amenity_ids",
+    )
+    def _check_property_integrity(self):
+        for rec in self:
+            if rec.pms_property_ids:
+                res = rec.pms_amenity_ids.pms_property_ids - rec.pms_property_ids
+                if res:
+                    raise ValidationError(_("Property not allowed"))
