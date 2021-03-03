@@ -18,11 +18,11 @@ class PmsRoomAmenity(models.Model):
         string="Properties",
         comodel_name="pms.property",
         relation="pms_amenity_pms_property_rel",
-        column1="amenity",
-        column2="pms_property",
+        column1="amenity_type_id",
+        column2="pms_property_id",
         required=False,
     )
-    room_amenity_type_id = fields.Many2one(
+    pms_amenity_type_id = fields.Many2one(
         string="Amenity Category",
         comodel_name="pms.amenity.type",
         domain="['|', ('pms_property_ids', '=', False),('pms_property_ids', 'in', "

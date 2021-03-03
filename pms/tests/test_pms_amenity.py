@@ -56,7 +56,7 @@ class TestPmsAmenity(TestHotel):
             Amenity.create(
                 {
                     "name": name2,
-                    "room_amenity_type_id": A1.id,
+                    "pms_amenity_type_id": A1.id,
                     "pms_property_ids": [
                         (4, self.property1.id),
                         (4, self.property2.id),
@@ -64,35 +64,3 @@ class TestPmsAmenity(TestHotel):
                     ],
                 }
             )
-
-    def test_check_allowed_property_ids(self):
-        # ARRANGE
-        name = "amenityTest1"
-        name2 = "amenity"
-        self.create_common_scenario()
-        AmenityType = self.env["pms.amenity.type"]
-        Amenity = self.env["pms.amenity"]
-        # ACT
-        AT1 = AmenityType.create(
-            {
-                "name": name,
-                "pms_property_ids": [
-                    (4, self.property1.id),
-                    (4, self.property2.id),
-                ],
-            }
-        )
-        A2 = Amenity.create(
-            {
-                "name": name2,
-                "room_amenity_type_id": AT1.id,
-                "pms_property_ids": [
-                    (4, self.property1.id),
-                    (4, self.property2.id),
-                ],
-            }
-        )
-        # ASSERT
-        self.assertEqual(
-            A2.allowed_property_ids, AT1.pms_property_ids, "Properties doesnt much"
-        )

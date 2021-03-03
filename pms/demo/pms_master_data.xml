@@ -99,31 +99,31 @@
         <!-- pms.amenity -->
         <record id="pms_amenity_0" model="pms.amenity">
             <field name="name">Shampoo and Soap</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_0" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_0" />
         </record>
         <record id="pms_amenity_1" model="pms.amenity">
             <field name="name">High-quality Shampoo and Soap Essential Herbs</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_0" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_0" />
         </record>
         <record id="pms_amenity_2" model="pms.amenity">
             <field name="name">Hair Dryer</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_0" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_0" />
         </record>
         <record id="pms_amenity_3" model="pms.amenity">
             <field name="name">High speed Wired Internet access</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_1" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_1" />
         </record>
         <record id="pms_amenity_4" model="pms.amenity">
             <field name="name">Wi-Fi</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_1" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_1" />
         </record>
         <record id="pms_amenity_5" model="pms.amenity">
             <field name="name">Microwave oven</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_2" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_2" />
         </record>
         <record id="pms_amenity_6" model="pms.amenity">
             <field name="name">Half-sized Refrigerator</field>
-            <field name="room_amenity_type_id" ref="pms_amenity_type_2" />
+            <field name="pms_amenity_type_id" ref="pms_amenity_type_2" />
         </record>
         <!-- pms.room.type.class -->
         <record id="pms_room_type_class_0" model="pms.room.type.class">
