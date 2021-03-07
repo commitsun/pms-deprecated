@@ -1471,18 +1471,16 @@ class PmsReservation(models.Model):
     def create(self, vals):
         if "folio_id" in vals:
             folio = self.env["pms.folio"].browse(vals["folio_id"])
-        elif "partner_id" in vals or "agency_id" in vals:
-            if "pms_property_id" not in vals:
-                raise ValidationError(_("Property must be indicated"))
+        elif "pms_property_id" in vals and (
+            "partner_id" in vals or "agency_id" in vals
+        ):
             folio_vals = {
                 "pms_property_id": vals["pms_property_id"],
-                "partner_id": int(vals.get("partner_id"))
-                if vals.get("partner_id")
-                else False,
-                "agency_id": int(vals.get("agency_id"))
-                if vals.get("agency_id")
-                else False,
             }
+            if vals.get("partner_id"):
+                folio_vals["partner_id"] = vals.get("partner_id")
+            elif vals.get("agency_id"):
+                folio_vals["agency_id"] = vals.get("agency_id")
             # Create the folio in case of need
             # (To allow to create reservations direct)
             folio = self.env["pms.folio"].create(folio_vals)
@@ -1491,6 +1489,10 @@ class PmsReservation(models.Model):
                     "folio_id": folio.id,
                     "reservation_type": vals.get("reservation_type"),
                 }
+            )
+        else:
+            raise ValidationError(
+                _("The client and Property are mandatory in the reservation")
             )
         if vals.get("name", _("New")) == _("New") or "name" not in vals:
             vals["name"] = self.env["ir.sequence"]._next_sequence_property(

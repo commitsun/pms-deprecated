@@ -838,11 +838,19 @@ class TestPmsReservations(TestHotel):
         """
         # ARRANGE
         self.create_multiproperty_scenario()
+        host = self.env["res.partner"].create(
+            {
+                "name": "Miguel",
+                "phone": "654667733",
+                "email": "miguel@example.com",
+            }
+        )
         self.reservation_test = self.env["pms.reservation"].create(
             {
                 "checkin": fields.date.today(),
                 "checkout": fields.date.today() + datetime.timedelta(days=1),
                 "pms_property_id": self.property1.id,
+                "partner_id": host.id,
             }
         )
 

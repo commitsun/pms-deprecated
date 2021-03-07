@@ -230,6 +230,7 @@ class TestPmsFolio(TestHotel):
             date=fields.date.today(),
         )
         self.assertEqual(r_test.folio_id.pending_amount, left_to_pay)
+
     def test_closure_reason_property(self):
         self.create_multiproperty_scenario()
         cl_reason = self.env["room.closure.reason"].create(

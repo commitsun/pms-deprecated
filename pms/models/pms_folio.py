@@ -496,11 +496,13 @@ class PmsFolio(models.Model):
 
     @api.depends("partner_id")
     def _compute_partner_invoice_ids(self):
-        for folio in self:
+        for folio in self.filtered("partner_id"):
             folio.partner_invoice_ids = False
             addr = folio.partner_id.address_get(["invoice"])
             if not addr["invoice"] in folio.partner_invoice_ids.ids:
                 folio.partner_invoice_ids = [(4, addr["invoice"])]
+        # Avoid CacheMissing
+        self.filtered(lambda f: not f.partner_invoice_ids).partner_invoice_ids = False
 
     @api.depends("partner_id")
     def _compute_payment_term_id(self):
