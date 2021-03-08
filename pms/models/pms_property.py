@@ -19,8 +19,9 @@ class PmsProperty(models.Model):
     _check_company_auto = True
 
     # Fields declaration
+    # TODO: Estandarización de campos
     partner_id = fields.Many2one(
-        "res.partner", "Property", required=True, delegate=True, ondelete="cascade"
+        "res.partner", "Property", required=True, ondelete="cascade"
     )
     company_id = fields.Many2one(
         "res.company",
@@ -35,6 +36,7 @@ class PmsProperty(models.Model):
         string="Accepted Users",
     )
     room_ids = fields.One2many("pms.room", "pms_property_id", "Rooms")
+    # TODO: establecer tarifa publica por defecto
     default_pricelist_id = fields.Many2one(
         "product.pricelist",
         string="Product Pricelist",
@@ -42,26 +44,54 @@ class PmsProperty(models.Model):
         help="The default pricelist used in this property.",
     )
     default_arrival_hour = fields.Char(
-        "Arrival Hour (GMT)", help="HH:mm Format", default="14:00"
+        string="Arrival Hour",
+        help="HH:mm Format",
+        default="14:00"
     )
     default_departure_hour = fields.Char(
-        "Departure Hour (GMT)", help="HH:mm Format", default="12:00"
+        string="Departure Hour",
+        help="HH:mm Format",
+        default="12:00"
     )
-    default_cancel_policy_days = fields.Integer("Cancellation Days")
-    default_cancel_policy_percent = fields.Float("Percent to pay")
+
+    # TODO: borrar los 2 siguientes campos (tb vista)
+    default_cancel_policy_days = fields.Integer(
+        string="Cancellation Days",
+    )
+    default_cancel_policy_percent = fields.Float(
+        string="Percent to pay",
+    )
+
+    # TODO: eliminar ir.sequence del pms
+    # ( y la vista) y adaptar los metoddos de los create para coger la secuencia.
+
     folio_sequence_id = fields.Many2one(
-        "ir.sequence", "Folio Sequence", check_company=True, copy=False
+        string="Folio Sequence",
+        comodel_name="ir.sequence",
+        check_company=True,
+        copy=False,
+        required=True,
+    )
+    reservation_sequence_id = fields.Many2one(
+        string="Folio Sequence",
+        comodel_name="ir.sequence",
+        check_company=True,
+        copy=False,
+        required=True,
     )
     checkin_sequence_id = fields.Many2one(
-        "ir.sequence", "Checkin Sequence", check_company=True, copy=False
+        string="Checkin Sequence",
+        comodel_name="ir.sequence",
+        check_company=True,
+        copy=False,
+        required=True,
     )
     tz = fields.Selection(
         _tz_get,
         string="Timezone",
         required=True,
         default=lambda self: self.env.user.tz or "UTC",
-        help="This field is used in order to define \
-         in which timezone the arrival/departure will work.",
+        help="This field is used to determine de timezone of the property.",
     )
 
     # Constraints and onchanges
@@ -93,15 +123,20 @@ class PmsProperty(models.Model):
                     )
                 )
 
-    def date_property_timezone(self, date):
+    def date_property_timezone(self, dt):
+        '''
+        TODO: Eric explicar método
+        Property hour: 12:00 (-1), UTC hour: 13:00 (0), User hour: 14:00 (+1)
+        dt: 12:00 - char field with property hour
+        '''
         self.ensure_one()
-        tz_property = self.tz
-        date = pytz.timezone(tz_property).localize(date)
-        date = date.replace(tzinfo=None)
-        date = pytz.timezone(self.env.user.tz).localize(date)
-        date = date.astimezone(pytz.utc)
-        date = date.replace(tzinfo=None)
-        return date
+        tz_property = self.tz #(-1)
+        dt = pytz.timezone(tz_property).localize(dt) #dt = 12 (-1)
+        dt = dt.replace(tzinfo=None) #dt = 12
+        dt = pytz.timezone(self.env.user.tz).localize(dt) #dt = 12 (+1)
+        dt = dt.astimezone(pytz.utc) #dt = 13 (+0)
+        dt = dt.replace(tzinfo=None)  #dt = 13
+        return dt
 
     def _get_payment_methods(self):
         self.ensure_one()

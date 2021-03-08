@@ -7,16 +7,17 @@ from odoo.exceptions import ValidationError
 
 class PmsRoomAmenityType(models.Model):
     _name = "pms.amenity.type"
-    _description = "Amenities Type"
+    _description = "Amenity Type"
 
     name = fields.Char(
         string="Amenity Type Name",
+        help="Amenity Type Name",
         required=True,
         translate=True,
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
-        required=False,
+        help="Properties with access to the element, if not set, all properties can access",
         comodel_name="pms.property",
         relation="pms_amenity_type_pms_property_rel",
         column1="amenity_type_id",
@@ -24,11 +25,13 @@ class PmsRoomAmenityType(models.Model):
     )
     pms_amenity_ids = fields.One2many(
         string="Amenities in this category",
+        help="Amenities included in this type",
         comodel_name="pms.amenity",
         inverse_name="pms_amenity_type_id",
     )
     active = fields.Boolean(
         string="Active",
+        help="Determines if amenity type is active",
         default=True,
     )
 

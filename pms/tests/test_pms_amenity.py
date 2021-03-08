@@ -1,11 +1,12 @@
 from odoo.exceptions import ValidationError
 
-from .common import TestHotel
+from odoo.tests import common
+#TODO: Eliminar el common y basarse (pegar repaso al resto de los tests y eliminar common)
 
-
-class TestPmsAmenity(TestHotel):
+class TestPmsAmenity(common.SavepointCase):
     def create_common_scenario(self):
         # create company and properties
+        #TODO:  Scenario digest
         self.company1 = self.env["res.company"].create(
             {
                 "name": "Pms_Company_Test",
@@ -35,32 +36,33 @@ class TestPmsAmenity(TestHotel):
         )
 
     def test_property_not_allowed(self):
+        #TODO: Creación de una amenity con compañías incompatibles con el tipo
         # ARRANGE
-        name = "amenityTest1"
-        name2 = "amenity"
         self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
         Amenity = self.env["pms.amenity"]
-        # ACT
         A1 = AmenityType.create(
             {
-                "name": name,
+                "name": "TestAmenityType1",
                 "pms_property_ids": [
                     (4, self.property1.id),
                     (4, self.property2.id),
                 ],
             }
         )
-        # ASSERT
+        # ACT & ASSERT
         with self.assertRaises(ValidationError), self.cr.savepoint():
             Amenity.create(
                 {
-                    "name": name2,
+                    "name": "TestAmenity1",
                     "pms_amenity_type_id": A1.id,
-                    "pms_property_ids": [
-                        (4, self.property1.id),
-                        (4, self.property2.id),
-                        (4, self.property3.id),
-                    ],
+                    "pms_property_ids": [(6, 0, [
+                        self.property1.id,
+                        self.property2.id,
+                        self.property3.id])]
                 }
             )
+
+    # TODO Test1: Test caso valido del de arriba
+
+    # TODO Test2: Test modificación de properties de correcto a incorrecto
