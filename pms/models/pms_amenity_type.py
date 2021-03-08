@@ -17,7 +17,8 @@ class PmsRoomAmenityType(models.Model):
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
-        help="Properties with access to the element, if not set, all properties can access",
+        help="Properties with access to the element;"
+        " if not set, all properties can access",
         comodel_name="pms.property",
         relation="pms_amenity_type_pms_property_rel",
         column1="amenity_type_id",

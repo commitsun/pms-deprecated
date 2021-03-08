@@ -24,11 +24,11 @@ class PmsSharedRoom(models.Model):
     pms_property_ids = fields.Many2many(
         "pms.property",
     )
-    floor_id = fields.Many2one(
-        "pms.floor",
+    ubication_id = fields.Many2one(
+        "pms.ubication",
         "Ubication",
         ondelete="restrict",
-        help="At which floor the room is located.",
+        help="At which ubication the room is located.",
     )
     bed_ids = fields.One2many(
         "pms.room",
@@ -75,7 +75,7 @@ class PmsSharedRoom(models.Model):
                 "capacity": 1,
                 "room_type_id": self.room_type_id.id,
                 "sequence": self.sequence,
-                "floor_id": self.floor_id.id if self.floor_id else False,
+                "ubication_id": self.ubication_id.id if self.ubication_id else False,
                 "shared_room_id": self.id,
             }
             beds.append((0, False, bed_vals))
@@ -98,11 +98,11 @@ class PmsSharedRoom(models.Model):
             }
         )
 
-    @api.constrains("floor_id")
-    def _constrain_floor_id(self):
+    @api.constrains("ubication_id")
+    def _constrain_ubication_id(self):
         self.bed_ids.write(
             {
-                "floor_id": self.floor_id.id,
+                "ubication_id": self.ubication_id.id,
             }
         )
 

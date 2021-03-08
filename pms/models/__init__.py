@@ -3,14 +3,13 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from . import ir_http
-from . import ir_sequence
 from . import ir_config_parameter
 
 # from . import payment_return
 from . import pms_board_service_room_type
 from . import pms_property
 from . import res_users
-from . import pms_floor
+from . import pms_ubication
 from . import pms_folio
 from . import pms_reservation
 from . import pms_room

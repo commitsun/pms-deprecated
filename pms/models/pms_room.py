@@ -18,35 +18,40 @@ class PmsRoom(models.Model):
 
     name = fields.Char(
         string="Room Name",
+        help="Room Name",
         required=True,
     )
     pms_property_id = fields.Many2one(
-        comodel_name="pms.property",
+        string="Property",
+        help="Properties with access to the element;"
+        " if not set, all properties can access",
         required=True,
-        ondelete="restrict",
         default=lambda self: self.env.user.active_property_ids[0],
+        comodel_name="pms.property",
+        ondelete="restrict",
     )
     room_type_id = fields.Many2one(
-        "pms.room.type",
-        "Property Room Type",
+        string="Property Room Type",
+        help="Unique room type for the rooms",
         required=True,
-        ondelete="restrict",
+        comodel_name="pms.room.type",
         domain=[
             "|",
             ("pms_property_ids", "=", False),
             (pms_property_id, "in", "pms_property_ids"),
         ],
+        ondelete="restrict",
     )
     # TODO: Dario, design shared rooms
     shared_room_id = fields.Many2one(
         string="Shared Room",
-        comodel_name="pms.shared.room",
         default=False,
+        comodel_name="pms.shared.room",
     )
     ubication_id = fields.Many2one(
-        comodel_name="pms.ubication",
         string="Ubication",
         help="At which ubication the room is located.",
+        comodel_name="pms.ubication",
         domain=[
             "|",
             ("pms_property_ids", "=", False),
@@ -54,43 +59,40 @@ class PmsRoom(models.Model):
         ],
     )
     capacity = fields.Integer(
-        string="Capacity"
-    )
-    #TODO: Eliminar campo to_be_cleaned
-    to_be_cleaned = fields.Boolean(
-        string="To be Cleaned",
-        default=False
+        string="Capacity", help="The maximum number of people in a room"
     )
     extra_beds_allowed = fields.Integer(
         string="Extra beds allowed",
+        required=True,
         default="0",
-        required=True
     )
     description_sale = fields.Text(
         string="Sale Description",
-        translate=True,
         help="A description of the Product that you want to communicate to "
         " your customers. This description will be copied to every Sales "
         " Order, Delivery Order and Customer Invoice/Credit Note",
+        translate=True,
     )
     active = fields.Boolean(
-        string="Active",
-        default=True
+        string="Active", help="Determines if room is active", default=True
     )
     sequence = fields.Integer(
         string="Sequence",
-        default=0
+        help="Field used to change the position of the rooms in tree view."
+        "Changing the position changes the sequence",
+        default=0,
     )
 
     allowed_property_ids = fields.Many2many(
+        string="Allowed properties",
+        help="Allowed properties for rooms",
+        store=True,
+        readonly=True,
+        compute="_compute_allowed_property_ids",
         comodel_name="pms.property",
         relation="room_property_rel",
         column1="room_id",
         column2="property_id",
-        string="Allowed properties",
-        store=True,
-        readonly=True,
-        compute="_compute_allowed_property_ids",
     )
 
     # Defaults and Gets
@@ -109,11 +111,12 @@ class PmsRoom(models.Model):
         "ubication_id",
         "ubication_id.pms_property_ids",
     )
-    #TODO: Dario, revisar flujo de allowed properties
+    # TODO: Dario, revisar flujo de allowed properties
     def _compute_allowed_property_ids(self):
         for record in self:
             if not (
-                record.room_type_id.pms_property_ids or record.ubication_id.pms_property_ids
+                record.room_type_id.pms_property_ids
+                or record.ubication_id.pms_property_ids
             ):
                 record.allowed_property_ids = self.env["pms.property"].search([])
             elif not record.room_type_id.pms_property_ids:
@@ -121,7 +124,10 @@ class PmsRoom(models.Model):
             elif not record.ubication_id.pms_property_ids:
                 record.allowed_property_ids = record.room_type_id.pms_property_ids
             else:
-                record.allowed_property_ids = record.room_type_id.pms_property_ids & record.ubication_id.pms_property_ids
+                record.allowed_property_ids = (
+                    record.room_type_id.pms_property_ids
+                    & record.ubication_id.pms_property_ids
+                )
 
     # Constraints and onchanges
     @api.constrains("capacity")
@@ -144,7 +150,7 @@ class PmsRoom(models.Model):
             if rec.pms_property_id:
                 if rec.pms_property_id.id not in rec.allowed_property_ids.ids:
                     raise ValidationError(
-                        _("Property not allowed in room type or in floor")
+                        _("Property not allowed in room type or in ubication")
                     )
 
     # Business methods

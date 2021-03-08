@@ -21,6 +21,7 @@
             <field name="website">https://www.commitsun.com</field>
             <field name="folio_sequence_id" ref="pms.seq_pms_folio" />
             <field name="checkin_sequence_id" ref="pms.seq_pms_checkin" />
+            <field name="reservation_sequence_id" ref="pms.seq_pms_reservation" />
         </record>
         <!-- pms.users -->
         <record id="base.user_root" model="res.users">

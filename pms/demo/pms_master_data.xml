@@ -21,16 +21,25 @@
             <field name="name">San Carlos</field>
             <field name="company_id" ref="base.main_company" />
             <field name="default_pricelist_id" ref="product.list0" />
+            <field name="folio_sequence_id" ref="pms.seq_pms_folio" />
+            <field name="checkin_sequence_id" ref="pms.seq_pms_checkin" />
+            <field name="reservation_sequence_id" ref="pms.seq_pms_reservation" />
         </record>
         <record id="demo_pms_property2" model="pms.property">
             <field name="name">Agalia</field>
             <field name="company_id" ref="base.main_company" />
             <field name="default_pricelist_id" ref="product.list0" />
+            <field name="folio_sequence_id" ref="pms.seq_pms_folio" />
+            <field name="checkin_sequence_id" ref="pms.seq_pms_checkin" />
+            <field name="reservation_sequence_id" ref="pms.seq_pms_reservation" />
         </record>
         <record id="demo_pms_property3" model="pms.property">
             <field name="name">Pilgrim Leon</field>
             <field name="company_id" ref="pms_company1" />
             <field name="default_pricelist_id" ref="product.list0" />
+            <field name="folio_sequence_id" ref="pms.seq_pms_folio" />
+            <field name="checkin_sequence_id" ref="pms.seq_pms_checkin" />
+            <field name="reservation_sequence_id" ref="pms.seq_pms_reservation" />
         </record>
         <!-- users -->
         <record id="base.user_root" model="res.users">
@@ -76,14 +85,14 @@
                 ]"
             />
         </record>
-        <!-- pms.floor -->
-        <record id="pms_floor_0" model="pms.floor">
+        <!-- pms.ubication -->
+        <record id="pms_ubication_0" model="pms.ubication">
             <field name="name">Ground Floor</field>
         </record>
-        <record id="pms_floor_1" model="pms.floor">
+        <record id="pms_ubication_1" model="pms.ubication">
             <field name="name">First Floor</field>
         </record>
-        <record id="pms_floor_2" model="pms.floor">
+        <record id="pms_ubication_2" model="pms.ubication">
             <field name="name">Second Floor</field>
         </record>
         <!-- pms.amenity.type -->
@@ -186,35 +195,35 @@
         <record id="pms_room_0" model="pms.room">
             <field name="name">Economic-101</field>
             <field name="room_type_id" ref="pms_room_type_0" />
-            <field name="floor_id" ref="pms_floor_1" />
+            <field name="ubication_id" ref="pms_ubication_1" />
             <field name="capacity">2</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_1" model="pms.room">
             <field name="name">Single-101</field>
             <field name="room_type_id" ref="pms_room_type_1" />
-            <field name="floor_id" ref="pms_floor_1" />
+            <field name="ubication_id" ref="pms_ubication_1" />
             <field name="capacity">1</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_2" model="pms.room">
             <field name="name">Single-102</field>
             <field name="room_type_id" ref="pms_room_type_1" />
-            <field name="floor_id" ref="pms_floor_1" />
+            <field name="ubication_id" ref="pms_ubication_1" />
             <field name="capacity">1</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_3" model="pms.room">
             <field name="name">Single-103</field>
             <field name="room_type_id" ref="pms_room_type_1" />
-            <field name="floor_id" ref="pms_floor_1" />
+            <field name="ubication_id" ref="pms_ubication_1" />
             <field name="capacity">1</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_4" model="pms.room">
             <field name="name">Double-201</field>
             <field name="room_type_id" ref="pms_room_type_2" />
-            <field name="floor_id" ref="pms_floor_2" />
+            <field name="ubication_id" ref="pms_ubication_2" />
             <field name="capacity">2</field>
             <field name="extra_beds_allowed">1</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
@@ -222,21 +231,21 @@
         <record id="pms_room_5" model="pms.room">
             <field name="name">Double-202</field>
             <field name="room_type_id" ref="pms_room_type_2" />
-            <field name="floor_id" ref="pms_floor_2" />
+            <field name="ubication_id" ref="pms_ubication_2" />
             <field name="capacity">2</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_6" model="pms.room">
             <field name="name">Triple-203</field>
             <field name="room_type_id" ref="pms_room_type_3" />
-            <field name="floor_id" ref="pms_floor_2" />
+            <field name="ubication_id" ref="pms_ubication_2" />
             <field name="capacity">3</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>
         <record id="pms_room_7" model="pms.room">
             <field name="name">Open Talk Away Room</field>
             <field name="room_type_id" ref="pms_room_type_4" />
-            <field name="floor_id" ref="pms_floor_0" />
+            <field name="ubication_id" ref="pms_ubication_0" />
             <field name="capacity">10</field>
             <field name="pms_property_id" ref="pms.main_pms_property" />
         </record>

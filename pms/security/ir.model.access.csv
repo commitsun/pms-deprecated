@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-user_access_pms_floor,user_access_pms_floor,model_pms_floor,pms.group_pms_user,1,0,0,0
+user_access_pms_ubication,user_access_pms_ubication,model_pms_ubication,pms.group_pms_user,1,0,0,0
 user_access_pms_amenity,user_access_pms_amenity,model_pms_amenity,pms.group_pms_user,1,0,0,0
 user_access_pms_amenity_type,user_access_pms_amenity_type,model_pms_amenity_type,pms.group_pms_user,1,0,0,0
 user_access_pms_service,user_access_pms_service,model_pms_service,pms.group_pms_user,1,1,1,1
@@ -25,7 +25,7 @@ user_access_account_full_reconcile,user_access_account_full_reconcile,account.mo
 user_access_property,user_access_property,model_pms_property,pms.group_pms_user,1,0,0,0
 user_access_availability,user_access_availability,model_pms_room_type_availability_plan,pms.group_pms_user,1,0,0,0
 user_access_pms_sale_channel,user_access_pms_sale_channel,model_pms_sale_channel,pms.group_pms_user,1,0,0,0
-manager_access_pms_floor,manager_access_pms_floor,model_pms_floor,pms.group_pms_manager,1,1,1,1
+manager_access_pms_ubication,manager_access_pms_ubication,model_pms_ubication,pms.group_pms_manager,1,1,1,1
 manager_access_pms_amenity,manager_access_pms_amenity,model_pms_amenity,pms.group_pms_manager,1,1,1,1
 manager_access_pms_amenity_type,manager_access_pms_amenity_type,model_pms_amenity_type,pms.group_pms_manager,1,1,1,1
 manager_access_pms_service,manager_access_pms_service,model_pms_service,pms.group_pms_manager,1,1,1,1

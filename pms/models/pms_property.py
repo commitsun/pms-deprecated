@@ -18,80 +18,81 @@ class PmsProperty(models.Model):
     _inherits = {"res.partner": "partner_id"}
     _check_company_auto = True
 
-    # Fields declaration
-    # TODO: Estandarización de campos
     partner_id = fields.Many2one(
-        "res.partner", "Property", required=True, ondelete="cascade"
+        string="Property",
+        help="Field that related property to res.partner",
+        comodel_name="res.partner",
+        required=True,
+        ondelete="cascade",
     )
     company_id = fields.Many2one(
-        "res.company",
-        required=True,
+        string="Company",
         help="The company that owns or operates this property.",
+        comodel_name="res.company",
+        required=True,
     )
     user_ids = fields.Many2many(
-        "res.users",
-        "pms_property_users_rel",
-        "pms_property_id",
-        "user_id",
         string="Accepted Users",
+        help="Field related to res.users. Allowed users on the property",
+        comodel_name="res.users",
+        relation="pms_property_users_rel",
+        column1="pms_property_id",
+        column2="user_id",
     )
-    room_ids = fields.One2many("pms.room", "pms_property_id", "Rooms")
+    room_ids = fields.One2many(
+        string="Rooms",
+        help="Field related to pms.room. They are rooms that a property has.",
+        comodel_name="pms.room",
+        inverse_name="pms_property_id",
+    )
     # TODO: establecer tarifa publica por defecto
     default_pricelist_id = fields.Many2one(
-        "product.pricelist",
         string="Product Pricelist",
-        required=True,
         help="The default pricelist used in this property.",
+        comodel_name="product.pricelist",
+        required=True,
+        default=lambda self: self.env.ref("product.list0").id,
     )
     default_arrival_hour = fields.Char(
-        string="Arrival Hour",
-        help="HH:mm Format",
-        default="14:00"
+        string="Arrival Hour", help="HH:mm Format", default="14:00"
     )
     default_departure_hour = fields.Char(
-        string="Departure Hour",
-        help="HH:mm Format",
-        default="12:00"
+        string="Departure Hour", help="HH:mm Format", default="12:00"
     )
-
-    # TODO: borrar los 2 siguientes campos (tb vista)
-    default_cancel_policy_days = fields.Integer(
-        string="Cancellation Days",
-    )
-    default_cancel_policy_percent = fields.Float(
-        string="Percent to pay",
-    )
-
-    # TODO: eliminar ir.sequence del pms
-    # ( y la vista) y adaptar los metoddos de los create para coger la secuencia.
-
     folio_sequence_id = fields.Many2one(
         string="Folio Sequence",
-        comodel_name="ir.sequence",
+        help="Field used to change the position of the folio in tree view."
+        "Changing the position changes the sequence",
+        required=True,
         check_company=True,
         copy=False,
-        required=True,
+        comodel_name="ir.sequence",
     )
     reservation_sequence_id = fields.Many2one(
         string="Folio Sequence",
-        comodel_name="ir.sequence",
+        help="Field used to change the position of the reservation in tree view."
+        "Changing the position changes the sequence",
+        required=True,
         check_company=True,
         copy=False,
-        required=True,
+        comodel_name="ir.sequence",
     )
     checkin_sequence_id = fields.Many2one(
         string="Checkin Sequence",
-        comodel_name="ir.sequence",
+        help="Field used to change the position of the checkin in tree view."
+        "Changing the position changes the sequence",
+        required=True,
         check_company=True,
         copy=False,
-        required=True,
+        comodel_name="ir.sequence",
     )
+
     tz = fields.Selection(
-        _tz_get,
         string="Timezone",
+        help="This field is used to determine de timezone of the property.",
         required=True,
         default=lambda self: self.env.user.tz or "UTC",
-        help="This field is used to determine de timezone of the property.",
+        selection=_tz_get,
     )
 
     # Constraints and onchanges
@@ -124,18 +125,13 @@ class PmsProperty(models.Model):
                 )
 
     def date_property_timezone(self, dt):
-        '''
-        TODO: Eric explicar método
-        Property hour: 12:00 (-1), UTC hour: 13:00 (0), User hour: 14:00 (+1)
-        dt: 12:00 - char field with property hour
-        '''
         self.ensure_one()
-        tz_property = self.tz #(-1)
-        dt = pytz.timezone(tz_property).localize(dt) #dt = 12 (-1)
-        dt = dt.replace(tzinfo=None) #dt = 12
-        dt = pytz.timezone(self.env.user.tz).localize(dt) #dt = 12 (+1)
-        dt = dt.astimezone(pytz.utc) #dt = 13 (+0)
-        dt = dt.replace(tzinfo=None)  #dt = 13
+        tz_property = self.tz
+        dt = pytz.timezone(tz_property).localize(dt)
+        dt = dt.replace(tzinfo=None)
+        dt = pytz.timezone(self.env.user.tz).localize(dt)
+        dt = dt.astimezone(pytz.utc)
+        dt = dt.replace(tzinfo=None)
         return dt
 
     def _get_payment_methods(self):

@@ -1,12 +1,13 @@
 from odoo.exceptions import ValidationError
-
 from odoo.tests import common
-#TODO: Eliminar el common y basarse (pegar repaso al resto de los tests y eliminar common)
+
+# TODO: Eliminar el common y basarse (pegar repaso al resto de los tests y eliminar common)
+
 
 class TestPmsAmenity(common.SavepointCase):
     def create_common_scenario(self):
         # create company and properties
-        #TODO:  Scenario digest
+        # TODO:  Scenario digest
         self.company1 = self.env["res.company"].create(
             {
                 "name": "Pms_Company_Test",
@@ -36,7 +37,7 @@ class TestPmsAmenity(common.SavepointCase):
         )
 
     def test_property_not_allowed(self):
-        #TODO: Creación de una amenity con compañías incompatibles con el tipo
+        # TODO: Creación de una amenity con compañías incompatibles con el tipo
         # ARRANGE
         self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
@@ -56,10 +57,13 @@ class TestPmsAmenity(common.SavepointCase):
                 {
                     "name": "TestAmenity1",
                     "pms_amenity_type_id": A1.id,
-                    "pms_property_ids": [(6, 0, [
-                        self.property1.id,
-                        self.property2.id,
-                        self.property3.id])]
+                    "pms_property_ids": [
+                        (
+                            6,
+                            0,
+                            [self.property1.id, self.property2.id, self.property3.id],
+                        )
+                    ],
                 }
             )
 

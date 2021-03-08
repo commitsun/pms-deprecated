@@ -35,10 +35,6 @@
                                 <field name="default_arrival_hour" />
                                 <field name="default_departure_hour" />
                             </group>
-                            <group colspan="4" col="4" string="Cancellation policies">
-                                <field name="default_cancel_policy_days" />
-                                <field name="default_cancel_policy_percent" />
-                            </group>
                         </page>
                         <page string="Rooms" name="property_rooms">
                             <group>

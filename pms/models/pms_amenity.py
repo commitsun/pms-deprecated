@@ -11,28 +11,28 @@ class PmsRoomAmenity(models.Model):
 
     name = fields.Char(
         string="Amenity Name",
+        help="Amenity Name",
         required=True,
         translate=True,
-        help="Amenity Name"
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
+        help="Properties with access to the element;"
+             " if not set, all properties can access",
         comodel_name="pms.property",
         relation="pms_amenity_pms_property_rel",
         column1="amenity_type_id",
         column2="pms_property_id",
-        help="Properties with access to the element, if not set, all properties can access"
     )
     pms_amenity_type_id = fields.Many2one(
         string="Amenity Category",
+        help="Segment the amenities by categories (multimedia, comfort, etc ...)",
         comodel_name="pms.amenity.type",
         domain="['|', ('pms_property_ids', '=', False),('pms_property_ids', 'in', "
         "pms_property_ids)]",
-        help="Segment the amenities by categories (multimedia, comfort, etc ...)"
     )
     default_code = fields.Char(
-        string="Internal Reference",
-        help="Internal unique identifier of the amenity"
+        string="Internal Reference", help="Internal unique identifier of the amenity"
     )
     active = fields.Boolean(
         help="Determines if amenity is active",

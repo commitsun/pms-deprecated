@@ -106,9 +106,9 @@
                 user.get_active_property_ids())]
             </field>
         </record>
-        <record id="pms_floor_property_rule" model="ir.rule">
-            <field name="name">PMS Floor Property Rule</field>
-            <field name="model_id" ref="model_pms_floor" />
+        <record id="pms_ubication_property_rule" model="ir.rule">
+            <field name="name">PMS Ubication Property Rule</field>
+            <field name="model_id" ref="model_pms_ubication" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_ids','=',False),('pms_property_ids', 'in',

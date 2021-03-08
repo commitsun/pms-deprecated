@@ -41,12 +41,12 @@ class TestPmsRoom(common.TransactionCase):
             }
         )
 
-    def test_check_property_floor(self):
+    def test_check_property_ubication(self):
         # ARRANGE
         self.create_common_scenario()
-        floor = self.env["pms.floor"].create(
+        ubication = self.env["pms.ubication"].create(
             {
-                "name": "Floor",
+                "name": "UbicationTest",
                 "pms_property_ids": [
                     (4, self.property1.id),
                 ],
@@ -61,7 +61,7 @@ class TestPmsRoom(common.TransactionCase):
                     "name": "Room 101",
                     "pms_property_id": self.property2.id,
                     "room_type_id": self.room_type.id,
-                    "floor_id": floor.id,
+                    "ubication_id": ubication.id,
                 }
             )
 
