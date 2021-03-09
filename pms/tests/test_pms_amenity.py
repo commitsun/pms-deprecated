@@ -1,13 +1,16 @@
 from odoo.exceptions import ValidationError
 from odoo.tests import common
 
-# TODO: Eliminar el common y basarse (pegar repaso al resto de los tests y eliminar common)
-
 
 class TestPmsAmenity(common.SavepointCase):
     def create_common_scenario(self):
-        # create company and properties
-        # TODO:  Scenario digest
+        # Created a company with three properties
+        # +-----------+-----------------------------------+
+        # | Company | Properties                         |
+        # +-----------+-----------------------------------+
+        # | Company1 | Property1 - Property2 - Property3 |
+        # +-----------+-----------------------------------+
+
         self.company1 = self.env["res.company"].create(
             {
                 "name": "Pms_Company_Test",
@@ -37,7 +40,14 @@ class TestPmsAmenity(common.SavepointCase):
         )
 
     def test_property_not_allowed(self):
-        # TODO: Creación de una amenity con compañías incompatibles con el tipo
+        # Creation of a Amenity with Properties incompatible with it Amenity Type
+
+        # +-----------------------------------+-----------------------------------+
+        # |  Amenity Type (TestAmenityType1)  |      Amenity (TestAmenity1)       |
+        # +-----------------------------------+-----------------------------------+
+        # |      Property1 - Property2        | Property1 - Property2 - Property3 |
+        # +-----------------------------------+-----------------------------------+
+
         # ARRANGE
         self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
@@ -67,6 +77,94 @@ class TestPmsAmenity(common.SavepointCase):
                 }
             )
 
-    # TODO Test1: Test caso valido del de arriba
+    def test_property_allowed(self):
+        # Creation of a Amenity with Properties compatible with it Amenity Type
+        # Check Properties of Amenity are in Properties of Amenity Type
+        # +----------------------------------------+-----------------------------------+
+        # |     Amenity Type (TestAmenityType1)    |      Amenity (TestAmenity1)       |
+        # +----------------------------------------+-----------------------------------+
+        # |    Property1 - Property2 - Property3   | Property1 - Property2 - Property3 |
+        # +----------------------------------------+-----------------------------------+
 
-    # TODO Test2: Test modificación de properties de correcto a incorrecto
+        # ARRANGE
+        self.create_common_scenario()
+        AmenityType = self.env["pms.amenity.type"]
+        Amenity = self.env["pms.amenity"]
+        A1 = AmenityType.create(
+            {
+                "name": "TestAmenityType1",
+                "pms_property_ids": [
+                    (4, self.property1.id),
+                    (4, self.property2.id),
+                    (4, self.property3.id),
+                ],
+            }
+        )
+        # ACT
+        TestAmenity = Amenity.create(
+            {
+                "name": "TestAmenity1",
+                "pms_amenity_type_id": A1.id,
+                "pms_property_ids": [
+                    (
+                        6,
+                        0,
+                        [self.property1.id, self.property2.id, self.property3.id],
+                    )
+                ],
+            }
+        )
+        # ASSERT
+        self.assertIn(
+            TestAmenity.pms_property_ids,
+            A1.pms_property_ids,
+            "Properties not allowed in amenity type",
+        )
+
+    def test_change_amenity_property(self):
+        # Creation of a Amenity with Properties compatible with it Amenity Type
+        # Delete a Property in Amenity Type, check Validation Error when do that
+        # 1st scenario:
+        # +----------------------------------------+-----------------------------------+
+        # |     Amenity Type (TestAmenityType1)    |      Amenity (TestAmenity1)       |
+        # +----------------------------------------+-----------------------------------+
+        # |    Property1 - Property2 - Property3   | Property1 - Property2 - Property3 |
+        # +----------------------------------------+-----------------------------------+
+        # 2st scenario(Error):
+        # +----------------------------------------+-----------------------------------+
+        # |     Amenity Type (TestAmenityType1)    |      Amenity (TestAmenity1)       |
+        # +----------------------------------------+-----------------------------------+
+        # |          Property1 - Property2         | Property1 - Property2 - Property3 |
+        # +----------------------------------------+-----------------------------------+
+
+        # ARRANGE
+        self.create_common_scenario()
+        AmenityType = self.env["pms.amenity.type"]
+        Amenity = self.env["pms.amenity"]
+        A1 = AmenityType.create(
+            {
+                "name": "TestAmenityType1",
+                "pms_property_ids": [
+                    (4, self.property1.id),
+                    (4, self.property2.id),
+                    (4, self.property3.id),
+                ],
+            }
+        )
+        # ACT
+        Amenity.create(
+            {
+                "name": "TestAmenity1",
+                "pms_amenity_type_id": A1.id,
+                "pms_property_ids": [
+                    (
+                        6,
+                        0,
+                        [self.property1.id, self.property2.id, self.property3.id],
+                    )
+                ],
+            }
+        )
+        # ASSERT
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            A1.pms_property_ids = [(4, self.property1.id), (4, self.property2.id)]

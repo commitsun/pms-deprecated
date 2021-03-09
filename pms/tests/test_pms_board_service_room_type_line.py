@@ -1,9 +1,8 @@
 from odoo.exceptions import ValidationError
+from odoo.tests import common
 
-from .common import TestHotel
 
-
-class TestPmsBoardServiceRoomTypeLine(TestHotel):
+class TestPmsBoardServiceRoomTypeLine(common.SavepointCase):
     def test_check_product_property_integrity(self):
         self.company1 = self.env["res.company"].create(
             {

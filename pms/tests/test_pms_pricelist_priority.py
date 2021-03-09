@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from odoo.tests import common
 
 
-class TestPmsPricelistRules(common.TransactionCase):
+class TestPmsPricelistRules(common.SavepointCase):
     def create_common_scenario(self):
         self.product_template = self.env["product.template"].create(
             {"name": "Template1"}

@@ -2,7 +2,7 @@ from odoo.exceptions import ValidationError
 from odoo.tests import common
 
 
-class TestPmsRoom(common.TransactionCase):
+class TestPmsRoom(common.SavepointCase):
     def create_common_scenario(self):
         self.property1 = self.env["pms.property"].create(
             {

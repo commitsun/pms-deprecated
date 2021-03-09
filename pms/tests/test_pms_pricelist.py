@@ -5,7 +5,7 @@ from odoo.tests import common, tagged
 
 
 @tagged("standard", "nice")
-class TestPmsPricelist(common.TransactionCase):
+class TestPmsPricelist(common.SavepointCase):
     def create_common_scenario(self):
         self.property1 = self.env["pms.property"].create(
             {

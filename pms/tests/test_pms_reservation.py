@@ -4,12 +4,11 @@ from freezegun import freeze_time
 
 from odoo import fields
 from odoo.exceptions import ValidationError
-
-from .common import TestHotel
+from odoo.tests import common
 
 
 @freeze_time("2012-01-14")
-class TestPmsReservations(TestHotel):
+class TestPmsReservations(common.SavepointCase):
     def create_common_scenario(self):
         # create a room type availability
         self.room_type_availability = self.env[

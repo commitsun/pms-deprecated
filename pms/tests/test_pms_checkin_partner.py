@@ -4,14 +4,13 @@ from freezegun import freeze_time
 
 from odoo import fields
 from odoo.exceptions import ValidationError
-
-from .common import TestHotel
+from odoo.tests import common
 
 _logger = logging.getLogger(__name__)
 
 
 @freeze_time("2012-01-14")
-class TestPmsCheckinPartner(TestHotel):
+class TestPmsCheckinPartner(common.SavepointCase):
     @classmethod
     def arrange_single_checkin(cls):
         # Arrange for one checkin on one reservation

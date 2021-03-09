@@ -3,12 +3,11 @@ import datetime
 from freezegun import freeze_time
 
 from odoo.exceptions import ValidationError
-
-from .common import TestHotel
+from odoo.tests import common
 
 
 @freeze_time("2010-01-01")
-class TestPmsSaleChannel(TestHotel):
+class TestPmsSaleChannel(common.SavepointCase):
     def create_common_scenario(self):
         # create a property
         self.property = self.env["pms.property"].create(

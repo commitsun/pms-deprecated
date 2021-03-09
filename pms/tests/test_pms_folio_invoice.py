@@ -1,9 +1,9 @@
 import datetime
 
-from .common import TestHotel
+from odoo.tests import common
 
 
-class TestPmsFolioInvoice(TestHotel):
+class TestPmsFolioInvoice(common.SavepointCase):
     def setUp(self):
         super(TestPmsFolioInvoice, self).setUp()
 

@@ -3,11 +3,10 @@ import datetime
 from freezegun import freeze_time
 
 from odoo import fields
+from odoo.tests import common
 
-from .common import TestHotel
 
-
-class TestPmsWizardMassiveChanges(TestHotel):
+class TestPmsWizardMassiveChanges(common.SavepointCase):
     def create_common_scenario(self):
         # product.pricelist
         self.test_pricelist = self.env["product.pricelist"].create(
