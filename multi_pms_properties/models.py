@@ -1,6 +1,7 @@
-# © 2020  Dario Lodeiros
-# © 2020  Eric Antones
-from odoo import _, api, field, models
+# Copyright 2021 Dario Lodeiros
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
+from odoo import _, api, models
 from odoo.exceptions import UserError
 
 
@@ -23,6 +24,7 @@ class BaseModel(models.AbstractModel):
         res = super(BaseModel, self).write(vals)
         check_pms_properties = False
         for fname in vals:
+            field = self._fields.get(fname)
             if fname == "property_id" or (
                 field.relational and field.check_pms_properties
             ):
