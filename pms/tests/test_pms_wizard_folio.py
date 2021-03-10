@@ -28,12 +28,40 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         self.test_availability_plan.flush()
 
+        # SEQUENCES
+        self.folio_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Folio",
+                'code': 'pms.folio',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.reservation_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Reservation",
+                'code': 'pms.reservation',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.checkin_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Checkin",
+                'code': 'pms.checkin.partner',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
         # PROPERTY CREATION (WITH DEFAULT PRICELIST AND AVAILABILITY PLAN
         self.test_property = self.env["pms.property"].create(
             {
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist.id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
         self.test_property.flush()

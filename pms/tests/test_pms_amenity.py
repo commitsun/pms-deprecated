@@ -16,11 +16,38 @@ class TestPmsAmenity(common.SavepointCase):
                 "name": "Pms_Company_Test",
             }
         )
+        self.folio_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Folio",
+                'code': 'pms.folio',
+                'padding': 4,
+                'company_id': self.company1.id,
+            }
+        )
+        self.reservation_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Reservation",
+                'code': 'pms.reservation',
+                'padding': 4,
+                'company_id': self.company1.id,
+            }
+        )
+        self.checkin_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Checkin",
+                'code': 'pms.checkin.partner',
+                'padding': 4,
+                'company_id': self.company1.id,
+            }
+        )
         self.property1 = self.env["pms.property"].create(
             {
                 "name": "Pms_property_test1",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
         self.property2 = self.env["pms.property"].create(
@@ -28,6 +55,9 @@ class TestPmsAmenity(common.SavepointCase):
                 "name": "Pms_property_test2",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
 
@@ -36,6 +66,9 @@ class TestPmsAmenity(common.SavepointCase):
                 "name": "Pms_property_test3",
                 "company_id": self.company1.id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
 
@@ -94,9 +127,11 @@ class TestPmsAmenity(common.SavepointCase):
             {
                 "name": "TestAmenityType1",
                 "pms_property_ids": [
-                    (4, self.property1.id),
-                    (4, self.property2.id),
-                    (4, self.property3.id),
+                    (
+                        6,
+                        0,
+                        [self.property1.id, self.property2.id, self.property3.id],
+                    )
                 ],
             }
         )
@@ -114,10 +149,11 @@ class TestPmsAmenity(common.SavepointCase):
                 ],
             }
         )
+
         # ASSERT
-        self.assertIn(
-            TestAmenity.pms_property_ids,
-            A1.pms_property_ids,
+        self.assertEqual(
+            TestAmenity.pms_property_ids.ids,
+            A1.pms_property_ids.ids,
             "Properties not allowed in amenity type",
         )
 
@@ -166,5 +202,6 @@ class TestPmsAmenity(common.SavepointCase):
             }
         )
         # ASSERT
-        with self.assertRaises(ValidationError), self.cr.savepoint():
+        with self.assertRaises(ValidationError):
             A1.pms_property_ids = [(4, self.property1.id), (4, self.property2.id)]
+

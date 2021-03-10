@@ -221,7 +221,13 @@ class PmsCheckinPartner(models.Model):
         )
         if len(reservation.checkin_partner_ids) < reservation.adults:
             if vals.get("identifier", _("New")) == _("New") or "identifier" not in vals:
-                vals["identifier"] = self.env["ir.sequence"]._next_do()
+                pms_property_id = (
+                    self.env.user.get_active_property_ids()[0]
+                    if "pms_property_id" not in vals
+                    else vals["pms_property_id"]
+                )
+                property = self.env["pms.property"].browse(pms_property_id)
+                vals["identifier"] = property.folio_sequence_id._next_do()
             return super(PmsCheckinPartner, self).create(vals)
         if len(draft_checkins) > 0:
             draft_checkins[0].write(vals)

@@ -1339,7 +1339,13 @@ class PmsReservation(models.Model):
                 _("The client and Property are mandatory in the reservation")
             )
         if vals.get("name", _("New")) == _("New") or "name" not in vals:
-            vals["name"] = self.env["ir.sequence"]._next_do()
+            pms_property_id = (
+                self.env.user.get_active_property_ids()[0]
+                if "pms_property_id" not in vals
+                else vals["pms_property_id"]
+            )
+            property = self.env["pms.property"].browse(pms_property_id)
+            vals["name"] = property.folio_sequence_id._next_do()
         record = super(PmsReservation, self).create(vals)
         if record.preconfirm:
             record.confirm()

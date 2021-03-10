@@ -15,13 +15,40 @@ class TestPmsFolio(common.SavepointCase):
         self.room_type_availability = self.env[
             "pms.room.type.availability.plan"
         ].create({"name": "Availability plan for TEST"})
-
+        # sequences
+        self.folio_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Folio",
+                'code': 'pms.folio',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.reservation_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Reservation",
+                'code': 'pms.reservation',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.checkin_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Checkin",
+                'code': 'pms.checkin.partner',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
         # create a property
         self.property = self.env["pms.property"].create(
             {
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -61,11 +88,15 @@ class TestPmsFolio(common.SavepointCase):
         )
 
     def create_multiproperty_scenario(self):
+        self.create_common_scenario()
         self.property1 = self.env["pms.property"].create(
             {
                 "name": "Property_1",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -74,6 +105,9 @@ class TestPmsFolio(common.SavepointCase):
                 "name": "Property_2",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -82,6 +116,9 @@ class TestPmsFolio(common.SavepointCase):
                 "name": "Property_3",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 

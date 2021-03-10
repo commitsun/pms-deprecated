@@ -884,7 +884,8 @@ class PmsFolio(models.Model):
                 if "pms_property_id" not in vals
                 else vals["pms_property_id"]
             )
-            vals["name"] = self.env["ir.sequence"]._next_do()
+            property = self.env["pms.property"].browse(pms_property_id)
+            vals["name"] = property.folio_sequence_id._next_do()
         result = super(PmsFolio, self).create(vals)
         return result
 

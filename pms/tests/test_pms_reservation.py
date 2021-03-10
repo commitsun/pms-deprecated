@@ -15,12 +15,40 @@ class TestPmsReservations(common.SavepointCase):
             "pms.room.type.availability.plan"
         ].create({"name": "Availability plan for TEST"})
 
+        # create a sequences
+        self.folio_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Folio",
+                'code': 'pms.folio',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.reservation_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Reservation",
+                'code': 'pms.reservation',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
+        self.checkin_sequence = self.env["ir.sequence"].create(
+            {
+                'name': "PMS Checkin",
+                'code': 'pms.checkin.partner',
+                'padding': 4,
+                'company_id': self.env.ref("base.main_company").id,
+            }
+        )
         # create a property
         self.property = self.env["pms.property"].create(
             {
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
 
@@ -69,11 +97,15 @@ class TestPmsReservations(common.SavepointCase):
         self.demo_user = self.env.ref("base.user_admin")
 
     def create_multiproperty_scenario(self):
+        self.create_common_scenario()
         self.property1 = self.env["pms.property"].create(
             {
                 "name": "Property_1",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
 
@@ -82,6 +114,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "Property_2",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
 
@@ -90,6 +125,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "Property_3",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
+                'folio_sequence_id': self.folio_sequence.id,
+                'reservation_sequence_id': self.reservation_sequence.id,
+                'checkin_sequence_id': self.checkin_sequence.id,
             }
         )
         self.room_type_class = self.env["pms.room.type.class"].create(
@@ -108,6 +146,7 @@ class TestPmsReservations(common.SavepointCase):
         # reservation should start on checkin day
 
         # ARRANGE
+        self.create_common_scenario()
         today = fields.date.today()
         checkin = today + datetime.timedelta(days=8)
         checkout = checkin + datetime.timedelta(days=11)
@@ -115,9 +154,9 @@ class TestPmsReservations(common.SavepointCase):
         reservation_vals = {
             "checkin": checkin,
             "checkout": checkout,
-            "room_type_id": self.room_type_3.id,
+            "room_type_id": self.room_type_double.id,
             "partner_id": customer.id,
-            "pms_property_id": self.main_hotel_property.id,
+            "pms_property_id": self.property.id,
         }
 
         # ACT
@@ -133,7 +172,7 @@ class TestPmsReservations(common.SavepointCase):
     def test_create_reservation_end_date(self):
         # TEST CASE
         # reservation should end on checkout day
-
+        self.create_common_scenario()
         # ARRANGE
         today = fields.date.today()
         checkin = today + datetime.timedelta(days=8)
@@ -142,9 +181,9 @@ class TestPmsReservations(common.SavepointCase):
         reservation_vals = {
             "checkin": checkin,
             "checkout": checkout,
-            "room_type_id": self.room_type_3.id,
+            "room_type_id": self.room_type_double.id,
             "partner_id": customer.id,
-            "pms_property_id": self.main_hotel_property.id,
+            "pms_property_id": self.property.id,
         }
 
         # ACT
