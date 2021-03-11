@@ -166,7 +166,7 @@ class TestPmsAmenity(common.SavepointCase):
         # +----------------------------------------+-----------------------------------+
         # |    Property1 - Property2 - Property3   | Property1 - Property2 - Property3 |
         # +----------------------------------------+-----------------------------------+
-        # 2st scenario(Error):
+        # 2nd scenario(Error):
         # +----------------------------------------+-----------------------------------+
         # |     Amenity Type (TestAmenityType1)    |      Amenity (TestAmenity1)       |
         # +----------------------------------------+-----------------------------------+
@@ -203,5 +203,12 @@ class TestPmsAmenity(common.SavepointCase):
         )
         # ASSERT
         with self.assertRaises(ValidationError):
-            A1.pms_property_ids = [(4, self.property1.id), (4, self.property2.id)]
+            A1.pms_property_ids = [
+                    (
+                        6,
+                        0,
+                        [self.property1.id, self.property2.id],
+                    )
+                ]
+            A1.flush()
 

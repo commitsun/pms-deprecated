@@ -83,6 +83,16 @@ class TestRoomType(SavepointCase):
                 'checkin_sequence_id': self.checkin_sequence2.id,
             }
         )
+        self.p4 = self.env["pms.property"].create(
+            {
+                "name": "p4",
+                "company_id": self.m2.id,
+                "default_pricelist_id": self.ref("product.list0"),
+                'folio_sequence_id': self.folio_sequence2.id,
+                'reservation_sequence_id': self.reservation_sequence2.id,
+                'checkin_sequence_id': self.checkin_sequence2.id,
+            }
+        )
 
 
 class TestRoomTypeCodePropertyIntegrity(TestRoomType):
@@ -827,28 +837,9 @@ class TestRoomTypeCodePropertyUniqueness(TestRoomType):
     #             }
     #         )
 
-    def _test_check_amenities_property_integrity(self):
-        self.company1 = self.env["res.company"].create(
-            {
-                "name": "Pms_Company_Test",
-            }
-        )
-        self.property1 = self.env["pms.property"].create(
-            {
-                "name": "Pms_property_test1",
-                "company_id": self.company1.id,
-                "default_pricelist_id": self.env.ref("product.list0").id,
-            }
-        )
-        self.property2 = self.env["pms.property"].create(
-            {
-                "name": "Pms_property_test2",
-                "company_id": self.company1.id,
-                "default_pricelist_id": self.env.ref("product.list0").id,
-            }
-        )
+    def test_check_amenities_property_integrity(self):
         self.amenity = self.env["pms.amenity"].create(
-            {"name": "Amenity", "pms_property_ids": self.property1}
+            {"name": "Amenity", "pms_property_ids": self.p3}
         )
         self.room_type_class = self.env["pms.room.type.class"].create(
             {"name": "Room Type Class", "code_class": "SIN1"}
@@ -859,7 +850,7 @@ class TestRoomTypeCodePropertyUniqueness(TestRoomType):
                     "name": "Room Type",
                     "code_type": "Type1",
                     "class_id": self.room_type_class.id,
-                    "pms_property_ids": [self.property2.id],
+                    "pms_property_ids": [self.p4.id],
                     "room_amenity_ids": [self.amenity.id],
                 }
             )

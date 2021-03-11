@@ -43,6 +43,6 @@ class PmsUbication(models.Model):
     )
     def _check_property_integrity(self):
         for rec in self:
-            if rec.pms_property_ids:
+            if rec.pms_property_ids and rec.pms_room_ids:
                 if rec.pms_room_ids.pms_property_id not in rec.pms_property_ids:
-                    raise ValidationError(_("Property not allowed"))
+                    raise ValidationError("Property not allowed")
