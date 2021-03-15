@@ -13,23 +13,35 @@ class ResPartner(models.Model):
 
     # Fields declaration
     main_partner_id = fields.Many2one(
-        "res.partner", string="Destination Partner fusion"
+        string="Destination Partner Fusion",
+        comodel_name="res.partner",
     )
     reservations_count = fields.Integer(
-        "Reservations", compute="_compute_reservations_count"
+        string="Reservations",
+        help="Number of reservations of the partner",
+        compute="_compute_reservations_count",
     )
-    folios_count = fields.Integer("Folios", compute="_compute_folios_count")
-    unconfirmed = fields.Boolean("Unconfirmed", default=True)
-    is_agency = fields.Boolean("Is Agency")
+    folios_count = fields.Integer(
+        string="Folios",
+        help="Number of folios of the partner",
+        compute="_compute_folios_count",
+    )
+    is_unconfirmed = fields.Boolean(
+        string="Unconfirmed", help="Indicates if is unconfirmed", default=True
+    )
+    is_agency = fields.Boolean(
+        string="Is Agency", help="Indicates if the partner is an agency"
+    )
     sale_channel_id = fields.Many2one(
-        "pms.sale.channel",
         string="Sale Channel",
+        help="The sale channel of the partner",
+        comodel_name="pms.sale.channel",
         ondelete="restrict",
         domain=[("channel_type", "=", "indirect")],
     )
-    default_commission = fields.Integer("Commission")
-    apply_pricelist = fields.Boolean("Apply Pricelist")
-    invoice_agency = fields.Boolean("Invoice Agency")
+    default_commission = fields.Integer(string="Commission")
+    is_apply_pricelist = fields.Boolean(string="Apply Pricelist")
+    is_invoice_agency = fields.Boolean(string="Invoice Agency")
 
     # Compute and Search methods
     def _compute_reservations_count(self):

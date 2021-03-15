@@ -17,16 +17,21 @@ class ProductTemplate(models.Model):
         required=False,
         ondelete="restrict",
     )
-    per_day = fields.Boolean("Unit increment per day")
-    per_person = fields.Boolean("Unit increment per person")
+    per_day = fields.Boolean(
+        string="Unit increment per day", help="Indicates it is a unit increment per day"
+    )
+    per_person = fields.Boolean(
+        string="Unit increment per person",
+        help="Indicates it is a unit increment per person",
+    )
     consumed_on = fields.Selection(
-        [("before", "Before night"), ("after", "After night")],
-        "Consumed",
+        string="Consumed",
+        selection=[("before", "Before night"), ("after", "After night")],
         default="before",
     )
-    daily_limit = fields.Integer("Daily limit")
-    is_extra_bed = fields.Boolean("Is extra bed", default=False)
-    show_in_calendar = fields.Boolean(
+    daily_limit = fields.Integer(string="Daily limit")
+    is_extra_bed = fields.Boolean(string="Is extra bed", default=False)
+    is_show_in_calendar = fields.Boolean(
         "Show in Calendar",
         default=False,
         help="Specifies if the product is shown in the calendar information.",

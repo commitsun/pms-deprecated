@@ -9,6 +9,11 @@ class PmsRoomAmenity(models.Model):
     _name = "pms.amenity"
     _description = "Room amenity"
 
+    active = fields.Boolean(
+        string="Active",
+        help="Determines if amenity is active",
+        default=True,
+    )
     name = fields.Char(
         string="Amenity Name",
         help="Amenity Name",
@@ -33,11 +38,6 @@ class PmsRoomAmenity(models.Model):
     )
     default_code = fields.Char(
         string="Internal Reference", help="Internal unique identifier of the amenity"
-    )
-    active = fields.Boolean(
-        help="Determines if amenity is active",
-        string="Active",
-        default=True,
     )
 
     @api.constrains(

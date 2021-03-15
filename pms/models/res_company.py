@@ -8,7 +8,12 @@ class ResCompany(models.Model):
     _inherit = "res.company"
 
     # Fields declaration
-    pms_property_ids = fields.One2many("pms.property", "company_id", "Properties")
+    pms_property_ids = fields.One2many(
+        string="Properties",
+        help="Properties with access to the element;",
+        comodel_name="pms.property",
+        inverse_name="company_id",
+    )
     # TODO: need extra explanation or remove otherwise
     # additional_hours = fields.Integer('Additional Hours',
     #                                   help="Provide the min hours value for \

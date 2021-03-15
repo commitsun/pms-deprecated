@@ -10,18 +10,19 @@ class ResUsers(models.Model):
 
     # Fields declaration
     pms_property_id = fields.Many2one(
-        "pms.property",
         string="Property",
-        help="The property this user is currently working for.",
+        help="The property this user is currently working for",
+        comodel_name="pms.property",
         context={"user_preference": True},
         domain="[('id','in',pms_property_ids)]",
     )
     pms_property_ids = fields.Many2many(
-        "pms.property",
-        "pms_property_users_rel",
-        "user_id",
-        "pms_property_id",
         string="Properties",
+        help="The property this user is currently working for",
+        comodel_name="pms.property",
+        relation="pms_property_users_rel",
+        column1="user_id",
+        column2="pms_property_id",
         domain="[('company_id','in',company_ids)]",
     )
     # company_id = fields.Many2one(domain="[('id','in',company_ids)]")

@@ -176,14 +176,14 @@
         <!-- pms.room.type    -->
         <record id="pms_room_type_0" model="pms.room.type">
             <field name="name">Economic</field>
-            <field name="code_type">ECO</field>
+            <field name="default_code">ECO</field>
             <field name="list_price">21.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field name="room_amenity_ids" eval="[(4, ref('pms_amenity_0'))]" />
         </record>
         <record id="pms_room_type_1" model="pms.room.type">
             <field name="name">Single</field>
-            <field name="code_type">SNG</field>
+            <field name="default_code">SNG</field>
             <field name="list_price">20.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field
@@ -193,7 +193,7 @@
         </record>
         <record id="pms_room_type_2" model="pms.room.type">
             <field name="name">Double</field>
-            <field name="code_type">DBL</field>
+            <field name="default_code">DBL</field>
             <field name="list_price">25.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field
@@ -203,7 +203,7 @@
         </record>
         <record id="pms_room_type_3" model="pms.room.type">
             <field name="name">Triple</field>
-            <field name="code_type">TRP</field>
+            <field name="default_code">TRP</field>
             <field name="list_price">35.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field
@@ -213,7 +213,7 @@
         </record>
         <record id="pms_room_type_4" model="pms.room.type">
             <field name="name">Conference Room</field>
-            <field name="code_type">CFR</field>
+            <field name="default_code">CFR</field>
             <field name="list_price">80.00</field>
             <field name="class_id" ref="pms_room_type_class_1" />
             <field
@@ -297,7 +297,7 @@
             <field name="per_person">False</field>
             <field name="daily_limit">1</field>
             <field name="is_extra_bed">True</field>
-            <field name="show_in_calendar">True</field>
+            <field name="is_show_in_calendar">True</field>
         </record>
         <record id="pms_service_3" model="product.product">
             <field name="name">Late Check-out</field>
@@ -408,7 +408,7 @@
         <record id="demo_pms_room_type_0" model="pms.room.type">
             <field name="pms_property_ids" eval="[(4, ref('pms.demo_pms_property'))]" />
             <field name="name">Prop. Demo Suite</field>
-            <field name="code_type">SUI</field>
+            <field name="default_code">SUI</field>
             <field name="list_price">21.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field name="room_amenity_ids" eval="[(4, ref('pms_amenity_0'))]" />
@@ -416,7 +416,7 @@
         <record id="demo_pms_room_type_1" model="pms.room.type">
             <field name="pms_property_ids" eval="[(4, ref('pms.demo_pms_property'))]" />
             <field name="name">Prop. Demo Views</field>
-            <field name="code_type">VIE</field>
+            <field name="default_code">VIE</field>
             <field name="list_price">20.00</field>
             <field name="class_id" ref="pms_room_type_class_0" />
             <field

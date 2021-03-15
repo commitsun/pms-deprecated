@@ -9,6 +9,11 @@ class PmsRoomAmenityType(models.Model):
     _name = "pms.amenity.type"
     _description = "Amenity Type"
 
+    active = fields.Boolean(
+        string="Active",
+        help="Determines if amenity type is active",
+        default=True,
+    )
     name = fields.Char(
         string="Amenity Type Name",
         help="Amenity Type Name",
@@ -25,15 +30,10 @@ class PmsRoomAmenityType(models.Model):
         column2="pms_property_id",
     )
     pms_amenity_ids = fields.One2many(
-        string="Amenities in this category",
+        string="Amenities In This Category",
         help="Amenities included in this type",
         comodel_name="pms.amenity",
         inverse_name="pms_amenity_type_id",
-    )
-    active = fields.Boolean(
-        string="Active",
-        help="Determines if amenity type is active",
-        default=True,
     )
 
     @api.constrains(

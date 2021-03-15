@@ -21,6 +21,15 @@ class PmsRoom(models.Model):
         help="Room Name",
         required=True,
     )
+    active = fields.Boolean(
+        string="Active", help="Determines if room is active", default=True
+    )
+    sequence = fields.Integer(
+        string="Sequence",
+        help="Field used to change the position of the rooms in tree view."
+        "Changing the position changes the sequence",
+        default=0,
+    )
     pms_property_id = fields.Many2one(
         string="Property",
         help="Properties with access to the element;"
@@ -62,7 +71,7 @@ class PmsRoom(models.Model):
         string="Capacity", help="The maximum number of people in a room"
     )
     extra_beds_allowed = fields.Integer(
-        string="Extra beds allowed",
+        string="Extra Beds Allowed",
         required=True,
         default="0",
     )
@@ -73,18 +82,9 @@ class PmsRoom(models.Model):
         " Order, Delivery Order and Customer Invoice/Credit Note",
         translate=True,
     )
-    active = fields.Boolean(
-        string="Active", help="Determines if room is active", default=True
-    )
-    sequence = fields.Integer(
-        string="Sequence",
-        help="Field used to change the position of the rooms in tree view."
-        "Changing the position changes the sequence",
-        default=0,
-    )
 
     allowed_property_ids = fields.Many2many(
-        string="Allowed properties",
+        string="Allowed Properties",
         help="Allowed properties for rooms",
         store=True,
         readonly=True,
@@ -95,13 +95,12 @@ class PmsRoom(models.Model):
         column2="property_id",
     )
 
-    # Defaults and Gets
     def name_get(self):
         result = []
         for room in self:
             name = room.name
             if room.room_type_id:
-                name += " [%s]" % room.room_type_id.code_type
+                name += " [%s]" % room.room_type_id.default_code
             result.append((room.id, name))
         return result
 
@@ -129,7 +128,6 @@ class PmsRoom(models.Model):
                     & record.ubication_id.pms_property_ids
                 )
 
-    # Constraints and onchanges
     @api.constrains("capacity")
     def _check_capacity(self):
         for record in self:

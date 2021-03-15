@@ -95,7 +95,6 @@ class PmsProperty(models.Model):
         selection=_tz_get,
     )
 
-    # Constraints and onchanges
     @api.constrains("default_arrival_hour")
     def _check_arrival_hour(self):
         for record in self:

@@ -14,6 +14,11 @@ class PmsUbication(models.Model):
         required=True,
         translate=True,
     )
+    sequence = fields.Integer(
+        string="Sequence",
+        help="Field used to change the position of the ubications in tree view."
+        "Changing the position changes the sequence",
+    )
     pms_property_ids = fields.Many2many(
         string="Properties",
         help="Properties with access to the element;"
@@ -31,11 +36,6 @@ class PmsUbication(models.Model):
         comodel_name="pms.room",
         inverse_name="ubication_id",
     )
-    sequence = fields.Integer(
-        string="Sequence",
-        help="Field used to change the position of the ubications in tree view."
-        "Changing the position changes the sequence",
-    )
 
     @api.constrains(
         "pms_property_ids",
@@ -45,4 +45,4 @@ class PmsUbication(models.Model):
         for rec in self:
             if rec.pms_property_ids and rec.pms_room_ids:
                 if rec.pms_room_ids.pms_property_id not in rec.pms_property_ids:
-                    raise ValidationError("Property not allowed")
+                    raise ValidationError(_("Property not allowed"))

@@ -16,20 +16,26 @@ class PmsRoomType(models.Model):
     _name = "pms.room.type"
     _description = "Room Type"
     _inherits = {"product.product": "product_id"}
-    _order = "sequence,code_type,name"
+    _order = "sequence,default_code,name"
 
-    sequence = fields.Integer("Sequence", default=0)
+    sequence = fields.Integer(
+        string="Sequence",
+        help="Field used to change the position of the room types in tree view.",
+        default=0,
+    )
     product_id = fields.Many2one(
-        "product.product",
-        "Product Room Type",
+        string="Product Room Type",
+        help="Field that relates Room Type to Product",
+        comodel_name="product.product",
         required=True,
         delegate=True,
         ondelete="cascade",
     )
     room_ids = fields.One2many(
-        "pms.room",
-        "room_type_id",
-        "Rooms",
+        string="Rooms",
+        help="Rooms related with room type.",
+        comodel_name="pms.room",
+        inverse_name="room_type_id",
         domain="["
         "'|', "
         "('pms_property_id', '=', False), "
@@ -37,8 +43,9 @@ class PmsRoomType(models.Model):
         "]",
     )
     class_id = fields.Many2one(
-        "pms.room.type.class",
-        "Property Type Class",
+        string="Property Type Class",
+        help="The class of a room type",
+        comodel_name="pms.room.type.class",
         required=True,
         domain="["
         "'|', "
@@ -47,19 +54,20 @@ class PmsRoomType(models.Model):
         "]",
     )
     board_service_room_type_ids = fields.One2many(
-        "pms.board.service.room.type",
-        "pms_room_type_id",
         string="Board Services",
+        help="The board services that a room can have",
+        comodel_name="pms.board.service.room.type",
+        inverse_name="pms_room_type_id",
         domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', "
         "pms_property_ids)]",
     )
     room_amenity_ids = fields.Many2many(
-        "pms.amenity",
-        "pms_room_type_amenity_rel",
-        "room_type_id",
-        "amenity_id",
         string="Room Type Amenities",
-        help="List of Amenities.",
+        help="List of amenities.",
+        comodel_name="pms.amenity",
+        relation="pms_room_type_amenity_rel",
+        column1="room_type_id",
+        column2="amenity_id",
         domain="["
         "'|', "
         "('pms_property_ids', '=', False), "
@@ -67,26 +75,34 @@ class PmsRoomType(models.Model):
         "]",
     )
     default_code = fields.Char(
-        "Code",
+        string="Code",
+        help="Identification code for a room type",
         required=True,
     )
     # TODO: Session review to define shared room and "sales rooms packs"
-    shared_room = fields.Boolean(
-        "Shared Room", default=False, help="This room type is reservation by beds"
+    is_shared_room = fields.Boolean(
+        string="Shared Room",
+        help="This room type is reservation by beds",
+        default=False,
     )
-    total_rooms_count = fields.Integer(compute="_compute_total_rooms_count", store=True)
+    total_rooms_count = fields.Integer(
+        string="Total Rooms Count",
+        help="The number of rooms in a room type",
+        compute="_compute_total_rooms_count",
+        store=True,
+    )
     default_max_avail = fields.Integer(
-        "Default Max. Availability",
-        default=-1,
+        string="Default Max. Availability",
         help="Maximum simultaneous availability on own Booking Engine "
         "given no availability rules. "
         "Use `-1` for using maximum simultaneous availability.",
+        default=-1,
     )
     default_quota = fields.Integer(
-        "Default Quota",
-        default=-1,
+        string="Default Quota",
         help="Quota assigned to the own Booking Engine given no availability rules. "
         "Use `-1` for managing no quota.",
+        default=-1,
     )
 
     def name_get(self):
@@ -113,20 +129,20 @@ class PmsRoomType(models.Model):
             record.total_rooms_count = len(record.room_ids)
 
     @api.model
-    def get_room_types_by_property(self, pms_property_id, code_type=None):
+    def get_room_types_by_property(self, pms_property_id, default_code=None):
         """
         :param pms_property_id: property ID
-        :param code_type: room type code (optional)
+        :param default_code: room type code (optional)
         :return: - recordset of
                     - all the pms.room.type of the pms_property_id
-                      if code_type not defined
-                    - one or 0 pms.room.type if code_type defined
-                 - ValidationError if more than one code_type found by
+                      if default_code not defined
+                    - one or 0 pms.room.type if default_code defined
+                 - ValidationError if more than one default_code found by
                    the same pms_property_id
         """
         domain = []
-        if code_type:
-            domain += ["&", ("code_type", "=", code_type)]
+        if default_code:
+            domain += ["&", ("default_code", "=", default_code)]
         company_id = self.env["pms.property"].browse(pms_property_id).company_id.id
         domain += [
             "|",
@@ -142,18 +158,18 @@ class PmsRoomType(models.Model):
         records = self.search(domain)
         res, res_priority = {}, {}
         for rec in records:
-            res_priority.setdefault(rec.code_type, -1)
+            res_priority.setdefault(rec.default_code, -1)
             priority = (rec.pms_property_ids and 2) or (rec.company_id and 1 or 0)
-            if priority > res_priority[rec.code_type]:
-                res.setdefault(rec.code_type, rec.id)
-                res[rec.code_type], res_priority[rec.code_type] = rec.id, priority
-            elif priority == res_priority[rec.code_type]:
+            if priority > res_priority[rec.default_code]:
+                res.setdefault(rec.default_code, rec.id)
+                res[rec.default_code], res_priority[rec.default_code] = rec.id, priority
+            elif priority == res_priority[rec.default_code]:
                 raise ValidationError(
                     _(
                         "Integrity error: There's multiple room types "
                         "with the same code %s and properties"
                     )
-                    % rec.code_type
+                    % rec.default_code
                 )
         return self.browse(list(res.values()))
 
@@ -167,7 +183,7 @@ class PmsRoomType(models.Model):
                             _("Property isn't allowed in Room Type Class")
                         )
 
-    @api.constrains("code_type", "pms_property_ids", "company_id")
+    @api.constrains("default_code", "pms_property_ids", "company_id")
     def _check_code_property_company_uniqueness(self):
         msg = _("Already exists another room type with the same code and properties")
         for rec in self:
@@ -175,7 +191,7 @@ class PmsRoomType(models.Model):
                 if self.search(
                     [
                         ("id", "!=", rec.id),
-                        ("code_type", "=", rec.code_type),
+                        ("default_code", "=", rec.default_code),
                         ("pms_property_ids", "=", False),
                         ("company_id", "=", rec.company_id.id),
                     ]
@@ -184,7 +200,7 @@ class PmsRoomType(models.Model):
             else:
                 for pms_property in rec.pms_property_ids:
                     other = rec.get_room_types_by_property(
-                        pms_property.id, rec.code_type
+                        pms_property.id, rec.default_code
                     )
                     if other and other != rec:
                         raise ValidationError(msg)
@@ -230,7 +246,7 @@ class PmsRoomType(models.Model):
         vals.update(
             {
                 "purchase_ok": False,
-                "sales_ok": False,
+                "sale_ok": False,
                 "type": "service",
             }
         )
