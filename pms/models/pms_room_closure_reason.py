@@ -7,7 +7,6 @@ class RoomClosureReason(models.Model):
     _name = "room.closure.reason"
     _description = "Cause of out of service"
 
-    # Fields declaration
     name = fields.Char("Name", translate=True, required=True)
     pms_property_ids = fields.Many2many(
         "pms.property", string="Properties", required=False, ondelete="restrict"

@@ -16,28 +16,9 @@ class PmsRoomType(models.Model):
     _name = "pms.room.type"
     _description = "Room Type"
     _inherits = {"product.product": "product_id"}
-    _order = "sequence, code_type, name"
+    _order = "sequence,code_type,name"
 
-    # Defaults and Gets
-    def name_get(self):
-        result = []
-        for room_type in self:
-            name = room_type.name
-            if self._context.get("checkin") and self._context.get("checkout"):
-                avail = self.env[
-                    "pms.room.type.availability.plan"
-                ].get_count_rooms_available(
-                    checkin=self._context.get("checkin"),
-                    checkout=self._context.get("checkout"),
-                    room_type_id=room_type.id,
-                    pms_property_id=self._context.get("pms_property_id") or False,
-                    pricelist_id=self._context.get("pricelist_id") or False,
-                )
-                name += " (%s)" % avail
-            result.append((room_type.id, name))
-        return result
-
-    # Fields declaration
+    sequence = fields.Integer("Sequence", default=0)
     product_id = fields.Many2one(
         "product.product",
         "Product Room Type",
@@ -74,9 +55,9 @@ class PmsRoomType(models.Model):
     )
     room_amenity_ids = fields.Many2many(
         "pms.amenity",
-        "pms_room_type_aminity_rel",
-        "room_type_ids",
-        "amenity_ids",
+        "pms_room_type_amenity_rel",
+        "room_type_id",
+        "amenity_id",
         string="Room Type Amenities",
         help="List of Amenities.",
         domain="["
@@ -85,18 +66,17 @@ class PmsRoomType(models.Model):
         "('pms_property_ids', 'in', pms_property_ids)"
         "]",
     )
-    code_type = fields.Char(
+    default_code = fields.Char(
         "Code",
         required=True,
     )
+    # TODO: Session review to define shared room and "sales rooms packs"
     shared_room = fields.Boolean(
         "Shared Room", default=False, help="This room type is reservation by beds"
     )
-    total_rooms_count = fields.Integer(compute="_compute_total_rooms", store=True)
-    active = fields.Boolean("Active", default=True)
-    sequence = fields.Integer("Sequence", default=0)
+    total_rooms_count = fields.Integer(compute="_compute_total_rooms_count", store=True)
     default_max_avail = fields.Integer(
-        "Max. Availability",
+        "Default Max. Availability",
         default=-1,
         help="Maximum simultaneous availability on own Booking Engine "
         "given no availability rules. "
@@ -109,14 +89,31 @@ class PmsRoomType(models.Model):
         "Use `-1` for managing no quota.",
     )
 
-    # Constraints and onchanges
+    def name_get(self):
+        result = []
+        for room_type in self:
+            name = room_type.name
+            if self._context.get("checkin") and self._context.get("checkout"):
+                avail = self.env[
+                    "pms.room.type.availability.plan"
+                ].get_count_rooms_available(
+                    checkin=self._context.get("checkin"),
+                    checkout=self._context.get("checkout"),
+                    room_type_id=room_type.id,
+                    pms_property_id=self._context.get("pms_property_id") or False,
+                    pricelist_id=self._context.get("pricelist_id") or False,
+                )
+                name += " (%s)" % avail
+            result.append((room_type.id, name))
+        return result
+
     @api.depends("room_ids", "room_ids.active")
-    def _compute_total_rooms(self):
+    def _compute_total_rooms_count(self):
         for record in self:
             record.total_rooms_count = len(record.room_ids)
 
     @api.model
-    def get_unique_by_property_code(self, pms_property_id, code_type=None):
+    def get_room_types_by_property(self, pms_property_id, code_type=None):
         """
         :param pms_property_id: property ID
         :param code_type: room type code (optional)
@@ -186,7 +183,7 @@ class PmsRoomType(models.Model):
                     raise ValidationError(msg)
             else:
                 for pms_property in rec.pms_property_ids:
-                    other = rec.get_unique_by_property_code(
+                    other = rec.get_room_types_by_property(
                         pms_property.id, rec.code_type
                     )
                     if other and other != rec:
@@ -226,17 +223,20 @@ class PmsRoomType(models.Model):
                                 )
 
     # ORM Overrides
+    # TODO: Review Check product fields default values to room
     @api.model
     def create(self, vals):
         """ Add room types as not purchase services. """
         vals.update(
             {
                 "purchase_ok": False,
+                "sales_ok": False,
                 "type": "service",
             }
         )
         return super().create(vals)
 
+    # TODO: Check if this is necesary
     def unlink(self):
         for record in self:
             record.product_id.unlink()
@@ -248,62 +248,3 @@ class PmsRoomType(models.Model):
         self.ensure_one()
         capacities = self.room_ids.mapped("capacity")
         return min(capacities) if any(capacities) else 0
-
-    @api.model
-    def get_rate_room_types(self, **kwargs):
-        """
-        room_type_ids: Ids from room types to get rate, optional, if you
-            not use this param, the method return all room_types
-        from: Date from, mandatory
-        days: Number of days, mandatory
-        pricelist_id: Pricelist to use, optional
-        partner_id: Partner, optional
-        Return Dict Code Room Types: subdict with day, discount, price
-        """
-        vals = {}
-        # room_type_ids = kwargs.get("room_type_ids", False)
-        # room_types = (
-        #     self.env["pms.room.type"].browse(room_type_ids)
-        #     if room_type_ids
-        #     else self.env["pms.room.type"].search([])
-        # )
-        date_from = kwargs.get("date_from", False)
-        days = kwargs.get("days", False)
-        discount = kwargs.get("discount", False)
-        if not date_from or not days:
-            raise ValidationError(_("Date From and days are mandatory"))
-        partner_id = kwargs.get("partner_id", False)
-        # partner = self.env["res.partner"].browse(partner_id)
-        # pricelist_id = kwargs.get(
-        #     "pricelist_id",
-        #     partner.property_product_pricelist.id
-        #     and partner.property_product_pricelist.id
-        #     or self.env.user.pms_property_id.default_pricelist_id.id,
-        # )
-        vals.update(
-            {
-                "partner_id": partner_id if partner_id else False,
-                "discount": discount,
-            }
-        )
-        rate_vals = {}
-        # TODO: Now it is computed field, We need other way to return rates
-        # for room_type in room_types:
-        #     vals.update({"room_type_id": room_type.id})
-        #     room_vals = self.env["pms.reservation"].prepare_reservation_lines(
-        #         date_from,
-        #         days,
-        #         pricelist_id=pricelist_id,
-        #         vals=vals,
-        #         update_old_prices=False,
-        #     )
-        #     rate_vals.update(
-        #         {
-        #             room_type.id: [
-        #                 item[2] for item in room_vals[
-        #                   "reservation_line_ids"
-        #                   ] if item[2]
-        #             ]
-        #         }
-        #     )
-        return rate_vals
