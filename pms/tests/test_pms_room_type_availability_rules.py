@@ -33,26 +33,26 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         # SEQUENCES
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         # pms.property
@@ -61,9 +61,9 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist1.id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         # pms.room.type.class
@@ -76,7 +76,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             {
                 "pms_property_ids": [self.test_property.id],
                 "name": "Single Test",
-                "code_type": "SNG_Test",
+                "default_code": "SNG_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )
@@ -87,7 +87,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                     (4, self.test_property.id),
                 ],
                 "name": "Double Test",
-                "code_type": "DBL_Test",
+                "default_code": "DBL_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )
@@ -156,9 +156,9 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "Property 1",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         self.test_property2 = self.env["pms.property"].create(
@@ -166,9 +166,9 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "Property 2",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         self.test_property3 = self.env["pms.property"].create(
@@ -176,9 +176,9 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "Property 3",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist2.id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         self.availability_multiproperty = self.env[
@@ -677,7 +677,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                     (4, self.test_property2.id),
                 ],
                 "name": "Special Room Test",
-                "code_type": "SP_Test",
+                "default_code": "SP_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )
@@ -761,7 +761,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                     (4, self.test_property3.id),
                 ],
                 "name": "Special Room Test",
-                "code_type": "SP_Test",
+                "default_code": "SP_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )
@@ -826,7 +826,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                     (4, self.test_property3.id),
                 ],
                 "name": "Special Room Test",
-                "code_type": "SP_Test",
+                "default_code": "SP_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )

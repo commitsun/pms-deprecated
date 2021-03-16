@@ -26,26 +26,26 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         # sequences
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         # pms.property
@@ -54,9 +54,9 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.test_pricelist.id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         # pms.room.type.class
@@ -69,7 +69,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
             {
                 "pms_property_ids": [self.test_property.id],
                 "name": "Single Test",
-                "code_type": "SNG_Test",
+                "default_code": "SNG_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )
@@ -78,7 +78,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
             {
                 "pms_property_ids": [self.test_property.id],
                 "name": "Double Test",
-                "code_type": "DBL_Test",
+                "default_code": "DBL_Test",
                 "class_id": self.test_room_type_class.id,
             }
         )

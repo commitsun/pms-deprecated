@@ -18,26 +18,26 @@ class TestPmsFolio(common.SavepointCase):
         # sequences
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         # create a property
@@ -62,7 +62,7 @@ class TestPmsFolio(common.SavepointCase):
             {
                 "pms_property_ids": [self.property.id],
                 "name": "Double Test",
-                "code_type": "DBL_Test",
+                "default_code": "DBL_Test",
                 "class_id": self.room_type_class.id,
                 "price": 25,
             }
@@ -137,7 +137,7 @@ class TestPmsFolio(common.SavepointCase):
             {
                 "name": "partner1",
                 "is_agency": True,
-                "invoice_agency": True,
+                "is_invoice_agency": True,
                 "default_commission": 15,
                 "sale_channel_id": saleChannel.id,
             }

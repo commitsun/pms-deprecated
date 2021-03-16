@@ -12,26 +12,26 @@ class TestRoomTypeClass(SavepointCase):
         self.m1 = self.p1.company_id
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.m1.id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.m1.id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.m1.id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.m1.id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.m1.id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.m1.id,
             }
         )
         self.p2 = self.env["pms.property"].create(
@@ -39,9 +39,9 @@ class TestRoomTypeClass(SavepointCase):
                 "name": "p2",
                 "company_id": self.m1.id,
                 "default_pricelist_id": self.ref("product.list0"),
-                'folio_sequence_id':self.folio_sequence.id,
-                'reservation_sequence_id':self.reservation_sequence.id,
-                'checkin_sequence_id':self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         self.m2 = self.env["res.company"].create(
@@ -51,26 +51,26 @@ class TestRoomTypeClass(SavepointCase):
         )
         self.folio_sequence2 = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.m2.id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.m2.id,
             }
         )
         self.reservation_sequence2 = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.m2.id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.m2.id,
             }
         )
         self.checkin_sequence2 = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.m2.id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.m2.id,
             }
         )
         self.p3 = self.env["pms.property"].create(
@@ -78,9 +78,9 @@ class TestRoomTypeClass(SavepointCase):
                 "name": "p3",
                 "company_id": self.m2.id,
                 "default_pricelist_id": self.ref("product.list0"),
-                'folio_sequence_id': self.folio_sequence2.id,
-                'reservation_sequence_id': self.reservation_sequence2.id,
-                'checkin_sequence_id': self.checkin_sequence2.id,
+                "folio_sequence_id": self.folio_sequence2.id,
+                "reservation_sequence_id": self.reservation_sequence2.id,
+                "checkin_sequence_id": self.checkin_sequence2.id,
             }
         )
 

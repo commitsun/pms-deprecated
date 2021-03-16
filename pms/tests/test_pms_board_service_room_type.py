@@ -9,26 +9,26 @@ class TestPmsBoardServiceRoomType(common.SavepointCase):
         )
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.company1.id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.company1.id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.company1.id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.company1.id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.company1.id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.company1.id,
             }
         )
         self.property1 = self.env["pms.property"].create(
@@ -62,7 +62,7 @@ class TestPmsBoardServiceRoomType(common.SavepointCase):
         self.room_type = self.env["pms.room.type"].create(
             {
                 "name": "Room Type",
-                "code_type": "Type1",
+                "default_code": "Type1",
                 "class_id": self.room_type_class.id,
             }
         )

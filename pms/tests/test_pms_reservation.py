@@ -18,26 +18,26 @@ class TestPmsReservations(common.SavepointCase):
         # create a sequences
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         # create a property
@@ -46,9 +46,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "MY PMS TEST",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -62,7 +62,7 @@ class TestPmsReservations(common.SavepointCase):
             {
                 "pms_property_ids": [self.property.id],
                 "name": "Double Test",
-                "code_type": "DBL_Test",
+                "default_code": "DBL_Test",
                 "class_id": self.room_type_class.id,
             }
         )
@@ -103,9 +103,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "Property_1",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -114,9 +114,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "Property_2",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
 
@@ -125,9 +125,9 @@ class TestPmsReservations(common.SavepointCase):
                 "name": "Property_3",
                 "company_id": self.env.ref("base.main_company").id,
                 "default_pricelist_id": self.env.ref("product.list0").id,
-                'folio_sequence_id': self.folio_sequence.id,
-                'reservation_sequence_id': self.reservation_sequence.id,
-                'checkin_sequence_id': self.checkin_sequence.id,
+                "folio_sequence_id": self.folio_sequence.id,
+                "reservation_sequence_id": self.reservation_sequence.id,
+                "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
         self.room_type_class = self.env["pms.room.type.class"].create(
@@ -899,7 +899,7 @@ class TestPmsReservations(common.SavepointCase):
                     (4, self.property2.id),
                 ],
                 "name": "Single",
-                "code_type": "SIN",
+                "default_code": "SIN",
                 "class_id": self.room_type_class.id,
                 "list_price": 30,
             }

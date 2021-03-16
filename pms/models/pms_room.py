@@ -151,9 +151,12 @@ class PmsRoom(models.Model):
                         _("Property not allowed in room type or in ubication")
                     )
 
-    # TODO : check extra_bed is lower than extra_beds_allowed
-    # Business methods
     def get_capacity(self, extra_bed=0):
-        if not self.shared_room_id:
-            return self.capacity + extra_bed
-        return self.capacity
+        for record in self:
+            if not record.shared_room_id:
+                if extra_bed > record.extra_beds_allowed:
+                    raise ValidationError(
+                        _("Extra beds can't be greater than allowed beds for this room")
+                    )
+                return record.capacity + extra_bed
+            return record.capacity

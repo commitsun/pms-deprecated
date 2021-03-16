@@ -10,29 +10,29 @@ class TestPmsPricelist(common.SavepointCase):
         # sequences
         self.folio_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Folio",
-                'code': 'pms.folio',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Folio",
+                "code": "pms.folio",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.reservation_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Reservation",
-                'code': 'pms.reservation',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Reservation",
+                "code": "pms.reservation",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
         self.checkin_sequence = self.env["ir.sequence"].create(
             {
-                'name': "PMS Checkin",
-                'code': 'pms.checkin.partner',
-                'padding': 4,
-                'company_id': self.env.ref("base.main_company").id,
+                "name": "PMS Checkin",
+                "code": "pms.checkin.partner",
+                "padding": 4,
+                "company_id": self.env.ref("base.main_company").id,
             }
         )
-        #create property
+        # create property
         self.property1 = self.env["pms.property"].create(
             {
                 "name": "Property_1",
@@ -73,7 +73,7 @@ class TestPmsPricelist(common.SavepointCase):
             {
                 "pms_property_ids": [self.property1.id, self.property2.id],
                 "name": "Single",
-                "code_type": "SIN",
+                "default_code": "SIN",
                 "class_id": self.room_type_class.id,
                 "list_price": 30,
             }

@@ -29,7 +29,6 @@ class PmsUbication(models.Model):
         column2="pms_property_id",
         ondelete="restrict",
     )
-    # TODO: rooms in view? (amenity)
     pms_room_ids = fields.One2many(
         string="Rooms",
         help="Rooms found in this location",

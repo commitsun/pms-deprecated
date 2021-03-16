@@ -687,7 +687,7 @@ class PmsReservation(models.Model):
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):
         for reservation in self:
-            if reservation.agency_id and reservation.agency_id.apply_pricelist:
+            if reservation.agency_id and reservation.agency_id.is_apply_pricelist:
                 reservation.pricelist_id = (
                     reservation.agency_id.property_product_pricelist.id
                 )
@@ -1143,7 +1143,7 @@ class PmsReservation(models.Model):
             )
             for room in record.reservation_line_ids.room_id:
                 if record.adults + record.children_occupying > room.get_capacity(
-                    len(extra_bed)
+                    sum(extra_bed.mapped("product_qty"))
                 ):
                     raise ValidationError(
                         _(

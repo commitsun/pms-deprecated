@@ -252,13 +252,10 @@ class PmsRoomType(models.Model):
         )
         return super().create(vals)
 
-    # TODO: Check if this is necesary
     def unlink(self):
         for record in self:
             record.product_id.unlink()
         return super().unlink()
-
-    # Business methods
 
     def get_capacity(self):
         self.ensure_one()
