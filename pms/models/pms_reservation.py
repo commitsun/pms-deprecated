@@ -1344,8 +1344,8 @@ class PmsReservation(models.Model):
                 if "pms_property_id" not in vals
                 else vals["pms_property_id"]
             )
-            property = self.env["pms.property"].browse(pms_property_id)
-            vals["name"] = property.folio_sequence_id._next_do()
+            pms_property = self.env["pms.property"].browse(pms_property_id)
+            vals["name"] = pms_property.folio_sequence_id._next_do()
         record = super(PmsReservation, self).create(vals)
         if record.preconfirm:
             record.confirm()

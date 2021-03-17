@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    # Fields declaration
+    # TODO: help main partner id
     main_partner_id = fields.Many2one(
         string="Destination Partner Fusion",
         comodel_name="res.partner",
@@ -39,11 +39,15 @@ class ResPartner(models.Model):
         ondelete="restrict",
         domain=[("channel_type", "=", "indirect")],
     )
-    default_commission = fields.Integer(string="Commission")
-    is_apply_pricelist = fields.Boolean(string="Apply Pricelist")
-    is_invoice_agency = fields.Boolean(string="Invoice Agency")
+    default_commission = fields.Integer(string="Commission", help="Default commission")
+    is_apply_pricelist = fields.Boolean(
+        string="Apply Pricelist", help="Inidicates if apply a pricelist"
+    )
+    is_invoice_agency = fields.Boolean(
+        string="Invoice Agency",
+        help="If the partner is an agency indicates if it want a invoice",
+    )
 
-    # Compute and Search methods
     def _compute_reservations_count(self):
         pms_reservation_obj = self.env["pms.reservation"]
         for record in self:
@@ -70,7 +74,6 @@ class ResPartner(models.Model):
                 ]
             )
 
-    # ORM Overrides
     @api.model
     def name_search(self, name, args=None, operator="ilike", limit=100):
         if not args:

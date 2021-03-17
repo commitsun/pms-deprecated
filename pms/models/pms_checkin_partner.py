@@ -226,8 +226,8 @@ class PmsCheckinPartner(models.Model):
                     if "pms_property_id" not in vals
                     else vals["pms_property_id"]
                 )
-                property = self.env["pms.property"].browse(pms_property_id)
-                vals["identifier"] = property.folio_sequence_id._next_do()
+                pms_property = self.env["pms.property"].browse(pms_property_id)
+                vals["identifier"] = pms_property.folio_sequence_id._next_do()
             return super(PmsCheckinPartner, self).create(vals)
         if len(draft_checkins) > 0:
             draft_checkins[0].write(vals)

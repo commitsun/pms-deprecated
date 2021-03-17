@@ -54,6 +54,7 @@ class PmsRoom(models.Model):
     # TODO: Dario, design shared rooms
     shared_room_id = fields.Many2one(
         string="Shared Room",
+        help="The room can be sold by beds",
         default=False,
         comodel_name="pms.shared.room",
     )
@@ -72,6 +73,7 @@ class PmsRoom(models.Model):
     )
     extra_beds_allowed = fields.Integer(
         string="Extra Beds Allowed",
+        help="Number of extra beds allowed in room",
         required=True,
         default="0",
     )

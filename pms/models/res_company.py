@@ -6,8 +6,6 @@ from odoo import fields, models
 
 class ResCompany(models.Model):
     _inherit = "res.company"
-
-    # Fields declaration
     pms_property_ids = fields.One2many(
         string="Properties",
         help="Properties with access to the element;",

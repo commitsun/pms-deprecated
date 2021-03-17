@@ -8,7 +8,6 @@ from odoo.http import request
 class ResUsers(models.Model):
     _inherit = "res.users"
 
-    # Fields declaration
     pms_property_id = fields.Many2one(
         string="Property",
         help="The property this user is currently working for",
@@ -18,7 +17,7 @@ class ResUsers(models.Model):
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
-        help="The property this user is currently working for",
+        help="The properties allowed for this user",
         comodel_name="pms.property",
         relation="pms_property_users_rel",
         column1="user_id",

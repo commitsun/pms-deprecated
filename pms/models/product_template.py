@@ -9,11 +9,13 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     pms_property_ids = fields.Many2many(
-        comodel_name="pms.property",
-        relation="product_template_property_rel",
-        column1="product_tmpl_id",
-        column2="property_id",
         string="Properties",
+        help="Properties with access to the element;"
+        " if not set, all properties can access",
+        comodel_name="pms.property",
+        relation="product_template_pms_property_rel",
+        column1="product_tmpl_id",
+        column2="pms_property_id",
         required=False,
         ondelete="restrict",
     )
@@ -26,15 +28,22 @@ class ProductTemplate(models.Model):
     )
     consumed_on = fields.Selection(
         string="Consumed",
+        help="Indicates when the product is consumed",
         selection=[("before", "Before night"), ("after", "After night")],
         default="before",
     )
-    daily_limit = fields.Integer(string="Daily limit")
-    is_extra_bed = fields.Boolean(string="Is extra bed", default=False)
-    is_show_in_calendar = fields.Boolean(
-        "Show in Calendar",
+    daily_limit = fields.Integer(
+        string="Daily limit", help="Indicates how much products can consumed in one day"
+    )
+    is_extra_bed = fields.Boolean(
+        string="Is extra bed",
+        help="Indicates if that product is a extra bed",
         default=False,
+    )
+    is_show_in_calendar = fields.Boolean(
+        string="Show in Calendar",
         help="Specifies if the product is shown in the calendar information.",
+        default=False,
     )
 
     @api.constrains("pms_property_ids", "company_id")
