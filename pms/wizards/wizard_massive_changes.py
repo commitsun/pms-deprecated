@@ -414,6 +414,7 @@ class AvailabilityWizard(models.TransientModel):
     def apply_massive_changes(self):
 
         for record in self:
+            record.pricelist_items_to_overwrite.unlink()
             week_days_to_apply = (
                 record.apply_on_monday,
                 record.apply_on_tuesday,
@@ -449,7 +450,7 @@ class AvailabilityWizard(models.TransientModel):
                 for room_type in room_types:
                     for pms_property in record.pms_property_ids:
                         if record.massive_changes_on == "pricelist":
-                            record.pricelist_items_to_overwrite.unlink()
+
                             self.env["product.pricelist.item"].create(
                                 {
                                     "pricelist_id": record.pricelist_id.id,
