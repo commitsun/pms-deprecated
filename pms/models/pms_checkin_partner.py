@@ -12,6 +12,7 @@ from odoo.exceptions import ValidationError
 class PmsCheckinPartner(models.Model):
     _name = "pms.checkin.partner"
     _description = "Partner Checkins"
+    _rec_name = "identifier"
 
     # Fields declaration
     identifier = fields.Char(
@@ -54,6 +55,14 @@ class PmsCheckinPartner(models.Model):
     segmentation_ids = fields.Many2many(
         related="reservation_id.segmentation_ids",
         readonly=True,
+    )
+    checkin = fields.Date(
+        related="reservation_id.checkin", store=True, depends=["reservation_id.checkin"]
+    )
+    checkout = fields.Date(
+        related="reservation_id.checkout",
+        store=True,
+        depends=["reservation_id.checkout"],
     )
     arrival = fields.Datetime("Enter")
     departure = fields.Datetime("Exit")
@@ -110,7 +119,12 @@ class PmsCheckinPartner(models.Model):
                 else:
                     record.state = "precheckin"
 
-    @api.depends("partner_id", "partner_id.name")
+    @api.depends(
+        "partner_id",
+        "partner_id.name",
+        "reservation_id",
+        "reservation_id.preferred_room_id",
+    )
     def _compute_name(self):
         for record in self:
             if not record.name:

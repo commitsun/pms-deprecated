@@ -68,6 +68,11 @@ class PmsFolio(models.Model):
         compute="_compute_number_of_rooms",
         store="True",
     )
+    number_of_services = fields.Integer(
+        "Number of Rooms",
+        compute="_compute_number_of_services",
+        store="True",
+    )
     service_ids = fields.One2many(
         "pms.service",
         "folio_id",
@@ -307,7 +312,7 @@ class PmsFolio(models.Model):
         compute="_compute_amount",
         store=True,
         tracking=True,
-        string="Payments",
+        string="Paid Out",
     )
     amount_untaxed = fields.Monetary(
         string="Untaxed Amount",
@@ -376,6 +381,11 @@ class PmsFolio(models.Model):
             folio.number_of_rooms = len(
                 folio.reservation_ids.filtered(lambda a: a.state != "cancelled")
             )
+
+    @api.depends("service_ids", "service_ids.product_qty")
+    def _compute_number_of_services(self):
+        for folio in self:
+            folio.number_of_services = sum(folio.service_ids.mapped("product_qty"))
 
     @api.depends(
         "reservation_ids",
@@ -492,7 +502,8 @@ class PmsFolio(models.Model):
     @api.depends("partner_id")
     def _compute_user_id(self):
         for folio in self:
-            folio.user_id = (folio.partner_id.user_id.id or self.env.uid,)
+            if not folio.user_id:
+                folio.user_id = (folio.partner_id.user_id.id or self.env.uid,)
 
     @api.depends("partner_id")
     def _compute_partner_invoice_ids(self):
