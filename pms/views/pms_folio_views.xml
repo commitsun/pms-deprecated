@@ -40,17 +40,34 @@
                     />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <div class="oe_button_box" name="button_box">                        
                         <button
-                            name="preview_folio"
-                            type="object"
+                            type="action"
                             class="oe_stat_button"
-                            icon="fa-globe icon"
+                            name="%(open_pms_reservation_form_tree_all)d"
+                            icon="fa-bed"
+                            context="{'search_default_folio_id': id, 'default_folio_id': id}"
+                            attrs="{'invisible': [('number_of_rooms', '=', 0)]}"
                         >
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_text">Customer</span>
-                                <span class="o_stat_text">Preview</span>
-                            </div>
+                            <field
+                                name="number_of_rooms"
+                                widget="statinfo"
+                                string="Rooms"
+                            />
+                        </button>
+                        <button
+                            type="action"
+                            class="oe_stat_button"
+                            name="%(action_pms_services_form)d"
+                            icon="fa-coffee"
+                            context="{'search_default_folio_id': id, 'default_folio_id': id}"
+                            attrs="{'invisible': [('number_of_services', '=', 0)]}"
+                        >
+                            <field
+                                name="number_of_services"
+                                widget="statinfo"
+                                string="Services"
+                            />
                         </button>
                         <button
                             type="object"
@@ -70,23 +87,6 @@
                                     />
                                 </span>
                                 <span class="o_stat_text">Pending Payment</span>
-                            </div>
-                        </button>
-                        <button
-                            type="object"
-                            class="oe_stat_button"
-                            id="arrive_smart_button"
-                            icon="fa-street-view"
-                            name="action_to_arrive"
-                        >
-                            <div class="o_form_field o_stat_info">
-                                <span class="o_stat_value">
-                                    <field
-                                        name="count_rooms_pending_arrival"
-                                        nolabel="1"
-                                    />
-                                </span>
-                                <span class="o_stat_text">To arrive Rooms</span>
                             </div>
                         </button>
                         <button
@@ -117,9 +117,29 @@
                             name="folio_multi_changes"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-calculator"
+                            icon="fa-magic"
                         >
-                            <span class="o_stat_text">Change Prices</span>
+                            <span class="o_stat_text">Change in Group</span>
+                        </button>
+                        <button
+                            type="action"
+                            class="oe_stat_button"
+                            name="%(action_wizard_folio)d"
+                            icon="fa-users"
+                            context="{'default_folio_id': id, 'default_partner_id': partner_id, 'default_pricelist_id': pricelist_id}"
+                        >
+                            <span class="o_stat_text">New Booking Group</span>
+                        </button>
+                        <button
+                            name="preview_folio"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-globe icon"
+                        >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Customer</span>
+                                <span class="o_stat_text">Preview</span>
+                            </div>
                         </button>
                     </div>
                     <widget
@@ -238,7 +258,6 @@
                         <field name="currency_id" invisible="1" />
                         <!--<field name="refund_amount" invisible="1" />-->
                         <field name="invoices_paid" invisible="1" />
-                        <field name="number_of_rooms" invisible="1" />
                     </group>
                     <notebook colspan="4" col="1">
                         <page string="Sale Lines">
@@ -351,7 +370,8 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Reservation Rooms">
+                        <!-- REVIEW: its necesary? -->
+                        <page string="Reservation Rooms" invisible="1">
                             <field
                                 name="reservation_ids"
                                 colspan="4"
@@ -360,7 +380,8 @@
                                 context="{'reservation_ids':reservation_ids,'folio_id': id,'tree_view_ref':'pms.pms_reservation_view_bottom_tree', 'form_view_ref':'pms.pms_reservation_view_form'}"
                             />
                         </page>
-                        <page string="Services">
+                        <!-- REVIEW: its necesary? -->
+                        <page string="Services" invisible="1">
                             <separator string="Service Lines" colspan="4" />
                             <field
                                 name="service_ids"
@@ -372,6 +393,7 @@
                         <page name="persons" string="Rooming">
                             <field
                                 name="checkin_partner_ids"
+                                options="{'no_create': True, 'no_delete': True}"
                                 context="{
                                     'default_folio_id': id,
                                     'folio_id': id,
@@ -433,24 +455,69 @@
         <field name="arch" type="xml">
             <tree
                 string="Folio"
+                create="false"
+                class="o_sale_order"
                 decoration-info="state == 'draft'"
                 decoration-muted="state == 'cancel'"
                 default_order="create_date desc"
             >
-                <field name="state" />
                 <field name="name" />
                 <field name="partner_id" select="1" />
                 <field name="date_order" select="1" />
+                <field name="user_id" widget="many2one_avatar_user" optional="show" />
+                <field name="reservation_ids" widget="many2many_tags" optional="show" />
                 <field
-                    name="create_uid"
+                    name="amount_total"
+                    sum="Total amount"
+                    widget="monetary"
+                    decoration-bf="1"
                     optional="show"
-                    widget="many2one_avatar_user"
                 />
-                <field name="reservation_ids" widget="many2many_tags" />
-                <field name="amount_total" sum="Total amount" />
-                <field name="pending_amount" sum="Total debt" />
-                <field name="invoice_status" />
-                <field name="pms_property_id" invisible="0" />
+                <field
+                    name="pending_amount"
+                    sum="Total debt"
+                    widget="monetary"
+                    decoration-bf="1"
+                    optional="show"
+                />
+                <field
+                    name="state"
+                    decoration-success="state == 'done'"
+                    decoration-info="state == 'confirm'"
+                    decoration-primary="state == 'sent'"
+                    decoration-danger="state == 'cancel'"
+                    decoration-bf="state == 'draft'"
+                    widget="badge"
+                    optional="show"
+                />
+                <field
+                    name="invoice_status"
+                    widget="badge"
+                    decoration-success="invoice_status == 'invoiced'"
+                    decoration-info="invoice_status == 'to invoice'"
+                    optional="show"
+                />
+                <field
+                    name="payment_state"
+                    decoration-success="payment_state == 'paid'"
+                    decoration-danger="payment_state == 'not_paid' and state in ['cancelled','onboard','done','no_show','no_checkout']"
+                    decoration-info="payment_state == 'not_paid' and state in ['draft','confirm',]"
+                    decoration-warning="payment_state == 'partial'"
+                    widget="badge"
+                    optional="show"
+                />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="show"
+                    readonly="1"
+                />
+                <field
+                    name="pms_property_id"
+                    groups="base.group_multi_company"
+                    optional="show"
+                    readonly="1"
+                />
             </tree>
         </field>
     </record>
