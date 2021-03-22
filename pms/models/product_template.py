@@ -12,12 +12,11 @@ class ProductTemplate(models.Model):
         string="Properties",
         help="Properties with access to the element;"
         " if not set, all properties can access",
+        required=False,
         comodel_name="pms.property",
         relation="product_template_pms_property_rel",
         column1="product_tmpl_id",
         column2="pms_property_id",
-        required=False,
-        ondelete="restrict",
     )
     per_day = fields.Boolean(
         string="Unit increment per day", help="Indicates it is a unit increment per day"
@@ -37,12 +36,7 @@ class ProductTemplate(models.Model):
     )
     is_extra_bed = fields.Boolean(
         string="Is extra bed",
-        help="Indicates if that product is a extra bed",
-        default=False,
-    )
-    is_show_in_calendar = fields.Boolean(
-        string="Show in Calendar",
-        help="Specifies if the product is shown in the calendar information.",
+        help="Indicates if that product is a extra bed, add +1 capacity in the room",
         default=False,
     )
 

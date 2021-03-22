@@ -9,11 +9,11 @@ class ResUsers(models.Model):
     _inherit = "res.users"
 
     pms_property_id = fields.Many2one(
-        string="Property",
+        string="Default Property",
         help="The property this user is currently working for",
         comodel_name="pms.property",
-        context={"user_preference": True},
         domain="[('id','in',pms_property_ids)]",
+        context={"user_preference": True},
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
@@ -24,7 +24,6 @@ class ResUsers(models.Model):
         column2="pms_property_id",
         domain="[('company_id','in',company_ids)]",
     )
-    # company_id = fields.Many2one(domain="[('id','in',company_ids)]")
 
     @api.model
     def get_active_property_ids(self):

@@ -27,7 +27,6 @@ class PmsUbication(models.Model):
         relation="pms_ubication_pms_property_rel",
         column1="ubication_type_id",
         column2="pms_property_id",
-        ondelete="restrict",
     )
     pms_room_ids = fields.One2many(
         string="Rooms",

@@ -36,26 +36,27 @@ class ResPartner(models.Model):
         string="Sale Channel",
         help="The sale channel of the partner",
         comodel_name="pms.sale.channel",
-        ondelete="restrict",
         domain=[("channel_type", "=", "indirect")],
+        ondelete="restrict",
     )
     default_commission = fields.Integer(string="Commission", help="Default commission")
-    is_apply_pricelist = fields.Boolean(
-        string="Apply Pricelist", help="Inidicates if apply a pricelist"
+    apply_pricelist = fields.Boolean(
+        string="Apply Pricelist", help="Indicates if agency pricelist is applied to his reservations"
     )
-    is_invoice_agency = fields.Boolean(
+    invoice_to_agency = fields.Boolean(
         string="Invoice Agency",
-        help="If the partner is an agency indicates if it want a invoice",
+        help="If the partner is an agency indicates if it wants an invoice",
     )
 
     def _compute_reservations_count(self):
+        #TODO: recuperar las reservas de los folios del partner
         pms_reservation_obj = self.env["pms.reservation"]
         for record in self:
             record.reservations_count = pms_reservation_obj.search_count(
                 [
                     (
                         "partner_id.id",
-                        "=",
+                        "child_of",
                         record.id if isinstance(record.id, int) else False,
                     )
                 ]
