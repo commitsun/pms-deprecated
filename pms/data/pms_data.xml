@@ -3,8 +3,8 @@
     <data noupdate="1">
         <!-- Basic pms  -->
         <record
-            id="main_pms_room_type_availability_plan"
-            model="pms.room.type.availability.plan"
+            id="main_pms_availability_plan"
+            model="pms.availability.plan"
         >
             <field name="name">Availability Plan</field>
         </record>

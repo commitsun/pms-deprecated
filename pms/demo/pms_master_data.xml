@@ -13,7 +13,7 @@
         </record>
         <!--Availability Plan -->
         <record
-            id="demo_pms_room_type_availability"
+            id="demo_pms_availability"
             model="pms.room.type.availability.plan"
         >
             <field name="name">Availability Plan Demo</field>

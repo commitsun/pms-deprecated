@@ -56,30 +56,40 @@ class PmsReservation(models.Model):
 
     # Fields declaration
     name = fields.Text(
-        "Reservation Id",
+        string="Reservation Id",
+        help="Reservation Name",
         readonly=True,
     )
-    priority = fields.Integer(compute="_compute_priority", store="True", index=True)
+    priority = fields.Integer(
+        string="Priority",
+        help="Priority of a reservation",
+        index=True,
+        store="True",
+        compute="_compute_priority",
+    )
 
     preferred_room_id = fields.Many2one(
-        "pms.room",
         string="Room",
-        ondelete="restrict",
-        domain="[('id', 'in', allowed_room_ids)]",
+        help="Is the room which the model assign with preference",
         copy=False,
+        comodel_name="pms.room",
+        domain="[('id', 'in', allowed_room_ids)]",
+        ondelete="restrict",
         tracking=True,
     )
     allowed_room_ids = fields.Many2many(
-        "pms.room",
         string="Allowed Rooms",
+        help="Field related to pms.room. They are all the rooms that have the field 'active' set to True",
+        comodel_name="pms.room",
         compute="_compute_allowed_room_ids",
     )
     folio_id = fields.Many2one(
-        "pms.folio",
         string="Folio",
-        tracking=True,
-        ondelete="restrict",
+        help="The folio where the reservations are included",
         copy=False,
+        comodel_name="pms.folio",
+        ondelete="restrict",
+        tracking=True,
         check_company=True,
     )
     sale_line_ids = fields.One2many(
@@ -89,68 +99,84 @@ class PmsReservation(models.Model):
         copy=False,
     )
     board_service_room_id = fields.Many2one(
-        "pms.board.service.room.type",
         string="Board Service",
-        compute="_compute_board_service_room_id",
-        store=True,
+        help="",
         readonly=False,
-        tracking=True,
+        store=True,
+        comodel_name="pms.board.service.room.type",
         domain="["
-        "'|',"
-        "('pms_property_ids', 'in', pms_property_id),"
-        "('pms_property_ids', '=', False)]",
+               "'|',"
+               "('pms_property_ids', 'in', pms_property_id),"
+               "('pms_property_ids', '=', False)]",
+        compute="_compute_board_service_room_id",
+        tracking=True,
     )
     room_type_id = fields.Many2one(
-        "pms.room.type",
         string="Room Type",
-        tracking=True,
-        # required=True,
-        compute="_compute_room_type_id",
-        store=True,
+        help="",
         readonly=False,
         copy=False,
+        store=True,
+        compute="_compute_room_type_id",
+        comodel_name="pms.room.type",
         domain="['|',"
         "('pms_property_ids', 'in', pms_property_id),"
         "('pms_property_ids', '=', False)]",
+        tracking=True,
     )
     partner_id = fields.Many2one(
-        "res.partner",
-        tracking=True,
+        string= "Customer",
+        help="",
+        readonly=False,
+        store=True,
+        comodel_name="res.partner",
         ondelete="restrict",
         compute="_compute_partner_id",
-        store=True,
-        readonly=False,
+        tracking=True,
     )
     agency_id = fields.Many2one(
-        related="folio_id.agency_id",
+        string="Agency",
+        help="",
         readonly=False,
         store=True,
+        related="folio_id.agency_id",
         tracking=True,
     )
     channel_type_id = fields.Many2one(
-        related="folio_id.channel_type_id",
-        store=True,
+        string="Channel Type",
+        help="",
         readonly=False,
+        store=True,
+        related="folio_id.channel_type_id",
         tracking=True,
     )
     partner_invoice_id = fields.Many2one(
-        "res.partner",
+        string="",
         help="Invoice address for current reservation.",
-        compute="_compute_partner_invoice_id",
-        store=True,
         readonly=False,
+        store=True,
+        comodel_name="res.partner",
+        compute="_compute_partner_invoice_id",
     )
     closure_reason_id = fields.Many2one(
+        string="",
+        help="",
         related="folio_id.closure_reason_id",
         domain="['|',"
         "(pms_property_id, 'in', 'pms_property_ids'),"
         "('pms_property_ids', '=', False)]",
     )
     company_id = fields.Many2one(
-        related="folio_id.company_id", string="Company", store=True, readonly=True
+        string="Company",
+        help="",
+        readonly=True,
+        store=True,
+        related="folio_id.company_id",
     )
     pms_property_id = fields.Many2one(
-        "pms.property",
+        string="",
+        help="",
+        comodel_name="pms.property",
         related="folio_id.pms_property_id",
         store=True,
         readonly=False,

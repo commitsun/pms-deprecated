@@ -15,32 +15,24 @@ class PmsReservationLine(models.Model):
     _description = "Reservations by day"
     _order = "date"
 
-    # Default Methods ang Gets
-
-    def name_get(self):
-        result = []
-        for res in self:
-            date = fields.Date.from_string(res.date)
-            name = u"{}/{}".format(date.day, date.month)
-            result.append((res.id, name))
-        return result
-
-    # Fields declaration
     reservation_id = fields.Many2one(
-        "pms.reservation",
         string="Reservation",
-        ondelete="cascade",
+        help="It is the reservation in a reservation lines. Field that related the model with pms.reservation",
         required=True,
         copy=False,
+        comodel_name="pms.reservation",
+        ondelete="cascade",
     )
     room_id = fields.Many2one(
-        "pms.room",
         string="Room",
+        help="The room of a reservation. It is a field that relates pms.room to the model",
+        readonly=False,
+        store=True,
+        comodel_name="pms.room",
         ondelete="restrict",
         compute="_compute_room_id",
-        store=True,
-        readonly=False,
     )
+
     sale_line_ids = fields.Many2many(
         "folio.sale.line",
         "reservation_line_sale_line_rel",
@@ -51,48 +43,66 @@ class PmsReservationLine(models.Model):
         copy=False,
     )
     pms_property_id = fields.Many2one(
-        "pms.property",
-        store=True,
+        string="Property",
+        help="Property with access to the element;"
+             " if not set, all properties can access",
         readonly=True,
+        store=True,
+        comodel_name="pms.property",
         related="reservation_id.pms_property_id",
     )
-    date = fields.Date("Date")
-    state = fields.Selection(related="reservation_id.state")
+    date = fields.Date(
+        string="Date",
+        help="The date of the reservation in reservation line",
+    )
+    state = fields.Selection(
+        string="State",
+        help="State of the reservation line.  It is a related field to reservation_id.state",
+        related="reservation_id.state"
+    )
     price = fields.Float(
         string="Price",
+        help="The price in a reservation line",
+        store=True,
         digits=("Product Price"),
         compute="_compute_price",
-        store=True,
-        readonly=False,
     )
     cancel_discount = fields.Float(
         string="Cancelation Discount (%)",
-        digits=("Discount"),
-        default=0.0,
-        compute="_compute_cancel_discount",
-        store=True,
+        help="",
         readonly=False,
+        default=0.0,
+        store=True,
+        digits=("Discount"),
+        compute="_compute_cancel_discount",
     )
     avail_id = fields.Many2one(
         string="Availability Day",
+        help="",
+        store=True,
         comodel_name="pms.room.type.availability",
         ondelete="restrict",
         compute="_compute_avail_id",
-        store=True,
     )
 
-    discount = fields.Float(string="Discount (%)", digits=("Discount"), default=0.0)
+    discount = fields.Float(
+        string="Discount (%)",
+        help="",
+        default=0.0,
+        digits=("Discount"),
+    )
     occupies_availability = fields.Boolean(
         string="Occupies",
-        compute="_compute_occupies_availability",
-        store=True,
         help="This record is taken into account to calculate availability",
+        store=True,
+        compute="_compute_occupies_availability",
     )
     impacts_quota = fields.Integer(
         string="Impacts quota",
-        compute="_compute_impact_quota",
-        store=True,
+        help="",
         readonly=False,
+        store=True,
+        compute="_compute_impact_quota",
     )
 
     _sql_constraints = [
@@ -104,7 +114,14 @@ class PmsReservationLine(models.Model):
         ),
     ]
 
-    # Compute and Search methods
+    def name_get(self):
+        result = []
+        for res in self:
+            date = fields.Date.from_string(res.date)
+            name = u"{}/{}".format(date.day, date.month)
+            result.append((res.id, name))
+        return result
+
     @api.depends("reservation_id.room_type_id", "reservation_id.preferred_room_id")
     def _compute_room_id(self):
         for line in self.filtered("reservation_id.room_type_id").sorted(
@@ -412,6 +429,20 @@ class PmsReservationLine(models.Model):
                     )
                     cancel_lines.day_qty = 0
 
+    @api.constrains("room_id")
+    def _check_adults(self):
+        for record in self.filtered("room_id"):
+            extra_bed = record.reservation_id.service_ids.filtered(
+                lambda r: r.product_id.is_extra_bed is True
+            )
+            if (
+                record.reservation_id.adults + record.reservation_id.children_occupying
+                > record.room_id.get_capacity(len(extra_bed))
+            ):
+                raise ValidationError(_("Persons can't be higher than room capacity"))
+            # if record.reservation_id.adults == 0:
+            #    raise ValidationError(_("Reservation has no adults"))
+
     def _get_display_price(self, product):
         if self.reservation_id.pricelist_id.discount_policy == "with_discount":
             return product.with_context(
@@ -441,16 +472,3 @@ class PmsReservationLine(models.Model):
         # negative discounts (= surcharge) are included in the display price
         return max(base_price, final_price)
 
-    @api.constrains("room_id")
-    def _check_adults(self):
-        for record in self.filtered("room_id"):
-            extra_bed = record.reservation_id.service_ids.filtered(
-                lambda r: r.product_id.is_extra_bed is True
-            )
-            if (
-                record.reservation_id.adults + record.reservation_id.children_occupying
-                > record.room_id.get_capacity(len(extra_bed))
-            ):
-                raise ValidationError(_("Persons can't be higher than room capacity"))
-            # if record.reservation_id.adults == 0:
-            #    raise ValidationError(_("Reservation has no adults"))

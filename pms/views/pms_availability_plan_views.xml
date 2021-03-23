@@ -78,7 +78,7 @@
     <!-- Action of reservation availability plan-->
     <record model="ir.actions.act_window" id="room_type_availability_action">
         <field name="name">Reservation Availability Plans</field>
-        <field name="res_model">pms.room.type.availability.plan</field>
+        <field name="res_model">pms.availability.plan</field>
         <field name="view_mode">tree,form</field>
     </record>
     <!-- MENUS -->

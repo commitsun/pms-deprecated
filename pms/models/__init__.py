@@ -23,8 +23,8 @@ from . import product_template
 from . import product_product
 from . import res_company
 from . import account_payment
-from . import pms_room_type_availability_plan
-from . import pms_room_type_availability_rule
+from . import pms_availability_plan
+from . import pms_availability_rule
 from . import pms_reservation_line
 from . import pms_checkin_partner
 from . import product_pricelist
@@ -45,4 +45,4 @@ from . import folio_sale_line
 from . import account_bank_statement_line
 from . import account_bank_statement
 from . import account_journal
-from . import pms_room_type_availability
+from . import pms_availability
