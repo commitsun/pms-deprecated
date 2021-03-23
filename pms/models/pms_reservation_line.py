@@ -17,7 +17,8 @@ class PmsReservationLine(models.Model):
 
     reservation_id = fields.Many2one(
         string="Reservation",
-        help="It is the reservation in a reservation lines. Field that related the model with pms.reservation",
+        help="It is the reservation in a reservation lines."
+        " Field that related the model with pms.reservation",
         required=True,
         copy=False,
         comodel_name="pms.reservation",
@@ -25,7 +26,8 @@ class PmsReservationLine(models.Model):
     )
     room_id = fields.Many2one(
         string="Room",
-        help="The room of a reservation. It is a field that relates pms.room to the model",
+        help="The room of a reservation. "
+        "It is a field that relates pms.room to the model",
         readonly=False,
         store=True,
         compute="_compute_room_id",
@@ -34,18 +36,18 @@ class PmsReservationLine(models.Model):
     )
 
     sale_line_ids = fields.Many2many(
-        "folio.sale.line",
-        "reservation_line_sale_line_rel",
-        "reservation_line_id",
-        "sale_line_id",
         string="Sales Lines",
         readonly=True,
         copy=False,
+        comodel_name="folio.sale.line",
+        relation="reservation_line_sale_line_rel",
+        column1="reservation_line_id",
+        column2="sale_line_id",
     )
     pms_property_id = fields.Many2one(
         string="Property",
         help="Property with access to the element;"
-             " if not set, all properties can access",
+        " if not set, all properties can access",
         readonly=True,
         store=True,
         comodel_name="pms.property",
@@ -57,8 +59,9 @@ class PmsReservationLine(models.Model):
     )
     state = fields.Selection(
         string="State",
-        help="State of the reservation line.  It is a related field to reservation_id.state",
-        related="reservation_id.state"
+        help="State of the reservation line.  "
+        "It is a related field to reservation_id.state",
+        related="reservation_id.state",
     )
     price = fields.Float(
         string="Price",
@@ -162,9 +165,7 @@ class PmsReservationLine(models.Model):
                 # select room_id regardless room_type_id selected on reservation
                 free_room_select = True if reservation.preferred_room_id else False
                 # we get the rooms available for the entire stay
-                rooms_available = self.env[
-                    "pms.availability.plan"
-                ].rooms_available(
+                rooms_available = self.env["pms.availability.plan"].rooms_available(
                     checkin=line.reservation_id.checkin,
                     checkout=line.reservation_id.checkout,
                     room_type_id=reservation.room_type_id.id
@@ -196,9 +197,7 @@ class PmsReservationLine(models.Model):
                     else:
                         line.room_id = rooms_available[0]
                 # check that the reservation cannot be allocated even by dividing it
-                elif not self.env[
-                    "pms.availability.plan"
-                ].splitted_availability(
+                elif not self.env["pms.availability.plan"].splitted_availability(
                     checkin=line.reservation_id.checkin,
                     checkout=line.reservation_id.checkout,
                     room_type_id=line.reservation_id.room_type_id.id,
@@ -295,9 +294,7 @@ class PmsReservationLine(models.Model):
     def _compute_impact_quota(self):
         for line in self:
             reservation = line.reservation_id
-            line.impacts_quota = self.env[
-                "pms.availability.plan"
-            ].update_quota(
+            line.impacts_quota = self.env["pms.availability.plan"].update_quota(
                 pricelist_id=reservation.pricelist_id,
                 room_type_id=reservation.room_type_id,
                 date=line.date,

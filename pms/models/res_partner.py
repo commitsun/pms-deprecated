@@ -41,7 +41,8 @@ class ResPartner(models.Model):
     )
     default_commission = fields.Integer(string="Commission", help="Default commission")
     apply_pricelist = fields.Boolean(
-        string="Apply Pricelist", help="Indicates if agency pricelist is applied to his reservations"
+        string="Apply Pricelist",
+        help="Indicates if agency pricelist is applied to his reservations",
     )
     invoice_to_agency = fields.Boolean(
         string="Invoice Agency",
@@ -49,7 +50,7 @@ class ResPartner(models.Model):
     )
 
     def _compute_reservations_count(self):
-        #TODO: recuperar las reservas de los folios del partner
+        # TODO: recuperar las reservas de los folios del partner
         pms_reservation_obj = self.env["pms.reservation"]
         for record in self:
             record.reservations_count = pms_reservation_obj.search_count(

@@ -5,9 +5,9 @@ from odoo.tests import common
 class TestPmsResUser(common.SavepointCase):
     def create_common_scenario(self):
         # create a room type availability
-        self.room_type_availability = self.env[
-            "pms.availability.plan"
-        ].create({"name": "Availability plan 1"})
+        self.room_type_availability = self.env["pms.availability.plan"].create(
+            {"name": "Availability plan 1"}
+        )
 
         # create a company and properties
         self.company_A = self.env["res.company"].create(

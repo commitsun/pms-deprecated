@@ -18,9 +18,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         self.test_pricelist.flush()
 
         # AVAILABILITY PLAN CREATION
-        self.test_availability_plan = self.env[
-            "pms.availability.plan"
-        ].create(
+        self.test_availability_plan = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist.id])],

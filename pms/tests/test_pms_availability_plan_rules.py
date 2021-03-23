@@ -22,9 +22,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         # pms.availability.plan
-        self.test_room_type_availability1 = self.env[
-            "pms.availability.plan"
-        ].create(
+        self.test_room_type_availability1 = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
@@ -181,9 +179,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "checkin_sequence_id": self.checkin_sequence.id,
             }
         )
-        self.availability_multiproperty = self.env[
-            "pms.availability.plan"
-        ].create(
+        self.availability_multiproperty = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
@@ -731,9 +727,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         for p in properties:
             with self.subTest(k=p):
                 # ACT
-                rooms_avail = self.env[
-                    "pms.availability.plan"
-                ].rooms_available(
+                rooms_avail = self.env["pms.availability.plan"].rooms_available(
                     checkin=fields.date.today(),
                     checkout=(
                         fields.datetime.today() + datetime.timedelta(days=2)

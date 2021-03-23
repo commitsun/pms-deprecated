@@ -8,79 +8,91 @@ class PmsAvailabilityPlanRule(models.Model):
     _name = "pms.availability.plan.rule"
     _description = "Reservation rule by day"
 
-    # Field Declarations
-
     availability_plan_id = fields.Many2one(
-        comodel_name="pms.availability.plan",
         string="Availability Plan",
-        ondelete="cascade",
+        help="The availability plan that include the Availabilty Rule",
         index=True,
+        comodel_name="pms.availability.plan",
+        ondelete="cascade",
     )
     room_type_id = fields.Many2one(
-        comodel_name="pms.room.type",
         string="Room Type",
+        help="Room type for which availability rule is applied",
         required=True,
+        comodel_name="pms.room.type",
         ondelete="cascade",
     )
-    date = fields.Date(string="Date")
+    date = fields.Date(
+        string="Date",
+        help="Date for which availability rule applies",
+    )
 
     min_stay = fields.Integer(
         string="Min. Stay",
+        help="Minimum stay",
         default=0,
     )
     min_stay_arrival = fields.Integer(
         string="Min. Stay Arrival",
+        help="Minimum stay if checkin is today",
         default=0,
     )
     max_stay = fields.Integer(
         string="Max. Stay",
+        help="Maximum stay",
         default=0,
     )
     max_stay_arrival = fields.Integer(
         string="Max. Stay Arrival",
+        help="Maximum stay if checkin is today",
         default=0,
     )
     closed = fields.Boolean(
         string="Closed",
+        help="Indicate if property is closed or not",
         default=False,
     )
     closed_departure = fields.Boolean(
         string="Closed Departure",
+        help="",
         default=False,
     )
     closed_arrival = fields.Boolean(
         string="Closed Arrival",
+        help="",
         default=False,
     )
     quota = fields.Integer(
         string="Quota",
-        store=True,
-        readonly=False,
-        compute="_compute_quota",
         help="Generic Quota assigned.",
+        readonly=False,
+        store=True,
+        compute="_compute_quota",
     )
     max_avail = fields.Integer(
         string="Max. Availability",
-        store=True,
+        help="Maximum simultaneous availability on own Booking Engine",
         readonly=False,
+        store=True,
         compute="_compute_max_avail",
-        help="Maximum simultaneous availability on own Booking Engine.",
     )
     pms_property_id = fields.Many2one(
-        comodel_name="pms.property",
         string="Property",
+        help="Properties with access to the element",
         ondelete="restrict",
         required=True,
+        comodel_name="pms.property",
     )
     allowed_property_ids = fields.Many2many(
-        "pms.property",
-        "allowed_availability_move_rel",
-        "availability_plan_rule_id",
-        "property_id",
         string="Allowed Properties",
+        help="Allowed properties for user",
         store=True,
         readonly=True,
         compute="_compute_allowed_property_ids",
+        comodel_name="pms.property",
+        relation="allowed_availability_move_rel",
+        column1="availability_plan_rule_id",
+        column2="property_id",
     )
     avail_id = fields.Many2one(
         string="Avail record",
@@ -91,6 +103,7 @@ class PmsAvailabilityPlanRule(models.Model):
         ondelete="restrict",
     )
     real_avail = fields.Integer(
+        string="Real availability",
         related="avail_id.real_avail",
         store="True",
     )

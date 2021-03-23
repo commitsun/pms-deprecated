@@ -44,7 +44,8 @@ class PmsReservation(models.Model):
     )
     allowed_room_ids = fields.Many2many(
         string="Allowed Rooms",
-        help="Field related to pms.room. They are all the rooms that have the field 'active' set to True",
+        help="Field related to pms.room. "
+        "They are all the rooms that have the field 'active' set to True",
         compute="_compute_allowed_room_ids",
         comodel_name="pms.room",
     )
@@ -71,9 +72,9 @@ class PmsReservation(models.Model):
         compute="_compute_board_service_room_id",
         comodel_name="pms.board.service.room.type",
         domain="["
-               "'|',"
-               "('pms_property_ids', 'in', pms_property_id),"
-               "('pms_property_ids', '=', False)]",
+        "'|',"
+        "('pms_property_ids', 'in', pms_property_id),"
+        "('pms_property_ids', '=', False)]",
         tracking=True,
     )
     room_type_id = fields.Many2one(
@@ -110,7 +111,7 @@ class PmsReservation(models.Model):
     channel_type_id = fields.Many2one(
         string="Channel Type",
         help="Sales Channel through which the reservation was managed,"
-             " in the case of not being an agency",
+        " in the case of not being an agency",
         readonly=False,
         store=True,
         related="folio_id.channel_type_id",
@@ -118,7 +119,8 @@ class PmsReservation(models.Model):
     )
     partner_invoice_id = fields.Many2one(
         string="Partner Invoice",
-        help="Invoice address for current reservation, to whom the invoice will be issued",
+        help="Invoice address for current reservation, "
+        "to whom the invoice will be issued",
         readonly=False,
         store=True,
         comodel_name="res.partner",
@@ -150,7 +152,7 @@ class PmsReservation(models.Model):
     reservation_line_ids = fields.One2many(
         string="Reservation Lines",
         help="They are the lines of the reservation into a reservation,"
-             "they corresponds to the nights",
+        "they corresponds to the nights",
         readonly=False,
         copy=False,
         store=True,
@@ -160,151 +162,194 @@ class PmsReservation(models.Model):
     )
     service_ids = fields.One2many(
         string="Services",
-        help="",
+        help="Included services in the reservation",
+        readonly=False,
+        store=True,
         compute="_compute_service_ids",
         comodel_name="pms.service",
         inverse_name="reservation_id",
-        store=True,
-        readonly=False,
-        check_company=True,
         domain="['|',"
         "('pms_property_id', '=', pms_property_id),"
         "('pms_property_id', '=', False)]",
+        check_company=True,
     )
     pricelist_id = fields.Many2one(
-        "product.pricelist",
         string="Pricelist",
-        ondelete="restrict",
-        compute="_compute_pricelist_id",
-        store=True,
+        help="Pricelist that guides the prices of the reservation",
         readonly=False,
-        tracking=True,
+        store=True,
+        compute="_compute_pricelist_id",
+        comodel_name="product.pricelist",
         domain="['|',"
         "('pms_property_ids', 'in', pms_property_id),"
         "('pms_property_ids', '=', False)]",
+        ondelete="restrict",
+        tracking=True,
     )
     user_id = fields.Many2one(
-        related="folio_id.user_id",
-        depends=["folio_id.user_id"],
-        default=lambda self: self.env.user.id,
+        string="Salesperson",
+        help="User who makes the reservation",
         readonly=False,
         store=True,
+        related = "folio_id.user_id",
+        depends = ["folio_id.user_id"],
+        default = lambda self: self.env.user.id,
     )
     show_update_pricelist = fields.Boolean(
         string="Has Pricelist Changed",
         help="Technical Field, True if the pricelist was changed;\n"
         " this will then display a recomputation button",
-        compute="_compute_show_update_pricelist",
         store=True,
+        compute="_compute_show_update_pricelist",
     )
     commission_percent = fields.Float(
         string="Commission percent (%)",
-        compute="_compute_commission_percent",
-        store=True,
+        help="Percentage corresponding to commission",
         readonly=False,
+        store=True,
+        compute="_compute_commission_percent",
         tracking=True,
     )
     commission_amount = fields.Float(
         string="Commission amount",
-        compute="_compute_commission_amount",
+        help="Amount corresponding to commission",
         store=True,
+        compute="_compute_commission_amount",
     )
     # TODO: Warning Mens to update pricelist
     checkin_partner_ids = fields.One2many(
-        "pms.checkin.partner",
-        "reservation_id",
-        compute="_compute_checkin_partner_ids",
-        store=True,
+        string="Checkin Partners",
+        help="Guests who will occupy the room",
         readonly=False,
         copy=False,
+        store=True,
+        compute="_compute_checkin_partner_ids",
+        comodel_name="pms.checkin.partner",
+        inverse_name="reservation_id",
     )
     count_pending_arrival = fields.Integer(
-        "Pending Arrival",
-        compute="_compute_count_pending_arrival",
+        string="Pending Arrival",
+        help="Number of guest with pending checkin",
         store=True,
+        compute="_compute_count_pending_arrival",
     )
     checkins_ratio = fields.Integer(
         string="Pending Arrival Ratio",
+        help="Proportion of guest pending checkin",
         compute="_compute_checkins_ratio",
     )
     pending_checkin_data = fields.Integer(
-        "Checkin Data",
-        compute="_compute_pending_checkin_data",
+        string="Checkin Data",
+        help="Data missing at checkin",
         store=True,
+        compute="_compute_pending_checkin_data",
     )
     ratio_checkin_data = fields.Integer(
         string="Pending Checkin Data",
+        help="Proportion of guest data pending at checkin",
         compute="_compute_ratio_checkin_data",
     )
-    ready_for_checkin = fields.Boolean(compute="_compute_ready_for_checkin")
+    ready_for_checkin = fields.Boolean(
+        string="Ready for checkin",
+        help="Indicates the reservations with guest data enought to checkin",
+        compute="_compute_ready_for_checkin",
+    )
     left_for_checkin = fields.Boolean(
-        compute="_compute_left_for_checkin", search="_search_left_for_checkin"
+        string="Left for checkin",
+        help="Technical field, Indicates if there is a guest missing to chekin",
+        compute="_compute_left_for_checkin",
+        search="_search_left_for_checkin",
     )
 
     left_for_checkout = fields.Boolean(
-        compute="_compute_left_for_checkout", search="_search_left_for_checkout"
+        string="Left for checkout",
+        help="Technical field, Indicates in there is a guest missing to checkout",
+        compute="_compute_left_for_checkout",
+        search="_search_left_for_checkout",
     )
 
     left_for_cancel = fields.Boolean(
-        compute="_compute_left_for_cancel", search="_search_left_for_cancel"
+        string="Left for cancel",
+        help="Technical field",
+        compute="_compute_left_for_cancel",
+        search="_search_left_for_cancel",
     )
 
     checkin_today = fields.Boolean(
-        compute="_compute_checkin_today", search="_search_checkin_today"
+        string="Checkin Today",
+        help="Technical field, indicates if the reservation enters the property today",
+        compute="_compute_checkin_today",
+        search="_search_checkin_today",
     )
     departure_today = fields.Boolean(
-        compute="_compute_departure_today", search="_search_departure_today"
+        string="Departure Today",
+        help="Technical Field, indicates if the reservation departure is today",
+        compute="_compute_departure_today",
+        search="_search_departure_today",
     )
     segmentation_ids = fields.Many2many(
-        "res.partner.category",
         string="Segmentation",
-        ondelete="restrict",
+        help="",
         default=lambda self: self._get_default_segmentation(),
+        comodel_name="res.partner.category",
+        ondelete="restrict",
     )
     currency_id = fields.Many2one(
+        string="Currency",
+        hepl="The currency used in relation to the pricelist",
+        readonly=True,
+        store=True,
         related="pricelist_id.currency_id",
         depends=["pricelist_id"],
-        store=True,
-        readonly=True,
     )
     tax_ids = fields.Many2many(
-        "account.tax",
         string="Taxes",
-        compute="_compute_tax_ids",
+        help="Taxes applied in the reservation",
         readonly="False",
         store=True,
-        ondelete="restrict",
+        compute="_compute_tax_ids",
+        comodel_name="account.tax",
         domain=["|", ("active", "=", False), ("active", "=", True)],
     )
     localizator = fields.Char(
         string="Localizator",
-        compute="_compute_localizator",
+        help="",
         store=True,
+        compute="_compute_localizator",
     )
     adults = fields.Integer(
-        "Adults",
-        tracking=True,
-        help="List of adults there in guest list. ",
-        compute="_compute_adults",
-        store=True,
+        string="Adults",
+        help="List of adults there in guest list",
         readonly=False,
+        store=True,
+        compute="_compute_adults",
+        tracking=True,
     )
     children_occupying = fields.Integer(
         string="Children occupying",
+        help="Number of children there in guest list whose presence counts",
     )
     children = fields.Integer(
-        "Children",
+        string="Children",
+        help="Number total of children there in guest list,"
+        "whose presence counts or not",
         readonly=False,
         tracking=True,
-        help="Number of children there in guest list.",
     )
     to_assign = fields.Boolean(
         string="To Assign",
-        tracking=True,
+        help="Technical field",
         default=True,
+        tracking=True,
     )
     state = fields.Selection(
-        [
+        string="Status",
+        help="State in which a reservation can be found",
+        readonly=True,
+        index=True,
+        default=lambda *a: "draft",
+        copy=False,
+        selection=[
             ("draft", "Pre-reservation"),
             ("confirm", "Pending arrival"),
             ("onboard", "On Board"),
@@ -313,150 +358,210 @@ class PmsReservation(models.Model):
             ("no_show", "No Show"),
             ("no_checkout", "No Checkout"),
         ],
-        string="Status",
-        default=lambda *a: "draft",
-        copy=False,
-        index=True,
         tracking=True,
-        readonly=True,
     )
     reservation_type = fields.Selection(
-        related="folio_id.reservation_type", default=lambda *a: "normal"
+        string="Reservation Type",
+        help="Type of reservations. It can be 'normal', 'staff' or 'out of service",
+        default=lambda *a: "normal",
+        related="folio_id.reservation_type",
     )
     splitted = fields.Boolean(
-        "Splitted",
-        compute="_compute_splitted",
+        string="Splitted",
+        help="Field that indicates if the reservation is split. "
+        "A reservation is split when guests don't sleep in the same room every night",
         store=True,
+        compute="_compute_splitted",
     )
     rooms = fields.Char(
         string="Room/s",
-        compute="_compute_rooms",
+        help="Rooms that are reserved",
         store=True,
+        compute="_compute_rooms",
         tracking=True,
     )
-    credit_card_details = fields.Text(related="folio_id.credit_card_details")
+    credit_card_details = fields.Text(
+        string="Credit Card Details", help="", related="folio_id.credit_card_details"
+    )
     cancelled_reason = fields.Selection(
-        [("late", "Late"), ("intime", "In time"), ("noshow", "No Show")],
-        string="Cause of cancelled",
-        tracking=True,
+        string="Cause of cancellation",
+        help="Field indicating the cause of cancellation. "
+        "It can be 'late', 'intime' or 'noshow'",
         copy=False,
+        selection=[("late", "Late"), ("intime", "In time"), ("noshow", "No Show")],
+        tracking=True,
     )
-    out_service_description = fields.Text("Cause of out of service")
+    out_service_description = fields.Text(
+        string="Cause of out of service",
+        help="Indicates the cause of out of service",
+    )
     checkin = fields.Date(
-        "Check In",
+        string="Check In",
+        help="It is the checkin date of the reservation, "
+        "which is collected from the folio"
+        " and if it does not exist in it, it is set to today",
         required=True,
         default=lambda self: self._get_default_checkin,
         copy=False,
         tracking=True,
     )
     checkout = fields.Date(
-        "Check Out",
+        string="Check Out",
+        help="It is the checkout date of the reservation, "
+        "which is collected from the folio"
+        "and if it does not exist in it, it is set to one day after today",
         required=True,
         default=lambda self: self._get_default_checkout,
         copy=False,
         tracking=True,
     )
     arrival_hour = fields.Char(
-        "Arrival Hour",
-        compute="_compute_arrival_hour",
+        string="Arrival Hour",
+        help="Arrival Hour (HH:MM)",
         readonly=False,
         store=True,
-        help="Arrival Hour (HH:MM)",
+        compute="_compute_arrival_hour",
     )
     departure_hour = fields.Char(
-        "Departure Hour",
-        compute="_compute_departure_hour",
+        string="Departure Hour",
+        help="Departure Hour (HH:MM)",
         readonly=False,
         store=True,
-        help="Departure Hour (HH:MM)",
+        compute="_compute_departure_hour",
     )
     checkin_datetime = fields.Datetime(
-        "Exact Arrival",
+        string="Exact Arrival",
+        help="This field is the day and time of arrival of the reservation."
+        "It is formed with the checkin and arrival_hour fields",
         compute="_compute_checkin_datetime",
     )
     checkout_datetime = fields.Datetime(
-        "Exact Departure",
+        string="Exact Departure",
+        help="This field is the day and time of departure of the reservation."
+        "It is formed with the checkin and arrival_hour fields",
         compute="_compute_checkout_datetime",
     )
     checkin_partner_count = fields.Integer(
-        "Checkin counter", compute="_compute_checkin_partner_count"
+        string="Checkin counter",
+        help="Number of checkin partners in a reservation",
+        compute="_compute_checkin_partner_count",
     )
     checkin_partner_pending_count = fields.Integer(
-        "Checkin Pending Num",
+        string="Checkin Pending Num",
+        help="Number of checkin partners pending to enter",
         compute="_compute_checkin_partner_count",
         search="_search_checkin_partner_pending",
     )
     overbooking = fields.Boolean(
-        "Is Overbooking",
+        string="Is Overbooking",
+        help="Indicate if exists overbooking",
         default=False,
         copy=False,
     )
     reselling = fields.Boolean(
-        "Is Reselling",
+        string="Is Reselling",
+        help="Indicates if the reservation is a reselling",
         default=False,
         copy=False,
     )
-    nights = fields.Integer("Nights", compute="_compute_nights", store=True)
-    origin = fields.Char("Origin", compute="_compute_origin", store=True)
+    nights = fields.Integer(
+        string="Nights",
+        help="Number of nights of a reservation",
+        compute="_compute_nights",
+        store=True,
+    )
+    origin = fields.Char(string="Origin", compute="_compute_origin", store=True)
     detail_origin = fields.Char(
-        "Detail Origin", compute="_compute_detail_origin", store=True
+        string="Detail Origin", compute="_compute_detail_origin", store=True
     )
     folio_pending_amount = fields.Monetary(
+        string="Pending Amount",
+        help="The amount that remains to be paid from folio",
         related="folio_id.pending_amount",
         tracking=True,
     )
     folio_payment_state = fields.Selection(
-        related="folio_id.payment_state",
         string="Payment State",
+        help="The status of the folio payment",
         store=True,
+        related="folio_id.payment_state",
         tracking=True,
     )
-    shared_folio = fields.Boolean(compute="_compute_shared")
-    # Used to notify is the reservation folio has other reservations/services
-    email = fields.Char("E-mail", related="partner_id.email")
-    mobile = fields.Char("Mobile", related="partner_id.mobile")
-    phone = fields.Char("Phone", related="partner_id.phone")
+    shared_folio = fields.Boolean(
+        string="Shared Folio",
+        help="Used to notify is the reservation folio has other reservations/services",
+        compute="_compute_shared_folio",
+    )
+    email = fields.Char(
+        string="E-mail",
+        help="E-mail of the checkin partner associated to the reservation",
+        related="partner_id.email",
+    )
+    mobile = fields.Char(
+        string="Mobile",
+        help="Mobile of the checkin partner associated to the reservation",
+        related="partner_id.mobile",
+    )
+    phone = fields.Char(
+        string="Phone",
+        help="Phone of the checkin partner associated to the reservation",
+        related="partner_id.phone",
+    )
     partner_internal_comment = fields.Text(
         string="Internal Partner Notes", related="partner_id.comment"
     )
 
-    requests = fields.Text(string="Partner Requests")
+    requests = fields.Text(
+        string="Partner Requests",
+        help="Guest reequests",
+    )
 
     folio_internal_comment = fields.Text(
         string="Internal Folio Notes",
+        help="Internal comment for folio",
         related="folio_id.internal_comment",
     )
-    preconfirm = fields.Boolean("Auto confirm to Save", default=True)
+    preconfirm = fields.Boolean(
+        string="Auto confirm to Save",
+        help="Technical field that indicates the reservation was not comfirm yet",
+        default=True,
+    )
     invoice_status = fields.Selection(
-        [
+        string="Invoice Status",
+        compute="_compute_invoice_status",
+        store=True,
+        readonly=True,
+        selection=[
             ("upselling", "Upselling Opportunity"),
             ("invoiced", "Fully Invoiced"),
             ("to invoice", "To Invoice"),
             ("no", "Nothing to Invoice"),
         ],
-        string="Invoice Status",
-        compute="_compute_invoice_status",
-        store=True,
-        readonly=True,
         default="no",
     )
     analytic_tag_ids = fields.Many2many(
-        "account.analytic.tag",
         string="Analytic Tags",
+        comodel_name="account.analytic.tag",
+        relation="pms_reservation_account_analytic_tag",
+        column1="reservation_id",
+        column2="account_analytic_tag_id",
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
     )
     analytic_line_ids = fields.One2many(
-        "account.analytic.line", "so_line", string="Analytic lines"
+        string="Analytic lines",
+        comodel_name="account.analytic.line",
+        inverse_name="so_line",
     )
     price_subtotal = fields.Monetary(
         string="Subtotal",
+        help="Subtotal price without taxes",
         readonly=True,
         store=True,
         compute="_compute_amount_reservation",
     )
     price_total = fields.Monetary(
         string="Total",
-        help="",
+        help="Total price without taxes",
         readonly=True,
         store=True,
         compute="_compute_amount_reservation",
@@ -474,7 +579,7 @@ class PmsReservation(models.Model):
         help="Total price from services of a reservation",
         readonly=True,
         store=True,
-        compute="compute_price_services",
+        compute="_compute_price_services",
     )
     price_room_services_set = fields.Monetary(
         string="Room Services Total",
@@ -591,9 +696,7 @@ class PmsReservation(models.Model):
                         [("active", "=", True)]
                     )
                     return
-                rooms_available = self.env[
-                    "pms.availability.plan"
-                ].rooms_available(
+                rooms_available = self.env["pms.availability.plan"].rooms_available(
                     checkin=reservation.checkin,
                     checkout=reservation.checkout,
                     room_type_id=False,  # Allow chosen any available room
@@ -981,7 +1084,7 @@ class PmsReservation(models.Model):
             record.localizator = fields.date.today()
 
     @api.depends("service_ids.price_total")
-    def compute_price_services(self):
+    def _compute_price_services(self):
         for record in self:
             record.price_services = sum(record.mapped("service_ids.price_total"))
 
