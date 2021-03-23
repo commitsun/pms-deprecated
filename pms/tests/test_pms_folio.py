@@ -137,7 +137,7 @@ class TestPmsFolio(common.SavepointCase):
             {
                 "name": "partner1",
                 "is_agency": True,
-                "is_invoice_agency": True,
+                "invoice_to_agency": True,
                 "default_commission": 15,
                 "sale_channel_id": saleChannel.id,
             }

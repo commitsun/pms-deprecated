@@ -500,7 +500,7 @@ class PmsFolio(models.Model):
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):
         for folio in self:
-            if folio.agency_id and folio.agency_id.is_apply_pricelist:
+            if folio.agency_id and folio.agency_id.apply_pricelist:
                 folio.pricelist_id = folio.agency_id.property_product_pricelist.id
             elif folio.partner_id and folio.partner_id.property_product_pricelist:
                 folio.pricelist_id = folio.partner_id.property_product_pricelist.id
@@ -510,7 +510,7 @@ class PmsFolio(models.Model):
     @api.depends("agency_id")
     def _compute_partner_id(self):
         for folio in self:
-            if folio.agency_id and folio.agency_id.is_invoice_agency:
+            if folio.agency_id and folio.agency_id.invoice_to_agency:
                 folio.partner_id = folio.agency_id.id
             elif not folio.partner_id:
                 folio.partner_id = False
