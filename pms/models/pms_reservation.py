@@ -832,7 +832,7 @@ class PmsReservation(models.Model):
                 True
                 if (
                     record.state in ["onboard", "no_checkout"]
-                    and record.checkout >= fields.Date.today()
+                    and record.checkout <= fields.Date.today()
                 )
                 else False
             )

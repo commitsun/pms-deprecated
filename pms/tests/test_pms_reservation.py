@@ -816,7 +816,8 @@ class TestPmsReservations(TestHotel):
         checkin.flush()
 
         # ACT
-        r1.action_reservation_checkout()
+        with freeze_time("1981-11-02"):
+            r1.action_reservation_checkout()
 
         # ASSERT
         self.assertEqual(
