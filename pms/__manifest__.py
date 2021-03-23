@@ -45,7 +45,6 @@
         "views/pms_cancelation_rule_views.xml",
         "views/pms_checkin_partner_views.xml",
         "views/pms_ubication_views.xml",
-        "views/pms_folio_views.xml",
         "views/pms_property_views.xml",
         "views/pms_reservation_views.xml",
         "views/pms_service_views.xml",

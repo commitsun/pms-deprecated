@@ -28,9 +28,9 @@ class PmsReservationLine(models.Model):
         help="The room of a reservation. It is a field that relates pms.room to the model",
         readonly=False,
         store=True,
+        compute="_compute_room_id",
         comodel_name="pms.room",
         ondelete="restrict",
-        compute="_compute_room_id",
     )
 
     sale_line_ids = fields.Many2many(
@@ -121,6 +121,35 @@ class PmsReservationLine(models.Model):
             name = u"{}/{}".format(date.day, date.month)
             result.append((res.id, name))
         return result
+
+    def _get_display_price(self, product):
+        if self.reservation_id.pricelist_id.discount_policy == "with_discount":
+            return product.with_context(
+                pricelist=self.reservation_id.pricelist_id.id
+            ).price
+        product_context = dict(
+            self.env.context,
+            partner_id=self.reservation_id.partner_id.id,
+            date=self.date,
+            uom=product.uom_id.id,
+        )
+        final_price, rule_id = self.reservation_id.pricelist_id.with_context(
+            product_context
+        ).get_product_price_rule(product, 1.0, self.reservation_id.partner_id)
+        base_price, currency = self.with_context(
+            product_context
+        )._get_real_price_currency(
+            product, rule_id, 1, product.uom_id, self.reservation_id.pricelist_id.id
+        )
+        if currency != self.reservation_id.pricelist_id.currency_id:
+            base_price = currency._convert(
+                base_price,
+                self.reservation_id.pricelist_id.currency_id,
+                self.reservation_id.company_id or self.env.company,
+                fields.Date.today(),
+            )
+        # negative discounts (= surcharge) are included in the display price
+        return max(base_price, final_price)
 
     @api.depends("reservation_id.room_type_id", "reservation_id.preferred_room_id")
     def _compute_room_id(self):
@@ -442,33 +471,3 @@ class PmsReservationLine(models.Model):
                 raise ValidationError(_("Persons can't be higher than room capacity"))
             # if record.reservation_id.adults == 0:
             #    raise ValidationError(_("Reservation has no adults"))
-
-    def _get_display_price(self, product):
-        if self.reservation_id.pricelist_id.discount_policy == "with_discount":
-            return product.with_context(
-                pricelist=self.reservation_id.pricelist_id.id
-            ).price
-        product_context = dict(
-            self.env.context,
-            partner_id=self.reservation_id.partner_id.id,
-            date=self.date,
-            uom=product.uom_id.id,
-        )
-        final_price, rule_id = self.reservation_id.pricelist_id.with_context(
-            product_context
-        ).get_product_price_rule(product, 1.0, self.reservation_id.partner_id)
-        base_price, currency = self.with_context(
-            product_context
-        )._get_real_price_currency(
-            product, rule_id, 1, product.uom_id, self.reservation_id.pricelist_id.id
-        )
-        if currency != self.reservation_id.pricelist_id.currency_id:
-            base_price = currency._convert(
-                base_price,
-                self.reservation_id.pricelist_id.currency_id,
-                self.reservation_id.company_id or self.env.company,
-                fields.Date.today(),
-            )
-        # negative discounts (= surcharge) are included in the display price
-        return max(base_price, final_price)
-
