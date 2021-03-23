@@ -151,3 +151,57 @@ class PmsProperty(models.Model):
             ]
         )
         return payment_methods
+
+    @api.model
+    def create(self, vals):
+        name = vals.get("name")
+        if "folio_sequence_id" not in vals:
+            folio_sequence = self.env["ir.sequence"].create(
+                {
+                    "name": ("PMS Folio %s", name),
+                    "code": "pms.folio",
+                    "prefix": "F/%(y)s",
+                    "suffix": "%(sec)",
+                    "padding": 4,
+                    "company_id": self.company_id.id
+                }
+            )
+            vals.update(
+                {
+                    "folio_sequence_id": folio_sequence.id
+                }
+            )
+        if "reservation_sequence_id" not in vals:
+            reservation_sequence = self.env["ir.sequence"].create(
+                {
+                    "name": ("PMS Reservation %s", name),
+                    "code": "pms.reservation",
+                    "prefix": "R/%(y)s",
+                    "suffix": "%(sec)",
+                    "padding": 4,
+                    "company_id": self.company_id.id,
+                }
+            )
+            vals.update(
+                {
+                    "reservation_sequence_id": reservation_sequence.id
+                }
+            )
+        if "checkin_sequence_id" not in vals:
+            checkin_sequence = self.env["ir.sequence"].create(
+                {
+                    "name": ("PMS Checkin %s", name),
+                    "code": "pms.checkin.partner",
+                    "prefix": "C/%(y)s",
+                    "suffix": "%(sec)",
+                    "padding": 4,
+                    "company_id": self.company_id.id,
+                }
+            )
+            vals.update(
+                {
+                    "checkin_sequence_id": checkin_sequence.id
+                }
+            )
+        record = super(PmsProperty, self).create(vals)
+        return record
