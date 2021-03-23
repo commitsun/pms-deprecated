@@ -35,7 +35,7 @@ class TestPmsFolioInvoice(common.SavepointCase):
             }
         )
         self.room_type_availability = self.env[
-            "pms.room.type.availability.plan"
+            "pms.availability.plan"
         ].create({"name": "Availability plan for TEST"})
         # create a property
         self.property = self.env["pms.property"].create(

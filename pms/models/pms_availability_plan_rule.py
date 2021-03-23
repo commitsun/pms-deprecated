@@ -4,14 +4,14 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class PmsRoomTypeAvailabilityRule(models.Model):
-    _name = "pms.room.type.availability.rule"
+class PmsAvailabilityPlanRule(models.Model):
+    _name = "pms.availability.plan.rule"
     _description = "Reservation rule by day"
 
     # Field Declarations
 
     availability_plan_id = fields.Many2one(
-        comodel_name="pms.room.type.availability.plan",
+        comodel_name="pms.availability.plan",
         string="Availability Plan",
         ondelete="cascade",
         index=True,
@@ -75,7 +75,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     allowed_property_ids = fields.Many2many(
         "pms.property",
         "allowed_availability_move_rel",
-        "availability_rule_id",
+        "availability_plan_rule_id",
         "property_id",
         string="Allowed Properties",
         store=True,
@@ -84,7 +84,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     )
     avail_id = fields.Many2one(
         string="Avail record",
-        comodel_name="pms.room.type.availability",
+        comodel_name="pms.availability",
         compute="_compute_avail_id",
         store=True,
         readonly=False,
@@ -112,7 +112,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
     def _compute_avail_id(self):
         for record in self:
             if record.room_type_id and record.pms_property_id and record.date:
-                avail = self.env["pms.room.type.availability"].search(
+                avail = self.env["pms.availability"].search(
                     [
                         ("date", "=", record.date),
                         ("room_type_id", "=", record.room_type_id.id),
@@ -122,7 +122,7 @@ class PmsRoomTypeAvailabilityRule(models.Model):
                 if avail:
                     record.avail_id = avail.id
                 else:
-                    record.avail_id = self.env["pms.room.type.availability"].create(
+                    record.avail_id = self.env["pms.availability"].create(
                         {
                             "date": record.date,
                             "room_type_id": record.room_type_id.id,

@@ -7,11 +7,11 @@ from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 
 
-class PmsRoomTypeAvailability(models.Model):
+class PmsAvailabilityPlan(models.Model):
     """The room type availability is used as a daily availability plan for room types
     and therefore is related only with one property."""
 
-    _name = "pms.room.type.availability.plan"
+    _name = "pms.availability.plan"
     _description = "Reservation availability plan"
 
     # Default methods
@@ -35,7 +35,7 @@ class PmsRoomTypeAvailability(models.Model):
     )
 
     rule_ids = fields.One2many(
-        comodel_name="pms.room.type.availability.rule",
+        comodel_name="pms.availability.plan.rule",
         inverse_name="availability_plan_id",
         string="Availability Rules",
     )
@@ -98,7 +98,7 @@ class PmsRoomTypeAvailability(models.Model):
                 domain_rules.append(
                     ("availability_plan_id", "=", pricelist.availability_plan_id.id)
                 )
-                rule_items = self.env["pms.room.type.availability.rule"].search(
+                rule_items = self.env["pms.availability.plan.rule"].search(
                     domain_rules
                 )
 
@@ -122,7 +122,7 @@ class PmsRoomTypeAvailability(models.Model):
         current_lines=False,
         pms_property_id=False,
     ):
-        Avail = self.env["pms.room.type.availability"]
+        Avail = self.env["pms.availability"]
         if isinstance(checkin, str):
             checkin = datetime.datetime.strptime(
                 checkin, DEFAULT_SERVER_DATE_FORMAT
@@ -185,7 +185,7 @@ class PmsRoomTypeAvailability(models.Model):
             domain_rules.append(
                 ("availability_plan_id", "=", pricelist.availability_plan_id.id)
             )
-            rule_items = self.env["pms.room.type.availability.rule"].search(
+            rule_items = self.env["pms.availability.plan.rule"].search(
                 domain_rules
             )
             if len(rule_items) > 0:
@@ -203,7 +203,7 @@ class PmsRoomTypeAvailability(models.Model):
         pms_property_id,
         current_lines=False,
     ):
-        Avail = self.env["pms.room.type.availability"]
+        Avail = self.env["pms.availability"]
         count_free_rooms = len(self.env["pms.room.type"].browse(room_type_id).room_ids)
         if isinstance(checkin, str):
             checkin = datetime.datetime.strptime(
@@ -262,7 +262,7 @@ class PmsRoomTypeAvailability(models.Model):
     @api.model
     def update_quota(self, pricelist_id, room_type_id, date, line):
         if pricelist_id and room_type_id and date:
-            rule = self.env["pms.room.type.availability.rule"].search(
+            rule = self.env["pms.availability.plan.rule"].search(
                 [
                     ("availability_plan_id.pms_pricelist_ids", "=", pricelist_id.id),
                     ("room_type_id", "=", room_type_id.id),
@@ -286,7 +286,7 @@ class PmsRoomTypeAvailability(models.Model):
                         rule.quota -= 1
 
                         # check old rule item
-                        old_rule = self.env["pms.room.type.availability.rule"].search(
+                        old_rule = self.env["pms.availability.plan.rule"].search(
                             [("id", "=", line.impacts_quota)]
                         )
 
@@ -298,7 +298,7 @@ class PmsRoomTypeAvailability(models.Model):
 
         # in any case, check old rule item
         if line.impacts_quota:
-            old_rule = self.env["pms.room.type.availability.rule"].search(
+            old_rule = self.env["pms.availability.plan.rule"].search(
                 [("id", "=", line.impacts_quota)]
             )
             # and restore quota in old rule item

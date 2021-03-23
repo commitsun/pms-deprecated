@@ -151,9 +151,9 @@
                 user.get_active_property_ids())]
             </field>
         </record>
-        <record id="pms_availability_rule_property_rule" model="ir.rule">
+        <record id="pms_availability_plan_rule_property_rule" model="ir.rule">
             <field name="name">PMS Room Type Availability Rule Property Rule</field>
-            <field name="model_id" ref="model_pms_availability_rule" />
+            <field name="model_id" ref="model_pms_availability_plan_rule" />
             <field name="global" eval="True" />
             <field name="domain_force">
                 ['|',('pms_property_id','=',False),('pms_property_id', 'in',

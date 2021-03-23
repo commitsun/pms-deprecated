@@ -186,7 +186,7 @@ class TestPmsPricelist(common.SavepointCase):
 
     def test_availability_plan_property_integrity(self):
         self.create_common_scenario()
-        self.availability_plan = self.env["pms.room.type.availability.plan"].create(
+        self.availability_plan = self.env["pms.availability.plan"].create(
             {"name": "Availability Plan", "pms_property_ids": [self.property1.id]}
         )
         with self.assertRaises(ValidationError):

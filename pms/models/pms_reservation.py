@@ -617,7 +617,7 @@ class PmsReservation(models.Model):
                     )
                     return
                 rooms_available = self.env[
-                    "pms.room.type.availability.plan"
+                    "pms.availability.plan"
                 ].rooms_available(
                     checkin=reservation.checkin,
                     checkout=reservation.checkout,
@@ -1278,7 +1278,7 @@ class PmsReservation(models.Model):
         return self.folio_id.action_pay()
 
     def open_reservation_wizard(self):
-        rooms_available = self.env["pms.room.type.availability.plan"].rooms_available(
+        rooms_available = self.env["pms.availability.plan"].rooms_available(
             checkin=self.checkin,
             checkout=self.checkout,
             current_lines=self.reservation_line_ids.ids,
@@ -1323,7 +1323,7 @@ class PmsReservation(models.Model):
         return result
 
     def copy_data(self, default=None):
-        rooms_available = self.env["pms.room.type.availability.plan"].rooms_available(
+        rooms_available = self.env["pms.availability.plan"].rooms_available(
             self.checkin,
             self.checkout,
             room_type_id=self.room_type_id.id,
@@ -1409,7 +1409,7 @@ class PmsReservation(models.Model):
     def _autoassign(self):
         self.ensure_one()
         room_chosen = False
-        rooms_available = self.env["pms.room.type.availability.plan"].rooms_available(
+        rooms_available = self.env["pms.availability.plan"].rooms_available(
             checkin=self.checkin,
             checkout=self.checkout,
             room_type_id=self.room_type_id.id or False,

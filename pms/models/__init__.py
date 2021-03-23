@@ -24,7 +24,7 @@ from . import product_product
 from . import res_company
 from . import account_payment
 from . import pms_availability_plan
-from . import pms_availability_rule
+from . import pms_availability_plan_rule
 from . import pms_reservation_line
 from . import pms_checkin_partner
 from . import product_pricelist

@@ -14,11 +14,11 @@ class TestPmsPricelistRules(common.SavepointCase):
             {"name": "Category1"}
         )
 
-        self.availability_plan1 = self.env["pms.room.type.availability.plan"].create(
+        self.availability_plan1 = self.env["pms.availability.plan"].create(
             {"name": "Availability 1"}
         )
 
-        self.availability_plan2 = self.env["pms.room.type.availability.plan"].create(
+        self.availability_plan2 = self.env["pms.availability.plan"].create(
             {"name": "Availability"}
         )
         # sequences

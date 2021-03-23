@@ -14,9 +14,9 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
                 "name": "test pricelist 1",
             }
         )
-        # pms.room.type.availability.plan
+        # pms.availability.plan
         self.test_availability_plan = self.env[
-            "pms.room.type.availability.plan"
+            "pms.availability.plan"
         ].create(
             {
                 "name": "Availability plan for TEST",
@@ -267,7 +267,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         self.create_common_scenario()
         date = fields.date.today()
         initial_quota = 20
-        self.env["pms.room.type.availability.rule"].create(
+        self.env["pms.availability.plan.rule"].create(
             {
                 "availability_plan_id": self.test_availability_plan.id,
                 "room_type_id": self.test_room_type_double.id,

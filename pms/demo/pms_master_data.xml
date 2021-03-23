@@ -14,7 +14,7 @@
         <!--Availability Plan -->
         <record
             id="demo_pms_availability"
-            model="pms.room.type.availability.plan"
+            model="pms.availability.plan"
         >
             <field name="name">Availability Plan Demo</field>
         </record>

@@ -6,7 +6,7 @@ class TestPmsResUser(common.SavepointCase):
     def create_common_scenario(self):
         # create a room type availability
         self.room_type_availability = self.env[
-            "pms.room.type.availability.plan"
+            "pms.availability.plan"
         ].create({"name": "Availability plan 1"})
 
         # create a company and properties

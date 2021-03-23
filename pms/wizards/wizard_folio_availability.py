@@ -113,7 +113,7 @@ class AvailabilityWizard(models.TransientModel):
     def _compute_num_rooms_available(self):
         for record in self:
             record.num_rooms_available = self.env[
-                "pms.room.type.availability.plan"
+                "pms.availability.plan"
             ].get_count_rooms_available(
                 record.checkin,
                 record.checkout,

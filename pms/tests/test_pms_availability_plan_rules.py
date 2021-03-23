@@ -21,9 +21,9 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "test pricelist 2",
             }
         )
-        # pms.room.type.availability.plan
+        # pms.availability.plan
         self.test_room_type_availability1 = self.env[
-            "pms.room.type.availability.plan"
+            "pms.availability.plan"
         ].create(
             {
                 "name": "Availability plan for TEST",
@@ -182,7 +182,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         self.availability_multiproperty = self.env[
-            "pms.room.type.availability.plan"
+            "pms.availability.plan"
         ].create(
             {
                 "name": "Availability plan for TEST",
@@ -208,7 +208,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         )
 
         # ACT
-        result = self.env["pms.room.type.availability.plan"].rooms_available(
+        result = self.env["pms.availability.plan"].rooms_available(
             checkin=checkin,
             checkout=checkout,
         )
@@ -242,7 +242,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         )
 
         # ACT
-        result = self.env["pms.room.type.availability.plan"].rooms_available(
+        result = self.env["pms.availability.plan"].rooms_available(
             checkin=checkin,
             checkout=checkout,
             current_lines=test_reservation.reservation_line_ids.ids,
@@ -270,7 +270,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         )
 
         # ACT
-        result = self.env["pms.room.type.availability.plan"].rooms_available(
+        result = self.env["pms.availability.plan"].rooms_available(
             checkin=fields.date.today(),
             checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
             room_type_id=self.test_room_type_double.id,
@@ -294,7 +294,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         # ARRANGE
         self.create_common_scenario()
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
@@ -305,7 +305,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         # ACT
-        result = self.env["pms.room.type.availability.plan"].rooms_available(
+        result = self.env["pms.availability.plan"].rooms_available(
             checkin=fields.date.today(),
             checkout=(fields.datetime.today() + datetime.timedelta(days=4)).date(),
             # room_type_id=False, # <-  (2/2)
@@ -329,7 +329,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         self.create_common_scenario()
 
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
@@ -447,7 +447,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 # ACT
                 self.test_room_type_availability_rule1.write(test_case)
 
-                result = self.env["pms.room.type.availability.plan"].rooms_available(
+                result = self.env["pms.availability.plan"].rooms_available(
                     checkin=checkin,
                     checkout=checkout,
                     room_type_id=self.test_room_type_double.id,
@@ -471,7 +471,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         # ARRANGE
         self.create_common_scenario()
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
@@ -511,7 +511,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         # ARRANGE
         self.create_common_scenario()
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
@@ -577,7 +577,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         self.create_common_scenario()
 
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
@@ -631,7 +631,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 "name": "test pricelist 2",
             }
         )
-        rule = self.env["pms.room.type.availability.rule"].create(
+        rule = self.env["pms.availability.plan.rule"].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
                 "room_type_id": self.test_room_type_double.id,
@@ -699,7 +699,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         self.test_room_type_availability_rule1 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.availability_multiproperty.id,
@@ -710,7 +710,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         self.test_room_type_availability_rule2 = self.env[
-            "pms.room.type.availability.rule"
+            "pms.availability.plan.rule"
         ].create(
             {
                 "availability_plan_id": self.availability_multiproperty.id,
@@ -732,7 +732,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             with self.subTest(k=p):
                 # ACT
                 rooms_avail = self.env[
-                    "pms.room.type.availability.plan"
+                    "pms.availability.plan"
                 ].rooms_available(
                     checkin=fields.date.today(),
                     checkout=(
@@ -766,7 +766,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         # ACT
-        self.availability_example = self.env["pms.room.type.availability.plan"].create(
+        self.availability_example = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
@@ -776,7 +776,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 ],
             }
         )
-        self.availability_rule1 = self.env["pms.room.type.availability.rule"].create(
+        self.availability_rule1 = self.env["pms.availability.plan.rule"].create(
             {
                 "availability_plan_id": self.availability_example.id,
                 "room_type_id": self.test_room_type_special.id,
@@ -831,7 +831,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
         # ACT
-        self.availability_example = self.env["pms.room.type.availability.plan"].create(
+        self.availability_example = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
@@ -841,7 +841,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
                 ],
             }
         )
-        self.availability_rule1 = self.env["pms.room.type.availability.rule"].create(
+        self.availability_rule1 = self.env["pms.availability.plan.rule"].create(
             {
                 "availability_plan_id": self.availability_example.id,
                 "room_type_id": self.test_room_type_special.id,

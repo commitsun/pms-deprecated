@@ -80,7 +80,7 @@ class PmsReservationLine(models.Model):
         string="Availability Day",
         help="",
         store=True,
-        comodel_name="pms.room.type.availability",
+        comodel_name="pms.availability",
         ondelete="restrict",
         compute="_compute_avail_id",
     )
@@ -134,7 +134,7 @@ class PmsReservationLine(models.Model):
                 free_room_select = True if reservation.preferred_room_id else False
                 # we get the rooms available for the entire stay
                 rooms_available = self.env[
-                    "pms.room.type.availability.plan"
+                    "pms.availability.plan"
                 ].rooms_available(
                     checkin=line.reservation_id.checkin,
                     checkout=line.reservation_id.checkout,
@@ -168,7 +168,7 @@ class PmsReservationLine(models.Model):
                         line.room_id = rooms_available[0]
                 # check that the reservation cannot be allocated even by dividing it
                 elif not self.env[
-                    "pms.room.type.availability.plan"
+                    "pms.availability.plan"
                 ].splitted_availability(
                     checkin=line.reservation_id.checkin,
                     checkout=line.reservation_id.checkout,
@@ -267,7 +267,7 @@ class PmsReservationLine(models.Model):
         for line in self:
             reservation = line.reservation_id
             line.impacts_quota = self.env[
-                "pms.room.type.availability.plan"
+                "pms.availability.plan"
             ].update_quota(
                 pricelist_id=reservation.pricelist_id,
                 room_type_id=reservation.room_type_id,
@@ -388,7 +388,7 @@ class PmsReservationLine(models.Model):
                 and record.pms_property_id
                 and record.occupies_availability
             ):
-                avail = self.env["pms.room.type.availability"].search(
+                avail = self.env["pms.availability"].search(
                     [
                         ("date", "=", record.date),
                         ("room_type_id", "=", record.room_id.room_type_id.id),
@@ -398,7 +398,7 @@ class PmsReservationLine(models.Model):
                 if avail:
                     record.avail_id = avail.id
                 else:
-                    record.avail_id = self.env["pms.room.type.availability"].create(
+                    record.avail_id = self.env["pms.availability"].create(
                         {
                             "date": record.date,
                             "room_type_id": record.room_id.room_type_id.id,

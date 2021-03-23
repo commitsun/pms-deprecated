@@ -4,8 +4,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class PmsRoomTypeAvailability(models.Model):
-    _name = "pms.room.type.availability"
+class PmsAvailability(models.Model):
+    _name = "pms.availability"
     _description = "Room type availability per day"
 
     room_type_id = fields.Many2one(

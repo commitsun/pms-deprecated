@@ -37,7 +37,7 @@ class ProductPricelist(models.Model):
     )
 
     availability_plan_id = fields.Many2one(
-        comodel_name="pms.room.type.availability.plan",
+        comodel_name="pms.availability.plan",
         string="Availability Plan",
         ondelete="restrict",
         domain=[
