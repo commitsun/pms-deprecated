@@ -152,23 +152,19 @@ class PmsProperty(models.Model):
     @api.model
     def create(self, vals):
         name = vals.get("name")
-        if "folio_sequence_id" not in vals or vals.get("folio_sequence_id") == False:
+        if "folio_sequence_id" not in vals or not vals.get("folio_sequence_id"):
             folio_sequence = self.env["ir.sequence"].create(
                 {
                     "name": "PMS Folio " + name,
                     "code": "pms.folio",
-                    "prefix": "F/%(y)s",
-                    "suffix": "%(sec)",
                     "padding": 4,
                     "company_id": vals.get("company_id"),
                 }
             )
-            vals.update(
-                {
-                    "folio_sequence_id": folio_sequence.id
-                }
-            )
-        if "reservation_sequence_id" not in vals or vals.get("reservation_sequence_id") == False:
+            vals.update({"folio_sequence_id": folio_sequence.id})
+        if "reservation_sequence_id" not in vals or not vals.get(
+            "reservation_sequence_id"
+        ):
             reservation_sequence = self.env["ir.sequence"].create(
                 {
                     "name": "PMS Reservation " + name,
@@ -179,12 +175,8 @@ class PmsProperty(models.Model):
                     "company_id": vals.get("company_id"),
                 }
             )
-            vals.update(
-                {
-                    "reservation_sequence_id": reservation_sequence.id
-                }
-            )
-        if "checkin_sequence_id" not in vals or vals.get("checkin_sequence_id") == False:
+            vals.update({"reservation_sequence_id": reservation_sequence.id})
+        if "checkin_sequence_id" not in vals or not vals.get("checkin_sequence_id"):
             checkin_sequence = self.env["ir.sequence"].create(
                 {
                     "name": "PMS Checkin " + name,
@@ -192,13 +184,9 @@ class PmsProperty(models.Model):
                     "prefix": "C/%(y)s",
                     "suffix": "%(sec)",
                     "padding": 4,
-                    "company_id": vals.get("company_id")
+                    "company_id": vals.get("company_id"),
                 }
             )
-            vals.update(
-                {
-                    "checkin_sequence_id": checkin_sequence.id
-                }
-            )
+            vals.update({"checkin_sequence_id": checkin_sequence.id})
         record = super(PmsProperty, self).create(vals)
         return record

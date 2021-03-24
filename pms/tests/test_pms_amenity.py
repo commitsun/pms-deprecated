@@ -1,74 +1,31 @@
 from odoo.exceptions import ValidationError
-from odoo.tests import common
+
+from .common import TestPms
 
 
-class TestPmsAmenity(common.SavepointCase):
-    def create_common_scenario(self):
-        # Created a company with three properties
-        # +-----------+-----------------------------------+
-        # | Company | Properties                         |
-        # +-----------+-----------------------------------+
-        # | Company1 | Property1 - Property2 - Property3 |
-        # +-----------+-----------------------------------+
+class TestPmsAmenity(TestPms):
+    def setUp(self):
+        super().setUp()
+        # Create two properties
+        # +-----------+-----------+
+        # |      Properties       |
+        # +-----------+-----------+
+        # | Property2 - Property3 |
+        # +-----------+-----------+
 
-        self.company1 = self.env["res.company"].create(
-            {
-                "name": "Pms_Company_Test",
-            }
-        )
-        self.folio_sequence = self.env["ir.sequence"].create(
-            {
-                "name": "PMS Folio",
-                "code": "pms.folio",
-                "padding": 4,
-                "company_id": self.company1.id,
-            }
-        )
-        self.reservation_sequence = self.env["ir.sequence"].create(
-            {
-                "name": "PMS Reservation",
-                "code": "pms.reservation",
-                "padding": 4,
-                "company_id": self.company1.id,
-            }
-        )
-        self.checkin_sequence = self.env["ir.sequence"].create(
-            {
-                "name": "PMS Checkin",
-                "code": "pms.checkin.partner",
-                "padding": 4,
-                "company_id": self.company1.id,
-            }
-        )
-        self.property1 = self.env["pms.property"].create(
-            {
-                "name": "Pms_property_test1",
-                "company_id": self.company1.id,
-                "default_pricelist_id": self.env.ref("product.list0").id,
-                "folio_sequence_id": self.folio_sequence.id,
-                "reservation_sequence_id": self.reservation_sequence.id,
-                "checkin_sequence_id": self.checkin_sequence.id,
-            }
-        )
-        self.property2 = self.env["pms.property"].create(
+        self.pms_property2 = self.env["pms.property"].create(
             {
                 "name": "Pms_property_test2",
                 "company_id": self.company1.id,
-                "default_pricelist_id": self.env.ref("product.list0").id,
-                "folio_sequence_id": self.folio_sequence.id,
-                "reservation_sequence_id": self.reservation_sequence.id,
-                "checkin_sequence_id": self.checkin_sequence.id,
+                "default_pricelist_id": self.pricelist1.id,
             }
         )
 
-        self.property3 = self.env["pms.property"].create(
+        self.pms_property3 = self.env["pms.property"].create(
             {
                 "name": "Pms_property_test3",
                 "company_id": self.company1.id,
-                "default_pricelist_id": self.env.ref("product.list0").id,
-                "folio_sequence_id": self.folio_sequence.id,
-                "reservation_sequence_id": self.reservation_sequence.id,
-                "checkin_sequence_id": self.checkin_sequence.id,
+                "default_pricelist_id": self.pricelist1.id,
             }
         )
 
@@ -82,15 +39,14 @@ class TestPmsAmenity(common.SavepointCase):
         # +-----------------------------------+-----------------------------------+
 
         # ARRANGE
-        self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
         Amenity = self.env["pms.amenity"]
-        A1 = AmenityType.create(
+        amenity_type1 = AmenityType.create(
             {
                 "name": "TestAmenityType1",
                 "pms_property_ids": [
-                    (4, self.property1.id),
-                    (4, self.property2.id),
+                    (4, self.pms_property1.id),
+                    (4, self.pms_property2.id),
                 ],
             }
         )
@@ -99,12 +55,16 @@ class TestPmsAmenity(common.SavepointCase):
             Amenity.create(
                 {
                     "name": "TestAmenity1",
-                    "pms_amenity_type_id": A1.id,
+                    "pms_amenity_type_id": amenity_type1.id,
                     "pms_property_ids": [
                         (
                             6,
                             0,
-                            [self.property1.id, self.property2.id, self.property3.id],
+                            [
+                                self.pms_property1.id,
+                                self.pms_property2.id,
+                                self.pms_property3.id,
+                            ],
                         )
                     ],
                 }
@@ -120,31 +80,38 @@ class TestPmsAmenity(common.SavepointCase):
         # +----------------------------------------+-----------------------------------+
 
         # ARRANGE
-        self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
         Amenity = self.env["pms.amenity"]
-        A1 = AmenityType.create(
+        amenity_type1 = AmenityType.create(
             {
                 "name": "TestAmenityType1",
                 "pms_property_ids": [
                     (
                         6,
                         0,
-                        [self.property1.id, self.property2.id, self.property3.id],
+                        [
+                            self.pms_property1.id,
+                            self.pms_property2.id,
+                            self.pms_property3.id,
+                        ],
                     )
                 ],
             }
         )
         # ACT
-        TestAmenity = Amenity.create(
+        amenity1 = Amenity.create(
             {
                 "name": "TestAmenity1",
-                "pms_amenity_type_id": A1.id,
+                "pms_amenity_type_id": amenity_type1.id,
                 "pms_property_ids": [
                     (
                         6,
                         0,
-                        [self.property1.id, self.property2.id, self.property3.id],
+                        [
+                            self.pms_property1.id,
+                            self.pms_property2.id,
+                            self.pms_property3.id,
+                        ],
                     )
                 ],
             }
@@ -152,8 +119,8 @@ class TestPmsAmenity(common.SavepointCase):
 
         # ASSERT
         self.assertEqual(
-            TestAmenity.pms_property_ids.ids,
-            A1.pms_property_ids.ids,
+            amenity1.pms_property_ids.ids,
+            amenity_type1.pms_property_ids.ids,
             "Properties not allowed in amenity type",
         )
 
@@ -174,16 +141,15 @@ class TestPmsAmenity(common.SavepointCase):
         # +----------------------------------------+-----------------------------------+
 
         # ARRANGE
-        self.create_common_scenario()
         AmenityType = self.env["pms.amenity.type"]
         Amenity = self.env["pms.amenity"]
-        A1 = AmenityType.create(
+        amenity_type1 = AmenityType.create(
             {
                 "name": "TestAmenityType1",
                 "pms_property_ids": [
-                    (4, self.property1.id),
-                    (4, self.property2.id),
-                    (4, self.property3.id),
+                    (4, self.pms_property1.id),
+                    (4, self.pms_property2.id),
+                    (4, self.pms_property3.id),
                 ],
             }
         )
@@ -191,23 +157,27 @@ class TestPmsAmenity(common.SavepointCase):
         Amenity.create(
             {
                 "name": "TestAmenity1",
-                "pms_amenity_type_id": A1.id,
+                "pms_amenity_type_id": amenity_type1.id,
                 "pms_property_ids": [
                     (
                         6,
                         0,
-                        [self.property1.id, self.property2.id, self.property3.id],
+                        [
+                            self.pms_property1.id,
+                            self.pms_property2.id,
+                            self.pms_property3.id,
+                        ],
                     )
                 ],
             }
         )
         # ASSERT
         with self.assertRaises(ValidationError):
-            A1.pms_property_ids = [
+            amenity_type1.pms_property_ids = [
                 (
                     6,
                     0,
-                    [self.property1.id, self.property2.id],
+                    [self.pms_property1.id, self.pms_property2.id],
                 )
             ]
-            A1.flush()
+            amenity_type1.flush()
