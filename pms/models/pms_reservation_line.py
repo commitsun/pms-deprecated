@@ -325,7 +325,7 @@ class PmsReservationLine(models.Model):
                     partner=partner.id,
                     quantity=1,
                     date=line.reservation_id.date_order,
-                    date_overnight=line.date,
+                    consumption_date=line.date,
                     pricelist=reservation.pricelist_id.id,
                     uom=product.uom_id.id,
                     property=reservation.pms_property_id.id,

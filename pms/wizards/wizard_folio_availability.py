@@ -81,7 +81,7 @@ class AvailabilityWizard(models.TransientModel):
                     partner=partner.id,
                     quantity=1,
                     date=fields.Date.today(),
-                    date_overnight=date_iterator,
+                    consumption_date=date_iterator,
                     pricelist=record.folio_wizard_id.pricelist_id.id,
                     uom=product.uom_id.id,
                     property=record.folio_wizard_id.pms_property_id.id,

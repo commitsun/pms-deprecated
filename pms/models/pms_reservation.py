@@ -1504,7 +1504,7 @@ class PmsReservation(models.Model):
             )
         )
 
-    def _compute_shared(self):
+    def _compute_shared_folio(self):
         # Has this reservation more charges associates in folio?,
         # Yes?, then, this is share folio ;)
         for record in self:

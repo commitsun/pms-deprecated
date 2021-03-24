@@ -11,11 +11,6 @@ _logger = logging.getLogger(__name__)
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    # TODO: help main partner id
-    main_partner_id = fields.Many2one(
-        string="Destination Partner Fusion",
-        comodel_name="res.partner",
-    )
     reservations_count = fields.Integer(
         string="Reservations",
         help="Number of reservations of the partner",
@@ -25,9 +20,6 @@ class ResPartner(models.Model):
         string="Folios",
         help="Number of folios of the partner",
         compute="_compute_folios_count",
-    )
-    is_unconfirmed = fields.Boolean(
-        string="Unconfirmed", help="Indicates if is unconfirmed", default=True
     )
     is_agency = fields.Boolean(
         string="Is Agency", help="Indicates if the partner is an agency"
@@ -46,7 +38,7 @@ class ResPartner(models.Model):
     )
     invoice_to_agency = fields.Boolean(
         string="Invoice Agency",
-        help="If the partner is an agency indicates if it wants an invoice",
+        help="Indicates if agency invoices partner",
     )
 
     def _compute_reservations_count(self):
