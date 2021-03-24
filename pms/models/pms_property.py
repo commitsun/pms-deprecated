@@ -63,16 +63,14 @@ class PmsProperty(models.Model):
         string="Folio Sequence",
         help="Field used to change the position of the folio in tree view."
         "Changing the position changes the sequence",
-        required=True,
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",
     )
     reservation_sequence_id = fields.Many2one(
-        string="Folio Sequence",
+        string="Reservation Sequence",
         help="Field used to change the position of the reservation in tree view."
         "Changing the position changes the sequence",
-        required=True,
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",
@@ -81,7 +79,6 @@ class PmsProperty(models.Model):
         string="Checkin Sequence",
         help="Field used to change the position of the checkin in tree view."
         "Changing the position changes the sequence",
-        required=True,
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",
@@ -155,15 +152,15 @@ class PmsProperty(models.Model):
     @api.model
     def create(self, vals):
         name = vals.get("name")
-        if "folio_sequence_id" not in vals:
+        if "folio_sequence_id" not in vals or vals.get("folio_sequence_id") == False:
             folio_sequence = self.env["ir.sequence"].create(
                 {
-                    "name": ("PMS Folio %s", name),
+                    "name": "PMS Folio " + name,
                     "code": "pms.folio",
                     "prefix": "F/%(y)s",
                     "suffix": "%(sec)",
                     "padding": 4,
-                    "company_id": self.company_id.id
+                    "company_id": vals.get("company_id"),
                 }
             )
             vals.update(
@@ -171,15 +168,15 @@ class PmsProperty(models.Model):
                     "folio_sequence_id": folio_sequence.id
                 }
             )
-        if "reservation_sequence_id" not in vals:
+        if "reservation_sequence_id" not in vals or vals.get("reservation_sequence_id") == False:
             reservation_sequence = self.env["ir.sequence"].create(
                 {
-                    "name": ("PMS Reservation %s", name),
+                    "name": "PMS Reservation " + name,
                     "code": "pms.reservation",
                     "prefix": "R/%(y)s",
                     "suffix": "%(sec)",
                     "padding": 4,
-                    "company_id": self.company_id.id,
+                    "company_id": vals.get("company_id"),
                 }
             )
             vals.update(
@@ -187,15 +184,15 @@ class PmsProperty(models.Model):
                     "reservation_sequence_id": reservation_sequence.id
                 }
             )
-        if "checkin_sequence_id" not in vals:
+        if "checkin_sequence_id" not in vals or vals.get("checkin_sequence_id") == False:
             checkin_sequence = self.env["ir.sequence"].create(
                 {
-                    "name": ("PMS Checkin %s", name),
+                    "name": "PMS Checkin " + name,
                     "code": "pms.checkin.partner",
                     "prefix": "C/%(y)s",
                     "suffix": "%(sec)",
                     "padding": 4,
-                    "company_id": self.company_id.id,
+                    "company_id": vals.get("company_id")
                 }
             )
             vals.update(

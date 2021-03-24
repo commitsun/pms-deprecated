@@ -401,7 +401,7 @@ class PmsReservation(models.Model):
         "which is collected from the folio"
         " and if it does not exist in it, it is set to today",
         required=True,
-        default=lambda self: self._get_default_checkin,
+        default=lambda self: self._get_default_checkin(),
         copy=False,
         tracking=True,
     )
@@ -411,7 +411,7 @@ class PmsReservation(models.Model):
         "which is collected from the folio"
         "and if it does not exist in it, it is set to one day after today",
         required=True,
-        default=lambda self: self._get_default_checkout,
+        default=lambda self: self._get_default_checkout(),
         copy=False,
         tracking=True,
     )
