@@ -145,6 +145,7 @@ class PmsReservation(models.Model):
         string="Pms Property",
         help="Property to which the reservation belongs",
         store=True,
+        readonly=False,
         default=lambda self: self.env.user.get_active_property_ids()[0],
         related="folio_id.pms_property_id",
         comodel_name="pms.property",
@@ -1482,7 +1483,7 @@ class PmsReservation(models.Model):
                 else vals["pms_property_id"]
             )
             pms_property = self.env["pms.property"].browse(pms_property_id)
-            vals["name"] = pms_property.folio_sequence_id._next_do()
+            vals["name"] = pms_property.reservation_sequence_id._next_do()
         record = super(PmsReservation, self).create(vals)
         if record.preconfirm:
             record.confirm()

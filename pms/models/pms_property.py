@@ -157,6 +157,8 @@ class PmsProperty(models.Model):
                 {
                     "name": "PMS Folio " + name,
                     "code": "pms.folio",
+                    "prefix": "F/%(y)s",
+                    "suffix": "%(sec)s",
                     "padding": 4,
                     "company_id": vals.get("company_id"),
                 }
@@ -170,7 +172,7 @@ class PmsProperty(models.Model):
                     "name": "PMS Reservation " + name,
                     "code": "pms.reservation",
                     "prefix": "R/%(y)s",
-                    "suffix": "%(sec)",
+                    "suffix": "%(sec)s",
                     "padding": 4,
                     "company_id": vals.get("company_id"),
                 }
@@ -182,7 +184,7 @@ class PmsProperty(models.Model):
                     "name": "PMS Checkin " + name,
                     "code": "pms.checkin.partner",
                     "prefix": "C/%(y)s",
-                    "suffix": "%(sec)",
+                    "suffix": "%(sec)s",
                     "padding": 4,
                     "company_id": vals.get("company_id"),
                 }
