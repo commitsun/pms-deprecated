@@ -17,8 +17,7 @@ class PmsReservationLine(models.Model):
 
     reservation_id = fields.Many2one(
         string="Reservation",
-        help="It is the reservation in a reservation lines."
-        " Field that related the model with pms.reservation",
+        help="It is the reservation in a reservation line",
         required=True,
         copy=False,
         comodel_name="pms.reservation",
@@ -26,8 +25,7 @@ class PmsReservationLine(models.Model):
     )
     room_id = fields.Many2one(
         string="Room",
-        help="The room of a reservation. "
-        "It is a field that relates pms.room to the model",
+        help="The room of a reservation. ",
         readonly=False,
         store=True,
         compute="_compute_room_id",
@@ -59,8 +57,7 @@ class PmsReservationLine(models.Model):
     )
     state = fields.Selection(
         string="State",
-        help="State of the reservation line.  "
-        "It is a related field to reservation_id.state",
+        help="State of the reservation line.",
         related="reservation_id.state",
     )
     price = fields.Float(

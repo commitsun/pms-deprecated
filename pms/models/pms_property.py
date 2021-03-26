@@ -20,7 +20,7 @@ class PmsProperty(models.Model):
 
     partner_id = fields.Many2one(
         string="Property",
-        help="Field that related property to res.partner",
+        help="Current property",
         comodel_name="res.partner",
         required=True,
         ondelete="cascade",
@@ -41,7 +41,7 @@ class PmsProperty(models.Model):
     )
     room_ids = fields.One2many(
         string="Rooms",
-        help="Field related to pms.room. They are rooms that a property has.",
+        help="Rooms that a property has.",
         comodel_name="pms.room",
         inverse_name="pms_property_id",
     )
@@ -61,24 +61,21 @@ class PmsProperty(models.Model):
     )
     folio_sequence_id = fields.Many2one(
         string="Folio Sequence",
-        help="Field used to change the position of the folio in tree view."
-        "Changing the position changes the sequence",
+        help="The sequence that formed the name of the folio.",
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",
     )
     reservation_sequence_id = fields.Many2one(
         string="Reservation Sequence",
-        help="Field used to change the position of the reservation in tree view."
-        "Changing the position changes the sequence",
+        help="The sequence that formed the name of the reservation.",
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",
     )
     checkin_sequence_id = fields.Many2one(
         string="Checkin Sequence",
-        help="Field used to change the position of the checkin in tree view."
-        "Changing the position changes the sequence",
+        help="Field used to create the name of the checkin partner",
         check_company=True,
         copy=False,
         comodel_name="ir.sequence",

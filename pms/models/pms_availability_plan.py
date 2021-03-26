@@ -39,7 +39,7 @@ class PmsAvailabilityPlan(models.Model):
 
     rule_ids = fields.One2many(
         string="Availability Rules",
-        help="The rules in a availability plan",
+        help="Rules in a availability plan",
         comodel_name="pms.availability.plan.rule",
         inverse_name="availability_plan_id",
     )

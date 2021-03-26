@@ -44,8 +44,7 @@ class PmsReservation(models.Model):
     )
     allowed_room_ids = fields.Many2many(
         string="Allowed Rooms",
-        help="Field related to pms.room. "
-        "They are all the rooms that have the field 'active' set to True",
+        help="They are all available rooms for this reservation",
         compute="_compute_allowed_room_ids",
         comodel_name="pms.room",
     )
@@ -128,7 +127,7 @@ class PmsReservation(models.Model):
     )
     closure_reason_id = fields.Many2one(
         string="Closure Reason",
-        help="reason why the reservation cannot be made ",
+        help="Reason why the reservation cannot be made",
         related="folio_id.closure_reason_id",
         domain="['|',"
         "(pms_property_id, 'in', 'pms_property_ids'),"
@@ -345,7 +344,9 @@ class PmsReservation(models.Model):
     )
     state = fields.Selection(
         string="Status",
-        help="State in which a reservation can be found",
+        help="The state of the reservation. "
+        "It can be 'draft', 'confirm', 'onboard', 'done', "
+        "'cancelled', 'no_show' or 'no_checkout'",
         readonly=True,
         index=True,
         default=lambda *a: "draft",
@@ -449,7 +450,7 @@ class PmsReservation(models.Model):
     )
     checkin_partner_pending_count = fields.Integer(
         string="Checkin Pending Num",
-        help="Number of checkin partners pending to enter",
+        help="Number of checkinpartners pending to checkin in a reservation",
         compute="_compute_checkin_partner_count",
         search="_search_checkin_partner_pending",
     )
@@ -509,12 +510,14 @@ class PmsReservation(models.Model):
         related="partner_id.phone",
     )
     partner_internal_comment = fields.Text(
-        string="Internal Partner Notes", related="partner_id.comment"
+        string="Internal Partner Notes",
+        help="Internal reservation comment",
+        related="partner_id.comment",
     )
 
     requests = fields.Text(
         string="Partner Requests",
-        help="Guest reequests",
+        help="Guest requests",
     )
 
     folio_internal_comment = fields.Text(
@@ -524,11 +527,13 @@ class PmsReservation(models.Model):
     )
     preconfirm = fields.Boolean(
         string="Auto confirm to Save",
-        help="Technical field that indicates the reservation was not comfirm yet",
+        help="Technical field that indicates the reservation is not comfirm yet",
         default=True,
     )
     invoice_status = fields.Selection(
         string="Invoice Status",
+        help="The status of the invoices in folio. Can be 'invoiced',"
+        " 'to invoice' or 'no'.",
         compute="_compute_invoice_status",
         store=True,
         readonly=True,

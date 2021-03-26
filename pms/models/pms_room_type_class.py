@@ -45,7 +45,7 @@ class PmsRoomTypeClass(models.Model):
     )
     room_type_ids = fields.One2many(
         string="Types",
-        help="Room types into model. It is a related field to Room type",
+        help="Room Types that belong to this Room Type Class",
         comodel_name="pms.room.type",
         inverse_name="class_id",
     )

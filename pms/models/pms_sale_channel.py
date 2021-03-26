@@ -8,7 +8,9 @@ class PmsSaleChannel(models.Model):
     name = fields.Text(string="Sale Channel Name", help="The name of the sale channel")
     channel_type = fields.Selection(
         string="Sale Channel Type",
-        help="Type of sale channel",
+        help="Type of sale channel; it can be 'direct'(if there is"
+        "no intermediary) or 'indirect'(if there are"
+        "intermediaries between partner and property",
         selection=[("direct", "Direct"), ("indirect", "Indirect")],
     )
     is_on_line = fields.Boolean(

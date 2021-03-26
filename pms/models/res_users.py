@@ -10,7 +10,7 @@ class ResUsers(models.Model):
 
     pms_property_id = fields.Many2one(
         string="Default Property",
-        help="The property this user is currently working for",
+        help="The property that is selected within " "those allowed for the user",
         comodel_name="pms.property",
         domain="[('id','in',pms_property_ids)]",
         context={"user_preference": True},

@@ -25,7 +25,7 @@ class PmsRoomType(models.Model):
     )
     product_id = fields.Many2one(
         string="Product Room Type",
-        help="Field that relates Room Type to Product",
+        help="Product identifier associated with room type",
         comodel_name="product.product",
         required=True,
         delegate=True,
@@ -33,7 +33,7 @@ class PmsRoomType(models.Model):
     )
     room_ids = fields.One2many(
         string="Rooms",
-        help="Rooms related with room type.",
+        help="Rooms that belong to room type.",
         comodel_name="pms.room",
         inverse_name="room_type_id",
         domain="["
@@ -44,7 +44,7 @@ class PmsRoomType(models.Model):
     )
     class_id = fields.Many2one(
         string="Property Type Class",
-        help="The class of a room type",
+        help="Class to which the room type belongs",
         comodel_name="pms.room.type.class",
         required=True,
         domain="["
@@ -55,7 +55,7 @@ class PmsRoomType(models.Model):
     )
     board_service_room_type_ids = fields.One2many(
         string="Board Services",
-        help="The board services that a room can have",
+        help="Board Service included in room type",
         comodel_name="pms.board.service.room.type",
         inverse_name="pms_room_type_id",
         domain="['|', ('pms_property_ids', '=', False), ('pms_property_ids', 'in', "
@@ -63,7 +63,7 @@ class PmsRoomType(models.Model):
     )
     room_amenity_ids = fields.Many2many(
         string="Room Type Amenities",
-        help="List of amenities.",
+        help="List of amenities included in room type",
         comodel_name="pms.amenity",
         relation="pms_room_type_amenity_rel",
         column1="room_type_id",

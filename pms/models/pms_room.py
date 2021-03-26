@@ -69,7 +69,7 @@ class PmsRoom(models.Model):
         ],
     )
     capacity = fields.Integer(
-        string="Capacity", help="The maximum number of people in a room"
+        string="Capacity", help="The maximum number of people that can occupy a room"
     )
     extra_beds_allowed = fields.Integer(
         string="Extra Beds Allowed",

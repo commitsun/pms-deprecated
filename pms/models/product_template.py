@@ -19,11 +19,12 @@ class ProductTemplate(models.Model):
         column2="pms_property_id",
     )
     per_day = fields.Boolean(
-        string="Unit increment per day", help="Indicates it is a unit increment per day"
+        string="Unit increment per day",
+        help="Indicates that the product is sold by days",
     )
     per_person = fields.Boolean(
         string="Unit increment per person",
-        help="Indicates it is a unit increment per person",
+        help="Indicates that the product is sold per person",
     )
     consumed_on = fields.Selection(
         string="Consumed",

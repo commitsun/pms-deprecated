@@ -53,7 +53,9 @@ class PmsSharedRoom(models.Model):
         inverse_name="shared_room_id",
         readonly=True,
     )
-    beds = fields.Integer(string="Beds", help="number of beds in a shared room")
+    beds = fields.Integer(
+        string="Number Of Beds", help="Number of beds in a shared room"
+    )
     description_sale = fields.Text(
         string="Sale Description",
         help="A description of the Product that you want to communicate to "
