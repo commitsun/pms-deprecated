@@ -348,7 +348,6 @@
                                     <field
                                         name="discount"
                                         string="Disc.%"
-                                        groups="product.group_discount_per_so_line"
                                         optional="show"
                                         widget="product_discount"
                                     />

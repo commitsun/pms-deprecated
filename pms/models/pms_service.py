@@ -128,7 +128,6 @@ class PmsService(models.Model):
         ],
         string="Sales Channel",
     )
-    discount = fields.Float(string="Discount (%)", digits=("Discount"), default=0.0)
     qty_to_invoice = fields.Float(
         compute="_compute_get_to_invoice_qty",
         string="To Invoice",
@@ -388,26 +387,21 @@ class PmsService(models.Model):
             else:
                 line.invoice_status = "no"
 
-    @api.depends("product_qty", "discount", "service_line_ids.price_unit", "tax_ids")
+    @api.depends("service_line_ids.price_day_total")
     def _compute_amount_service(self):
         for service in self:
-            amount_service = 0
-            for line in service.service_line_ids:
-                amount_service += line.day_qty * line.price_unit
-            if amount_service > 0:
-                currency = service.currency_id
-                product = service.product_id
-                price = amount_service * (1 - (service.discount or 0.0) * 0.01)
-                # REVIEW: Hack qty = 1 becouse price (based on amount_service)
-                # is total price, not unit price
-                taxes = service.tax_ids.compute_all(price, currency, 1, product=product)
+            if service.service_line_ids:
                 service.update(
                     {
                         "price_tax": sum(
-                            t.get("amount", 0.0) for t in taxes.get("taxes", [])
+                            service.service_line_ids.mapped("price_day_tax")
                         ),
-                        "price_total": taxes["total_included"],
-                        "price_subtotal": taxes["total_excluded"],
+                        "price_total": sum(
+                            service.service_line_ids.mapped("price_day_total")
+                        ),
+                        "price_subtotal": sum(
+                            service.service_line_ids.mapped("price_day_subtotal")
+                        ),
                     }
                 )
             else:
@@ -474,7 +468,8 @@ class PmsService(models.Model):
         """Retrieve the price before applying the pricelist
         :param obj product: object of current product record
         :parem float qty: total quantity of product
-        :param tuple price_and_rule: tuple(price, suitable_rule) coming from pricelist computation
+        :param tuple price_and_rule: tuple(price, suitable_rule)
+            coming from pricelist computation
         :param obj uom: unit of measure of current order line
         :param integer pricelist_id: pricelist id of sales order"""
         PricelistItem = self.env["product.pricelist.item"]

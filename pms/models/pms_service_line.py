@@ -33,17 +33,85 @@ class PmsServiceLine(models.Model):
         "Unit Price",
         digits=("Product Price"),
     )
+    price_day_subtotal = fields.Monetary(
+        string="Subtotal",
+        readonly=True,
+        store=True,
+        compute="_compute_day_amount_service",
+    )
+    price_day_total = fields.Monetary(
+        string="Total", readonly=True, store=True, compute="_compute_day_amount_service"
+    )
+    price_day_tax = fields.Float(
+        string="Taxes Amount",
+        readonly=True,
+        store=True,
+        compute="_compute_day_amount_service",
+    )
+    currency_id = fields.Many2one(
+        related="service_id.currency_id", store=True, string="Currency", readonly=True
+    )
     room_id = fields.Many2one(
         string="Room", related="service_id.reservation_id", readonly=True, store=True
     )
     discount = fields.Float(
-        "Discount", related="service_id.discount", readonly=True, store=True
+        string="Discount (%)",
+        digits=("Discount"),
+        default=0.0,
+        compute="_compute_discount",
+        readonly=False,
+        store=True,
     )
     cancel_discount = fields.Float(
         "Cancelation Discount", compute="_compute_cancel_discount"
     )
 
-    # Depends
+    @api.depends("day_qty", "discount", "price_unit", "tax_ids")
+    def _compute_day_amount_service(self):
+        for line in self:
+            amount_service = line.price_unit
+            if amount_service > 0:
+                currency = line.service_id.currency_id
+                product = line.product_id
+                price = amount_service * (1 - (line.discount or 0.0) * 0.01)
+                # REVIEW: line.day_qty is not the total qty (the total is on service_id)
+                taxes = line.tax_ids.compute_all(
+                    price, currency, line.day_qty, product=product
+                )
+                line.update(
+                    {
+                        "price_day_tax": sum(
+                            t.get("amount", 0.0) for t in taxes.get("taxes", [])
+                        ),
+                        "price_day_total": taxes["total_included"],
+                        "price_day_subtotal": taxes["total_excluded"],
+                    }
+                )
+            else:
+                line.update(
+                    {
+                        "price_day_tax": 0,
+                        "price_day_total": 0,
+                        "price_day_subtotal": 0,
+                    }
+                )
+
+    @api.depends("service_id.reservation_id", "service_id.reservation_id.discount")
+    def _compute_discount(self):
+        """
+        On board service the line discount is always
+        equal to reservation line discount
+        """
+        for record in self:
+            if record.is_board_service:
+                record.discount = (
+                    record.service_id.reservation_id.reservation_line_ids.search(
+                        [("date", "=", record.date)]
+                    ).discount
+                )
+            elif not record.discount:
+                record.discount = 0
+
     # TODO: Refact method and allowed cancelled single days
     @api.depends("service_id.reservation_id.cancelled_reason")
     def _compute_cancel_discount(self):

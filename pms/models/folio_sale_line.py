@@ -109,11 +109,23 @@ class FolioSaleLine(models.Model):
                 else record.reservation_id.tax_ids
             )
 
-    @api.depends("service_id", "service_id.discount")
+    @api.depends(
+        "service_id",
+        "service_id.service_line_ids",
+        "service_id.service_line_ids.discount",
+    )
     def _compute_discount(self):
-        self.discount = 0.0
-        for record in self.filtered("service_id"):
-            record.discount = record.service_id.discount
+        """
+        Only in services without room we compute discount,
+        and this services only have one service line
+        """
+        for record in self:
+            if record.service_id and not record.service_id.reservation_id:
+                record.discount = record.service_id.service_line_ids.mapped("discount")[
+                    0
+                ]
+            elif not record.discount:
+                record.discount = 0
 
     @api.depends("reservation_id.room_type_id", "service_id.product_id")
     def _compute_product_id(self):
@@ -423,6 +435,7 @@ class FolioSaleLine(models.Model):
         string="Discount (%)",
         digits="Discount",
         compute="_compute_discount",
+        readonly=False,
         store=True,
     )
 
@@ -540,7 +553,7 @@ class FolioSaleLine(models.Model):
         help="Technical field for UX purpose.",
     )
 
-    @api.depends("reservation_line_ids", "service_line_ids")
+    @api.depends("reservation_line_ids", "service_line_ids", "service_line_ids.day_qty")
     def _compute_product_uom_qty(self):
         for line in self:
             if line.reservation_line_ids:
