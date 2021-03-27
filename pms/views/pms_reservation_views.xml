@@ -48,7 +48,7 @@
                     class="alert alert-info"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|',('shared_folio','=',False),('splitted', '=', True)]}"
+                    attrs="{'invisible': [('shared_folio','=',False)]}"
                 >
                     This reservation has other reservantions and/or services in the
                     folio, you can check it in the

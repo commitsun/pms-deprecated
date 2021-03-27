@@ -286,8 +286,15 @@
                                     <field name="sequence" widget="handle" />
                                     <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
                                     <field name="display_type" invisible="1" />
+                                    <field name="is_board_service" invisible="1" />
 
                                     <!-- <field name="product_updatable" invisible="1"/> -->
+                                    <button
+                                        class="oe_stat_button"
+                                        icon="fa-1x fa-bed"
+                                        name="open_service_ids"
+                                        attrs="{'invisible':[('is_board_service','=', False)]}"
+                                    />
                                     <field
                                         name="product_id"
                                         options="{'no_open': True}"

@@ -355,6 +355,12 @@ class FolioSaleLine(models.Model):
         index=True,
         copy=False,
     )
+    is_board_service = fields.Boolean(
+        string="Board Service",
+        related="service_id.is_board_service",
+        store=True,
+    )
+
     name = fields.Text(
         string="Description", compute="_compute_name", store=True, readonly=False
     )
