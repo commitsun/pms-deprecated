@@ -190,6 +190,7 @@
                                 attrs="{'invisible':[('state','not in',('cancel'))]}"
                             />
                             <field name="internal_comment" />
+                            <field name="user_id" />
                         </group>
                         <group
                             colspan="2"
@@ -425,7 +426,7 @@
                                 />
                             </group>
                         </page>
-                        <page string="Other data" invisible="1">
+                        <page string="Other data">
                             <group>
                                 <field name="user_id" />
                                 <field name="client_order_ref" />

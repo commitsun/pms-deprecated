@@ -184,7 +184,8 @@ class PmsReservation(models.Model):
     )
     user_id = fields.Many2one(
         related="folio_id.user_id",
-        depends=["folio_id"],
+        depends=["folio_id.user_id"],
+        default=lambda self: self.env.user.id,
         readonly=False,
         store=True,
     )
