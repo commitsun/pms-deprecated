@@ -346,9 +346,7 @@
                             <!-- TODO: How to filter to avoid show False (generic) pricelist board when exist a specific pricelist board¿? -->
                             <field
                                 name="board_service_room_id"
-                                domain="[
-                                    ('pms_room_type_id', '=', room_type_id),
-                                    ('pricelist_id', 'in', [pricelist_id, False])]"
+                                domain="[('pms_room_type_id', '=', room_type_id)]"
                                 options="{'no_create': True,'no_open': True}"
                                 attrs="{'invisible': [('reservation_type','in',('out'))]}"
                             />

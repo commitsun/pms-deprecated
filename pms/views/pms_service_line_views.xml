@@ -69,10 +69,6 @@
                     attrs="{'invisible':[('is_board_service','=', True)]}"
                 />
                 <field
-                    name="discount"
-                    attrs="{'readonly':[('is_board_service','=', True)]}"
-                />
-                <field
                     name="price_day_total"
                     optional="show"
                     attrs="{'invisible':[('is_board_service','=', True)]}"

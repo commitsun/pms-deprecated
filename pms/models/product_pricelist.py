@@ -85,11 +85,11 @@ class ProductPricelist(models.Model):
             and self._context["property"]
             and self._context.get("date_overnight")
         ):
-            board_service_id = self._context.get("board_service")
-            on_board_service_bool = True if board_service_id else False
-            self.env["product.pricelist.item"].flush(
-                ["price", "currency_id", "company_id"]
-            )
+            # board_service_id = self._context.get("board_service")
+            # on_board_service_bool = True if board_service_id else False
+            # self.env["product.pricelist.item"].flush(
+            #     ["price", "currency_id", "company_id"]
+            # )
             self.env.cr.execute(
                 """
                 SELECT item.id

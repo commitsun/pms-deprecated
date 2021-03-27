@@ -65,7 +65,6 @@
                                     <field name="pms_room_type_id" invisible="1" />
                                     <field name="pms_board_service_id" />
                                     <field name="amount" />
-                                    <field name="pricelist_id" />
                                     <button
                                         type="object"
                                         class="oe_stat_button"
