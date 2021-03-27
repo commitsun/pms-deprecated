@@ -53,7 +53,10 @@ class PmsService(models.Model):
         store=True,
     )
     reservation_id = fields.Many2one(
-        "pms.reservation", "Room", default=_default_reservation_id
+        "pms.reservation",
+        "Room",
+        default=_default_reservation_id,
+        ondelete="cascade",
     )
     service_line_ids = fields.One2many(
         "pms.service.line",

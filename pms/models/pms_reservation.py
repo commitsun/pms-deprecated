@@ -715,9 +715,8 @@ class PmsReservation(models.Model):
                     board_services.append((0, False, res))
                 reservation.service_ids -= old_board_lines
                 reservation.service_ids = board_services
-                old_board_lines.sudo().unlink()
             elif old_board_lines:
-                old_board_lines.sudo().unlink()
+                reservation.service_ids -= old_board_lines
 
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):
