@@ -41,12 +41,12 @@ class PmsReservationLine(models.Model):
         store=True,
         readonly=False,
     )
-    move_line_ids = fields.Many2many(
-        "account.move.line",
-        "reservation_line_move_rel",
+    sale_line_ids = fields.Many2many(
+        "folio.sale.line",
+        "reservation_line_sale_line_rel",
         "reservation_line_id",
-        "move_line_id",
-        string="Invoice Lines",
+        "sale_line_id",
+        string="Sales Lines",
         readonly=True,
         copy=False,
     )
@@ -64,11 +64,6 @@ class PmsReservationLine(models.Model):
         compute="_compute_price",
         store=True,
         readonly=False,
-    )
-    invoiced = fields.Boolean(
-        string="Invoiced",
-        compute="_compute_invoiced",
-        store=True,
     )
     cancel_discount = fields.Float(
         string="Cancelation Discount (%)",
@@ -310,18 +305,6 @@ class PmsReservationLine(models.Model):
                 line.occupies_availability = False
             else:
                 line.occupies_availability = True
-
-    @api.depends("move_line_ids", "move_line_ids.move_id.state")
-    def _compute_invoiced(self):
-        for line in self:
-            qty_invoiced = 0
-            for invoice_line in line.move_line_ids:
-                if invoice_line.move_id.state != "cancel":
-                    if invoice_line.move_id.move_type == "out_invoice":
-                        qty_invoiced += 1
-                    elif invoice_line.move_id.move_type == "out_refund":
-                        qty_invoiced -= 1
-            line.invoiced = False if qty_invoiced < 1 else True
 
     # TODO: Refact method and allowed cancelled single days
     @api.depends("reservation_id.cancelled_reason")

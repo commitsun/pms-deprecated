@@ -341,7 +341,6 @@
         <record id="pms_board_service_room_2" model="pms.board.service.room.type">
             <field name="pms_board_service_id" ref="pms_board_service_1" />
             <field name="pms_room_type_id" ref="pms_room_type_0" />
-            <field name="pricelist_id" ref="product.list0" />
         </record>
         <!--Room 3 Triple-->
         <record id="pms_board_service_room_3" model="pms.board.service.room.type">

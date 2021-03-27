@@ -24,6 +24,9 @@ class FolioSaleLine(models.Model):
         for line in self:
             if line.state == "draft":
                 line.invoice_status = "no"
+            # REVIEW: if qty_to_invoice < 0 (invoice qty > sale qty),
+            # why status to_invoice?? this behavior is copied from sale order
+            # https://github.com/OCA/OCB/blob/14.0/addons/sale/models/sale.py#L1160
             elif not float_is_zero(line.qty_to_invoice, precision_digits=precision):
                 line.invoice_status = "to invoice"
             elif (
@@ -725,15 +728,6 @@ class FolioSaleLine(models.Model):
                     + " The quantity pending to invoice is %s" % self.qty_to_invoice
                 )
             )
-        reservation = self.reservation_id
-        service = self.service_id
-        reservation_lines = self.reservation_line_ids.filtered(
-            lambda l: not l.invoiced and l.reservation_id
-        )
-        lines_to_invoice = list()
-        if self.reservation_id:
-            for i in range(0, int(qty)):
-                lines_to_invoice.append(reservation_lines[i].id)
         res = {
             "display_type": self.display_type,
             "sequence": self.sequence,
@@ -747,9 +741,6 @@ class FolioSaleLine(models.Model):
             "analytic_account_id": self.folio_id.analytic_account_id.id,
             "analytic_tag_ids": [(6, 0, self.analytic_tag_ids.ids)],
             "folio_line_ids": [(6, 0, [self.id])],
-            "reservation_ids": [(6, 0, reservation.ids)],
-            "service_ids": [(6, 0, service.ids)],
-            "reservation_line_ids": [(6, 0, lines_to_invoice)],
         }
         if optional_values:
             res.update(optional_values)

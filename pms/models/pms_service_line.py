@@ -105,8 +105,8 @@ class PmsServiceLine(models.Model):
         for record in self:
             if record.is_board_service:
                 record.discount = (
-                    record.service_id.reservation_id.reservation_line_ids.search(
-                        [("date", "=", record.date)]
+                    record.service_id.reservation_id.reservation_line_ids.filtered(
+                        lambda l: l.date == record.date
                     ).discount
                 )
             elif not record.discount:

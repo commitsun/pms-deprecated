@@ -83,13 +83,13 @@ class PmsBoardServiceRoomType(models.Model):
     def init(self):
         self._cr.execute(
             "SELECT indexname FROM pg_indexes WHERE indexname = %s",
-            ("pms_board_service_id_pms_room_type_id_pricelist_id",),
+            ("pms_board_service_id_pms_room_type_id",),
         )
         if not self._cr.fetchone():
             self._cr.execute(
-                "CREATE INDEX pms_board_service_id_pms_room_type_id_pricelist_id \
+                "CREATE INDEX pms_board_service_id_pms_room_type_id \
                 ON pms_board_service_room_type_rel \
-                (pms_board_service_id, pms_room_type_id, pricelist_id)"
+                (pms_board_service_id, pms_room_type_id)"
             )
 
     @api.model

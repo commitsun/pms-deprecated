@@ -339,8 +339,6 @@
                                 name="children_occupying"
                                 attrs="{'invisible': [('children', '=', 0)]}"
                             />
-                            <field name="qty_invoiced" invisible="1" />
-                            <field name="qty_to_invoice" invisible="1" />
                             <field name="allowed_room_ids" invisible="1" />
                             <field name="folio_payment_state" invisible="1" />
                             <!-- TODO: How to filter to avoid show False (generic) pricelist board when exist a specific pricelist board¿? -->
@@ -450,7 +448,6 @@
                                     <field name="date" readonly="1" force_save="1" />
                                     <field name="price" />
                                     <field name="discount" />
-                                    <field name="move_line_ids" invisible="1" />
                                     <field
                                         name="cancel_discount"
                                         attrs="{'column_invisible': [('parent.state','!=','cancelled')]}"
@@ -687,6 +684,7 @@
                     widget="badge"
                     optional="show"
                 />
+                <field name="invoice_status" optional="show" />
                 <field
                     name="company_id"
                     groups="base.group_multi_company"

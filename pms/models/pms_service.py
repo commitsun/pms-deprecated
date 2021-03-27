@@ -5,7 +5,6 @@ import logging
 from datetime import timedelta
 
 from odoo import _, api, fields, models
-from odoo.tools import float_compare, float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -52,6 +51,12 @@ class PmsService(models.Model):
         readonly=False,
         store=True,
     )
+    sale_line_ids = fields.One2many(
+        comodel_name="folio.sale.line",
+        inverse_name="service_id",
+        string="Sale Lines",
+        copy=False,
+    )
     reservation_id = fields.Many2one(
         "pms.reservation",
         "Room",
@@ -81,14 +86,6 @@ class PmsService(models.Model):
         store=True,
         readonly=False,
         domain=["|", ("active", "=", False), ("active", "=", True)],
-    )
-    move_line_ids = fields.Many2many(
-        "account.move.line",
-        "service_line_move_rel",
-        "service_id",
-        "move_line_id",
-        string="move Lines",
-        copy=False,
     )
     analytic_tag_ids = fields.Many2many("account.analytic.tag", string="Analytic Tags")
     currency_id = fields.Many2one(
@@ -130,20 +127,6 @@ class PmsService(models.Model):
             ("web", "Web"),
         ],
         string="Sales Channel",
-    )
-    qty_to_invoice = fields.Float(
-        compute="_compute_get_to_invoice_qty",
-        string="To Invoice",
-        store=True,
-        readonly=True,
-        digits=("Product Unit of Measure"),
-    )
-    qty_invoiced = fields.Float(
-        compute="_compute_get_invoice_qty",
-        string="Invoiced",
-        store=True,
-        readonly=True,
-        digits=("Product Unit of Measure"),
     )
     price_subtotal = fields.Monetary(
         string="Subtotal", readonly=True, store=True, compute="_compute_amount_service"
@@ -307,86 +290,26 @@ class PmsService(models.Model):
             elif not record.folio_id:
                 record.folio_id = False
 
-    @api.depends("qty_invoiced", "product_qty", "folio_id.state")
-    def _compute_get_to_invoice_qty(self):
-        """
-        Compute the quantity to invoice. If the invoice policy is order,
-        the quantity to invoice is calculated from the ordered quantity.
-        Otherwise, the quantity delivered is used.
-        """
-        for line in self:
-            if line.folio_id.state not in ["draft"]:
-                line.qty_to_invoice = line.product_qty - line.qty_invoiced
-            else:
-                line.qty_to_invoice = 0
-
-    @api.depends("move_line_ids.move_id.state", "move_line_ids.quantity")
-    def _compute_get_invoice_qty(self):
-        """
-        Compute the quantity invoiced. If case of a refund,
-        the quantity invoiced is decreased. Note that this is the case only
-        if the refund is generated from the Folio and that is intentional: if
-        a refund made would automatically decrease the invoiced quantity,
-        then there is a risk of reinvoicing it automatically, which may
-        not be wanted at all. That's why the refund has to be
-        created from the Folio
-        """
-        for line in self:
-            qty_invoiced = 0.0
-            for invoice_line in line.move_line_ids:
-                if invoice_line.move_id.state != "cancel":
-                    if invoice_line.move_id.move_type == "out_invoice":
-                        qty_invoiced += invoice_line.product_uom_id._compute_quantity(
-                            invoice_line.quantity, line.product_id.uom_id
-                        )
-                    elif invoice_line.move_id.move_type == "out_refund":
-                        if (
-                            not line.is_downpayment
-                            or line.untaxed_amount_to_invoice == 0
-                        ):
-                            qty_invoiced -= (
-                                invoice_line.product_uom_id._compute_quantity(
-                                    invoice_line.quantity, line.product_id.uom_id
-                                )
-                            )
-            line.qty_invoiced = qty_invoiced
-
-    @api.depends("product_qty", "qty_to_invoice", "qty_invoiced")
+    @api.depends(
+        "sale_line_ids",
+        "sale_line_ids.invoice_status",
+    )
     def _compute_invoice_status(self):
         """
-        Compute the invoice status of a SO line. Possible statuses:
-        - no: if the SO is not in status 'sale' or 'done',
-          we consider that there is nothing to invoice.
-          This is also hte default value if the conditions of no other
-          status is met.
-        - to invoice: we refer to the quantity to invoice of the line.
-          Refer to method `_compute_get_to_invoice_qty()` for more information on
-          how this quantity is calculated.
-        - upselling: this is possible only for a product invoiced on ordered
-          quantities for which we delivered more than expected.
-          The could arise if, for example, a project took more time than
-          expected but we decided not to invoice the extra cost to the
-          client. This occurs onyl in state 'sale', so that when a Folio
-          is set to done, the upselling opportunity is removed from the list.
-        - invoiced: the quantity invoiced is larger or equal to the
-          quantity ordered.
+        Compute the invoice status of a Reservation. Possible statuses:
+        Base on folio sale line invoice status
         """
-        precision = self.env["decimal.precision"].precision_get(
-            "Product Unit of Measure"
-        )
         for line in self:
-            state = line.folio_id.state or "draft"
-            if state == "draft":
-                line.invoice_status = "no"
-            elif not float_is_zero(line.qty_to_invoice, precision_digits=precision):
-                line.invoice_status = "to invoice"
-            elif (
-                float_compare(
-                    line.qty_invoiced, line.product_qty, precision_digits=precision
-                )
-                >= 0
-            ):
-                line.invoice_status = "invoiced"
+            states = list(set(line.sale_line_ids.mapped("invoice_status")))
+            if len(states) == 1:
+                line.invoice_status = states[0]
+            elif len(states) >= 1:
+                if "to_invoice" in states:
+                    line.invoice_status = "to_invoice"
+                elif "invoiced" in states:
+                    line.invoice_status = "invoiced"
+                else:
+                    line.invoice_status = "no"
             else:
                 line.invoice_status = "no"
 

@@ -7,7 +7,6 @@ import time
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare, float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -82,6 +81,12 @@ class PmsReservation(models.Model):
         ondelete="restrict",
         copy=False,
         check_company=True,
+    )
+    sale_line_ids = fields.One2many(
+        comodel_name="folio.sale.line",
+        inverse_name="reservation_id",
+        string="Sale Lines",
+        copy=False,
     )
     board_service_room_id = fields.Many2one(
         "pms.board.service.room.type",
@@ -275,14 +280,6 @@ class PmsReservation(models.Model):
         ondelete="restrict",
         domain=["|", ("active", "=", False), ("active", "=", True)],
     )
-    move_line_ids = fields.Many2many(
-        "account.move.line",
-        "reservation_move_rel",
-        "reservation_id",
-        "move_line_id",
-        string="Invoice Lines",
-        copy=False,
-    )
     localizator = fields.Char(
         string="Localizator",
         compute="_compute_localizator",
@@ -446,32 +443,6 @@ class PmsReservation(models.Model):
         store=True,
         readonly=True,
         default="no",
-    )
-    qty_to_invoice = fields.Float(
-        compute="_compute_qty_to_invoice",
-        string="To Invoice Quantity",
-        store=True,
-        readonly=True,
-        digits=("Product Unit of Measure"),
-    )
-    qty_invoiced = fields.Float(
-        compute="_compute_qty_invoiced",
-        string="Invoiced Quantity",
-        store=True,
-        readonly=True,
-        digits=("Product Unit of Measure"),
-    )
-    untaxed_amount_invoiced = fields.Monetary(
-        "Untaxed Invoiced Amount",
-        compute="_compute_untaxed_amount_invoiced",
-        compute_sudo=True,
-        store=True,
-    )
-    untaxed_amount_to_invoice = fields.Monetary(
-        "Untaxed Amount To Invoice",
-        compute="_compute_untaxed_amount_to_invoice",
-        compute_sudo=True,
-        store=True,
     )
     analytic_tag_ids = fields.Many2many(
         "account.analytic.tag",
@@ -689,6 +660,13 @@ class PmsReservation(models.Model):
                     ("is_board_service", "=", True),
                 ]
             )
+            # Avoid recalculating services if the boardservice has not changed
+            if (
+                old_board_lines
+                and reservation.board_service_room_id
+                == reservation._origin.board_service_room_id
+            ):
+                return
             if reservation.board_service_room_id:
                 board = self.env["pms.board.service.room.type"].browse(
                     reservation.board_service_room_id.id
@@ -1040,183 +1018,28 @@ class PmsReservation(models.Model):
                 if room_ids:
                     reservation.preferred_room_id = room_ids[0]
 
-    @api.depends("state", "qty_to_invoice", "qty_invoiced")
+    @api.depends(
+        "sale_line_ids",
+        "sale_line_ids.invoice_status",
+    )
     def _compute_invoice_status(self):
         """
         Compute the invoice status of a Reservation. Possible statuses:
-        - no: if the Folio is not in status 'sale' or 'done', we consider
-          that there is nothing to invoice. This is also hte default value
-          if the conditions of no other status is met.
-        - to invoice: we refer to the quantity to invoice of the line.
-          Refer to method `_compute_get_to_invoice_qty()` for more information
-          on how this quantity is calculated.
-        - invoiced: the quantity invoiced is larger or equal to the
-          quantity ordered.
-        """
-        precision = self.env["decimal.precision"].precision_get(
-            "Product Unit of Measure"
-        )
-        for line in self:
-            if line.state == "draft":
-                line.invoice_status = "no"
-            elif not float_is_zero(line.qty_to_invoice, precision_digits=precision):
-                line.invoice_status = "to invoice"
-            elif (
-                float_compare(
-                    line.qty_invoiced,
-                    len(line.reservation_line_ids),
-                    precision_digits=precision,
-                )
-                >= 0
-            ):
-                line.invoice_status = "invoiced"
-            else:
-                line.invoice_status = "no"
-
-    @api.depends("qty_invoiced", "nights", "folio_id.state")
-    def _compute_qty_to_invoice(self):
-        """
-        Compute the quantity to invoice. The quantity to invoice is
-        calculated from the nights quantity.
+        Base on folio sale line invoice status
         """
         for line in self:
-            if line.folio_id.state not in ["draft"]:
-                line.qty_to_invoice = len(line.reservation_line_ids) - line.qty_invoiced
-            else:
-                line.qty_to_invoice = 0
-
-    @api.depends(
-        "move_line_ids.move_id.state",
-        "move_line_ids.quantity",
-        "untaxed_amount_to_invoice",
-    )
-    def _compute_qty_invoiced(self):
-        """
-        Compute the quantity invoiced. If case of a refund, the quantity
-        invoiced is decreased. We must check day per day and sum or
-        decreased on 1 unit per invoice_line
-        """
-        for record in self:
-            qty_invoiced = 0.0
-            for line in record.reservation_line_ids:
-                invoice_lines = line.move_line_ids.filtered(
-                    lambda r: r.move_id.state != "cancel"
-                )
-                qty_invoiced += len(
-                    invoice_lines.filtered(
-                        lambda r: r.move_id.move_type == "out_invoice"
-                    )
-                ) - len(
-                    invoice_lines.filtered(
-                        lambda r: r.move_id.move_type == "out_refund"
-                    )
-                )
-            record.qty_invoiced = qty_invoiced
-
-    @api.depends(
-        "move_line_ids",
-        "move_line_ids.price_total",
-        "move_line_ids.move_id.state",
-        "move_line_ids.move_id.move_type",
-    )
-    def _compute_untaxed_amount_invoiced(self):
-        """Compute the untaxed amount already invoiced from the reservation,
-        taking the refund attached
-        the reservation into account. This amount is computed as
-            SUM(inv_line.price_subtotal) - SUM(ref_line.price_subtotal)
-        where
-            `inv_line` is a customer invoice line linked to the reservation
-            `ref_line` is a customer credit note (refund)
-            line linked to the reservation
-        """
-        for line in self:
-            amount_invoiced = 0.0
-            for invoice_line in line.move_line_ids:
-                if invoice_line.move_id.state == "posted":
-                    invoice_date = (
-                        invoice_line.move_id.invoice_date or fields.Date.today()
-                    )
-                    if invoice_line.move_id.move_type == "out_invoice":
-                        amount_invoiced += invoice_line.currency_id._convert(
-                            invoice_line.price_subtotal,
-                            line.currency_id,
-                            line.company_id,
-                            invoice_date,
-                        )
-                    elif invoice_line.move_id.move_type == "out_refund":
-                        amount_invoiced -= invoice_line.currency_id._convert(
-                            invoice_line.price_subtotal,
-                            line.currency_id,
-                            line.company_id,
-                            invoice_date,
-                        )
-            line.untaxed_amount_invoiced = amount_invoiced
-
-    @api.depends(
-        "state", "discount", "price_total", "room_type_id", "untaxed_amount_invoiced"
-    )
-    def _compute_untaxed_amount_to_invoice(self):
-        """Total of remaining amount to invoice on the reservation (taxes excl.) as
-            total_sol - amount already invoiced
-
-        Note: Draft invoice are ignored on purpose, the 'to invoice' amount should
-        come only from the reservation.
-        """
-        for line in self:
-            amount_to_invoice = 0.0
-            if line.state not in ["draft"]:
-                price_subtotal = 0.0
-                price_subtotal = line.price_subtotal
-                if len(line.tax_ids.filtered(lambda tax: tax.price_include)) > 0:
-                    # As included taxes are not excluded from the computed subtotal,
-                    # `compute_all()` method
-                    # has to be called to retrieve the subtotal without them.
-                    price_subtotal = line.tax_ids.compute_all(
-                        price_subtotal,
-                        currency=line.currency_id,
-                        quantity=line.nights,
-                        product=line.room_type_id.product_id,
-                    )["total_excluded"]
-
-                if any(
-                    line.move_line_ids.mapped(lambda i: i.discount != line.discount)
-                ):
-                    # In case of re-invoicing with different discount we
-                    # try to calculate manually the
-                    # remaining amount to invoice
-                    amount = 0
-                    for move in line.move_line_ids:
-                        if (
-                            len(move.tax_ids.filtered(lambda tax: tax.price_include))
-                            > 0
-                        ):
-                            amount += move.tax_ids.compute_all(
-                                move.currency_id._convert(
-                                    move.price_unit,
-                                    line.currency_id,
-                                    line.company_id,
-                                    move.date or fields.Date.today(),
-                                    round=False,
-                                )
-                                * move.quantity
-                            )["total_excluded"]
-                        else:
-                            amount += (
-                                move.currency_id._convert(
-                                    move.price_unit,
-                                    line.currency_id,
-                                    line.company_id,
-                                    move.date or fields.Date.today(),
-                                    round=False,
-                                )
-                                * move.quantity
-                            )
-
-                    amount_to_invoice = max(price_subtotal - amount, 0)
+            states = list(set(line.sale_line_ids.mapped("invoice_status")))
+            if len(states) == 1:
+                line.invoice_status = states[0]
+            elif len(states) >= 1:
+                if "to_invoice" in states:
+                    line.invoice_status = "to_invoice"
+                elif "invoiced" in states:
+                    line.invoice_status = "invoiced"
                 else:
-                    amount_to_invoice = price_subtotal - line.untaxed_amount_invoiced
-
-            line.untaxed_amount_to_invoice = amount_to_invoice
+                    line.invoice_status = "no"
+            else:
+                line.invoice_status = "no"
 
     @api.depends("reservation_line_ids")
     def _compute_nights(self):
