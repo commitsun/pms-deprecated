@@ -65,6 +65,24 @@
                     class="alert alert-warning"
                     role="alert"
                     style="margin-bottom:0px;"
+                    attrs="{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in', ['done'])]}"
+                >
+                    Recompute all prices based on this pricelist
+                    <bold>
+                        <button
+                            name="update_prices"
+                            type="object"
+                            string=" Update Prices"
+                            class="btn-link mb-1 px-0"
+                            icon="fa-refresh"
+                            confirm="This will update all unit prices based on the currently set pricelist."
+                        />
+                    </bold>
+                </div>
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    style="margin-bottom:0px;"
                     attrs="{'invisible': [('splitted','=',False)]}"
                 >
                     This reservation is part of splitted reservation, you can try to
@@ -197,7 +215,6 @@
                             nolabel="1"
                             context="{'checkin': checkin, 'checkout': checkout, 'pms_property_id':pms_property_id, 'pricelist_id':pricelist_id}"
                             options="{'no_create': True,'no_open': True}"
-                            attrs="{'readonly':[('state','not in',('draft'))]}"
                             style="margin-right: 30px;"
                         />
                         <field
@@ -301,16 +318,6 @@
                             <field
                                 name="pricelist_id"
                                 options="{'no_open':True,'no_create': True}"
-                            />
-                            <button
-                                name="update_prices"
-                                type="object"
-                                string=" Update Prices"
-                                help="Recompute all prices based on this pricelist"
-                                class="btn-link mb-1 px-0"
-                                icon="fa-refresh"
-                                confirm="This will update all unit prices based on the currently set pricelist."
-                                attrs="{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in', ['done'])]}"
                             />
                             <!--<field
                                 name="agency_id"

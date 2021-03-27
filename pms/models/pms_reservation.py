@@ -715,6 +715,9 @@ class PmsReservation(models.Model):
                     board_services.append((0, False, res))
                 reservation.service_ids -= old_board_lines
                 reservation.service_ids = board_services
+                old_board_lines.sudo().unlink()
+            elif old_board_lines:
+                old_board_lines.sudo().unlink()
 
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):
@@ -735,13 +738,19 @@ class PmsReservation(models.Model):
                     reservation.pms_property_id.default_pricelist_id.id
                 )
 
-    @api.depends("pricelist_id")
+    @api.depends("pricelist_id", "room_type_id")
     def _compute_show_update_pricelist(self):
         for reservation in self:
             if (
                 sum(reservation.reservation_line_ids.mapped("price")) > 0
-                and reservation.pricelist_id
-                and reservation._origin.pricelist_id != reservation.pricelist_id
+                and (
+                    reservation.pricelist_id
+                    and reservation._origin.pricelist_id != reservation.pricelist_id
+                )
+                or (
+                    reservation.room_type_id
+                    and reservation._origin.room_type_id != reservation.room_type_id
+                )
             ):
                 reservation.show_update_pricelist = True
             else:
@@ -1537,8 +1546,10 @@ class PmsReservation(models.Model):
         self.show_update_pricelist = False
         self.message_post(
             body=_(
-                "Prices have been recomputed according to pricelist <b>%s<b> ",
+                """Prices have been recomputed according to pricelist <b>%s</b>
+                 and room type <b>%s</b>""",
                 self.pricelist_id.display_name,
+                self.room_type_id.name,
             )
         )
 
