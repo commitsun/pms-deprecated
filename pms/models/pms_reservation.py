@@ -561,14 +561,21 @@ class PmsReservation(models.Model):
                         ("pricelist_id", "=", False),
                     ]
                 )
-                if len(board_service_default) > 1:
-                    reservation.board_service_room_id = board_service_default.filtered(
-                        lambda b: b.pricelist_id == reservation.pricelist_id
-                    )
-                else:
-                    reservation.board_service_room_id = (
-                        board_service_default.id if board_service_default else False
-                    )
+                if (
+                    not reservation.board_service_room_id
+                    or not reservation.board_service_room_id.pms_room_type_id
+                    == reservation.room_type_id
+                ):
+                    if len(board_service_default) > 1:
+                        reservation.board_service_room_id = (
+                            board_service_default.filtered(
+                                lambda b: b.pricelist_id == reservation.pricelist_id
+                            )
+                        )
+                    else:
+                        reservation.board_service_room_id = (
+                            board_service_default.id if board_service_default else False
+                        )
             elif not reservation.board_service_room_id:
                 reservation.board_service_room_id = False
 
