@@ -684,7 +684,7 @@ class TestPmsReservations(common.SavepointCase):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def test_order_priority_left_for_checkin(self):
+    def test_order_priority_allowed_checkin(self):
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -705,7 +705,7 @@ class TestPmsReservations(common.SavepointCase):
                 "pms_property_id": self.property.id,
             }
         )
-        r1.left_for_checkin = False
+        r1.allowed_checkin = False
         # ACT
         reservations = self.env["pms.reservation"].search(
             [("pms_property_id", "=", self.property.id)]
@@ -714,7 +714,7 @@ class TestPmsReservations(common.SavepointCase):
         self.assertEqual(r1, reservations[0])
 
     @freeze_time("1981-11-01")
-    def test_order_priority_left_for_checkout(self):
+    def test_order_priority_allowed_checkout(self):
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -735,7 +735,7 @@ class TestPmsReservations(common.SavepointCase):
                 "pms_property_id": self.property.id,
             }
         )
-        r1.left_for_checkout = True
+        r1.allowed_checkout = True
         # ACT
         reservations = self.env["pms.reservation"].search(
             [("pms_property_id", "=", self.property.id)]
@@ -1120,7 +1120,7 @@ class TestPmsReservations(common.SavepointCase):
                 "checkin": "2012-01-14",
                 "checkout": "2012-01-17",
                 "partner_id": self.host1.id,
-                "left_for_checkin": True,
+                "allowed_checkin": True,
                 "pms_property_id": self.property.id,
                 "adults": 3,
             }
@@ -1145,48 +1145,6 @@ class TestPmsReservations(common.SavepointCase):
         self.assertTrue(
             self.reservation.ready_for_checkin,
             "Reservation should is ready for checkin",
-        )
-
-    @freeze_time("2019-02-02")
-    def test_checkin_today(self):
-        self.create_common_scenario()
-        self.host1 = self.env["res.partner"].create(
-            {
-                "name": "Host1",
-            }
-        )
-        self.reservation = self.env["pms.reservation"].create(
-            {
-                "checkin": fields.date.today(),
-                "checkout": fields.date.today() + datetime.timedelta(days=3),
-                "pms_property_id": self.property.id,
-                "partner_id": self.host1.id,
-            }
-        )
-        self.assertTrue(
-            self.reservation.checkin_today,
-            "If reservation chekin is today, field checkin_today must be True",
-        )
-
-    @freeze_time("2020-02-02")
-    def test_departure_today(self):
-        self.create_common_scenario()
-        self.host1 = self.env["res.partner"].create(
-            {
-                "name": "Host1",
-            }
-        )
-        self.reservation = self.env["pms.reservation"].create(
-            {
-                "checkin": fields.date.today() + datetime.timedelta(days=-3),
-                "checkout": fields.date.today(),
-                "pms_property_id": self.property.id,
-                "partner_id": self.host1.id,
-            }
-        )
-        self.assertTrue(
-            self.reservation.departure_today,
-            "If reservation checkout is today, field departure_today must be True",
         )
 
     def test_qty_to_invoice_state_draft(self):
@@ -1682,7 +1640,7 @@ class TestPmsReservations(common.SavepointCase):
                 "checkin": fields.date.today(),
                 "checkout": fields.date.today() + datetime.timedelta(days=1),
                 "partner_id": host.id,
-                "left_for_checkout": True,
+                "allowed_checkout": True,
                 "pms_property_id": self.property.id,
             }
         )

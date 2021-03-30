@@ -185,7 +185,7 @@ class TestPmsFolio(common.SavepointCase):
                 "pms_property_id": self.property.id,
             }
         )
-        r1.left_for_checkin = False
+        r1.allowed_checkin = False
 
         self.env["pms.reservation"].create(
             {
