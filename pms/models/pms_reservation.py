@@ -183,9 +183,9 @@ class PmsReservation(models.Model):
         help="User who manages the reservation",
         readonly=False,
         store=True,
-        related = "folio_id.user_id",
-        depends = ["folio_id.user_id"],
-        default = lambda self: self.env.user.id,
+        related="folio_id.user_id",
+        depends=["folio_id.user_id"],
+        default=lambda self: self.env.user.id,
     )
     show_update_pricelist = fields.Boolean(
         string="Has Pricelist Changed",
@@ -242,26 +242,30 @@ class PmsReservation(models.Model):
     )
     ready_for_checkin = fields.Boolean(
         string="Ready for checkin",
-        help="Indicates the reservations with guest data enought to checkin",
+        help="Indicates the reservations with checkin_partner data enought to checkin",
         compute="_compute_ready_for_checkin",
     )
     allowed_checkin = fields.Boolean(
         string="Allowed checkin",
-        help="Technical field, Indicates if there is a guest missing to chekin",
+        help="Technical field, Indicates if there isn't a checkin_partner data"
+        "Only can be true if checkin is today or was in the past",
         compute="_compute_allowed_checkin",
         search="_search_allowed_checkin",
     )
 
     allowed_checkout = fields.Boolean(
         string="Allowed checkout",
-        help="Technical field, Indicates in there is a guest missing to checkout",
+        help="Technical field, Indicates that reservation is ready for checkout"
+        "only can be true if reservation state is 'onboard' or no_checkout"
+        "and checkout is today or will be in the future",
         compute="_compute_allowed_checkout",
         search="_search_allowed_checkout",
     )
 
     allowed_cancel = fields.Boolean(
         string="Allowed cancel",
-        help="Technical field",
+        help="Technical field, Indicates that reservation can be cancelled,"
+        "that happened when state is 'cancelled', 'done', or 'no_checkout'",
         compute="_compute_allowed_cancel",
         search="_search_allowed_cancel",
     )
@@ -771,7 +775,6 @@ class PmsReservation(models.Model):
                     reservation.partner_id.property_product_pricelist.id
                 )
             elif not reservation.pricelist_id.id:
-                # TODO: Delete pricelist_id in folio model
                 if (
                     reservation.folio_id
                     and len(reservation.folio_id.reservation_ids.mapped("pricelist_id"))

@@ -286,3 +286,35 @@ class TestPmsFolio(common.SavepointCase):
                     "closure_reason_id": cl_reason.id,
                 }
             )
+
+    def _test_compute_currency(self):
+        self.create_common_scenario()
+        self.currency1 = self.env["res.currency"].create(
+            {
+                "name": "currency1",
+                "symbol": "C",
+            }
+        )
+        self.pricelist = self.env["product.pricelist"].create(
+            {
+                "name": "pricelist 1",
+                "pms_property_ids": [
+                    (4, self.property.id),
+                ],
+                "currency_id": self.currency1.id,
+            }
+        )
+        self.reservation1 = self.env["pms.reservation"].create(
+            {
+                "pms_property_id": self.property.id,
+                "checkin": datetime.datetime.now(),
+                "checkout": datetime.datetime.now() + datetime.timedelta(days=1),
+                "partner_id": self.env.ref("base.res_partner_12").id,
+                "pricelist_id": self.pricelist.id,
+            }
+        )
+        self.assertEqual(
+            self.currency1.id,
+            self.reservation1.folio_id.currency_id.id,
+            "Currency must match",
+        )

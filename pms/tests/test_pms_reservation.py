@@ -1147,31 +1147,6 @@ class TestPmsReservations(common.SavepointCase):
             "Reservation should is ready for checkin",
         )
 
-    def test_qty_to_invoice_state_draft(self):
-        self.create_common_scenario()
-        self.host1 = self.env["res.partner"].create(
-            {
-                "name": "Host1",
-            }
-        )
-        self.reservation = self.env["pms.reservation"].create(
-            {
-                "checkin": fields.date.today() + datetime.timedelta(days=-3),
-                "checkout": fields.date.today(),
-                "pms_property_id": self.property.id,
-                "partner_id": self.host1.id,
-            }
-        )
-
-        self.reservation.folio_id.state = "draft"
-        self.reservation.flush()
-        self.assertEqual(
-            self.reservation.qty_to_invoice,
-            0,
-            "Quantity to invoice must be 0, if state of reservation.folio_id"
-            " is 'draft'",
-        )
-
     def test_check_checkin_less_checkout(self):
         self.create_common_scenario()
         self.host1 = self.env["res.partner"].create(

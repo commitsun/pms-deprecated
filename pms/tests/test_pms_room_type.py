@@ -742,7 +742,6 @@ class TestRoomType(TestPms):
             )
             room_type1.pms_property_ids = [(4, self.pms_property1.id)]
 
-
     # TODO: pending multi property PR
 
     # def test_check_board_service_property_integrity(self):

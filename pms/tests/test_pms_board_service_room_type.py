@@ -1,5 +1,6 @@
 from odoo.tests import common
 
+
 class TestPmsBoardServiceRoomType(common.SavepointCase):
     def _create_common_scenario(self):
         self.company1 = self.env["res.company"].create(

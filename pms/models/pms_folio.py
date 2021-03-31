@@ -123,6 +123,8 @@ class PmsFolio(models.Model):
         readonly=True,
         required=True,
         ondelete="restrict",
+        # comodel_name="res.currency",
+        # compute="_compute_currency_id"
     )
     pricelist_id = fields.Many2one(
         "product.pricelist",
@@ -568,6 +570,16 @@ class PmsFolio(models.Model):
             )
             order.move_ids = invoices
             order.invoice_count = len(invoices)
+
+    # @api.depends(
+    #     "reservation_ids",
+    #     "reservation_ids.currency_id"
+    # )
+    # def _compute_currency_id(self):
+    #     if len(self.reservation_ids.mapped("currency_id")) == 1:
+    #         self.currency_id = self.reservation_ids.mapped("currency_id")
+    #     else:
+    #         raise UserError(_("Some reservations have different currency"))
 
     def _compute_access_url(self):
         super(PmsFolio, self)._compute_access_url()
