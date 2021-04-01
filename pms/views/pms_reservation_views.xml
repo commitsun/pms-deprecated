@@ -13,7 +13,6 @@
             <form string="Reservation">
                 <header>
                     <field name="splitted" invisible="True" />
-                    <field name="tax_ids" invisible="1" />
                     <field name="checkin_today" invisible="1" />
                     <field name="checkin_partner_count" invisible="1" />
                     <button
@@ -578,6 +577,7 @@
                                             attrs="{'required':[('reservation_type','not in',('staff','out'))]}"
                                         />-->
                                         <field name="reservation_type" />
+                                        <field name="tax_ids" widget="many2many_tags" />
                                     </group>
                                 </div>
                                 <div class="col-6">
