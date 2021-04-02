@@ -23,11 +23,11 @@ class ProductPricelist(models.Model):
     cancelation_rule_id = fields.Many2one(
         "pms.cancelation.rule",
         string="Cancelation Policy",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            ("pms_property_ids", "in", pms_property_ids),
-        ],
+        domain="["
+        "'|', "
+        "('pms_property_ids', '=', False), "
+        "('pms_property_ids','in', pms_property_ids)"
+        "]",
     )
     pricelist_type = fields.Selection(
         [("daily", "Daily Plan")], string="Pricelist Type", default="daily"
@@ -40,11 +40,11 @@ class ProductPricelist(models.Model):
         comodel_name="pms.room.type.availability.plan",
         string="Availability Plan",
         ondelete="restrict",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            ("pms_property_ids", "in", pms_property_ids),
-        ],
+        domain="["
+        "'|', "
+        "('pms_property_ids', '=', False), "
+        "('pms_property_ids','in', pms_property_ids)"
+        "]",
     )
 
     # Constraints and onchanges
