@@ -25,7 +25,7 @@ class BaseModel(models.AbstractModel):
         check_pms_properties = False
         for fname in vals:
             field = self._fields.get(fname)
-            if fname == "property_id" or (
+            if fname == "pms_property_id" or (
                 field.relational and field.check_pms_properties
             ):
                 check_pms_properties = True
@@ -38,7 +38,7 @@ class BaseModel(models.AbstractModel):
 
         :param list fnames: names of relational fields to check
         :raises UserError: if the `pms_properties` of the value of any field is not
-            in `[False, self.property_id]` (or `self` if
+            in `[False, self.pms_property_id]` (or `self` if
             :class:`~odoo.addons.base.models.pms_property`).
 
         For :class:`~odoo.addons.base.models.res_users` relational fields,
@@ -108,9 +108,9 @@ class BaseModel(models.AbstractModel):
                 else:
                     msg, pms_properties = (
                         record_msg,
-                        record.property_id.name
+                        record.pms_property_id.name
                         if "pms_property_id" in record
-                        else ", ".join(repr(p.name) for p in record.property_ids),
+                        else ", ".join(repr(p.name) for p in record.pms_property_ids),
                     )
                 field = self.env["ir.model.fields"]._get(self._name, name)
                 lines.append(

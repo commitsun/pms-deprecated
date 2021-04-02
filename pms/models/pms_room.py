@@ -15,6 +15,7 @@ class PmsRoom(models.Model):
     _name = "pms.room"
     _description = "Property Room"
     _order = "sequence, room_type_id, name"
+    _check_pms_properties_auto = True
 
     name = fields.Char(
         string="Room Name",
@@ -44,14 +45,10 @@ class PmsRoom(models.Model):
         help="Unique room type for the rooms",
         required=True,
         comodel_name="pms.room.type",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            (pms_property_id, "in", "pms_property_ids"),
-        ],
         ondelete="restrict",
+        check_pms_properties=True,
     )
-    # TODO: Dario, design shared rooms
+    # TODO: design shared rooms
     shared_room_id = fields.Many2one(
         string="Shared Room",
         help="The room can be sold by beds",
