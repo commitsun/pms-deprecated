@@ -59,11 +59,7 @@ class PmsRoom(models.Model):
         string="Ubication",
         help="At which ubication the room is located.",
         comodel_name="pms.ubication",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            (pms_property_id, "in", "pms_property_ids"),
-        ],
+        check_pms_properties=True,
     )
     capacity = fields.Integer(
         string="Capacity", help="The maximum number of people that can occupy a room"
@@ -147,6 +143,7 @@ class PmsRoom(models.Model):
                     )
                 )
 
+<<<<<<< HEAD
     @api.constrains(
         "allowed_property_ids",
         "pms_property_id",
@@ -158,6 +155,9 @@ class PmsRoom(models.Model):
                     raise ValidationError(
                         _("Property not allowed in room type or in ubication")
                     )
+=======
+    # Business methods
+>>>>>>> [ADD] room multiproperty check
 
     def get_capacity(self, extra_bed=0):
         for record in self:
