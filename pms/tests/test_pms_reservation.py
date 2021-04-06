@@ -1448,59 +1448,6 @@ class TestPmsReservations(common.SavepointCase):
         reservation.flush()
         self.assertEqual(reservation.cancelled_reason, "late", "-----------")
 
-    def test_change_state_draft(self):
-        self.create_common_scenario()
-        self.host1 = self.env["res.partner"].create(
-            {
-                "name": "Host1",
-            }
-        )
-        reservation = self.env["pms.reservation"].create(
-            {
-                "checkin": fields.date.today() + datetime.timedelta(days=100),
-                "checkout": fields.date.today() + datetime.timedelta(days=104),
-                "room_type_id": self.room_type_double.id,
-                "partner_id": self.host1.id,
-                "pms_property_id": self.property.id,
-            }
-        )
-        reservation.draft()
-        self.assertEqual(
-            reservation.state, "draft", "Reservation state must be 'draft'"
-        )
-
-    def test_check_cancel_discount_state_draft(self):
-        self.create_common_scenario()
-        self.host1 = self.env["res.partner"].create(
-            {
-                "name": "Host1",
-            }
-        )
-        reservation = self.env["pms.reservation"].create(
-            {
-                "checkin": fields.date.today() + datetime.timedelta(days=100),
-                "checkout": fields.date.today() + datetime.timedelta(days=104),
-                "room_type_id": self.room_type_double.id,
-                "partner_id": self.host1.id,
-                "pms_property_id": self.property.id,
-            }
-        )
-        reservation.draft()
-        test_cases = [
-            reservation.reservation_line_ids[0],
-            reservation.reservation_line_ids[1],
-            reservation.reservation_line_ids[2],
-            reservation.reservation_line_ids[3],
-        ]
-
-        for case in test_cases:
-            with self.subTest(k=case):
-                self.assertEqual(
-                    case["cancel_discount"],
-                    0,
-                    "Reservation_lines.cancel_discount must be '0'",
-                )
-
     def test_compute_checkin_partner_count(self):
         self.create_common_scenario()
         self.host1 = self.env["res.partner"].create(

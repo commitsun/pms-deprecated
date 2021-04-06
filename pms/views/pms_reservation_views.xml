@@ -155,7 +155,7 @@
                         <button
                             type="object"
                             class="oe_stat_button"
-                            name="action_onboard"
+                            name="action_checkin_partner_onboard_view"
                             attrs="{'invisible': [
                                 ('ready_for_checkin', '!=', True),
                             ]}"
@@ -169,7 +169,7 @@
                         <button
                             type="object"
                             class="oe_stat_button"
-                            name="action_checks"
+                            name="action_checkin_partner_view"
                             attrs="{'invisible': [
                                 ('allowed_checkin', '!=', True),
                             ]}"

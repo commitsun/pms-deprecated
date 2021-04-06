@@ -431,13 +431,6 @@ class PmsReservation(models.Model):
         default=False,
         copy=False,
     )
-    # TODO: eliminar campo reselling
-    reselling = fields.Boolean(
-        string="Is Reselling",
-        help="Indicates if the reservation is a reselling",
-        default=False,
-        copy=False,
-    )
     nights = fields.Integer(
         string="Nights",
         help="Number of nights of a reservation",
@@ -1220,9 +1213,7 @@ class PmsReservation(models.Model):
         return segmentation_ids
 
     # TODO: Use default values on checkin /checkout is empty
-    @api.constrains(
-        "checkin", "checkout", "state", "preferred_room_id", "overbooking", "reselling"
-    )
+    @api.constrains("checkin", "checkout", "state", "preferred_room_id", "overbooking")
     def check_dates(self):
         """
         1.-When date_order is less then checkin date or
@@ -1474,24 +1465,6 @@ class PmsReservation(models.Model):
             )
         )
 
-    # TODO: eliminar
-    def _autoassign(self):
-        self.ensure_one()
-        room_chosen = False
-        rooms_available = self.env["pms.availability.plan"].rooms_available(
-            checkin=self.checkin,
-            checkout=self.checkout,
-            room_type_id=self.room_type_id.id or False,
-            pricelist_id=self.pricelist_id.id,
-            pms_property_id=self.pms_property_id.id,
-        )
-        if rooms_available:
-            room_chosen = rooms_available[0]
-        else:
-            # We can split reserve night on multi rooms
-            room_chosen = False
-        return room_chosen
-
     @api.model
     def autocheckout(self):
         reservations = self.env["pms.reservation"].search(
@@ -1511,27 +1484,6 @@ class PmsReservation(models.Model):
     def overbooking_button(self):
         self.ensure_one()
         self.overbooking = not self.overbooking
-
-    # TODO:eliminar este método
-    def generate_copy_values(self, checkin=False, checkout=False):
-        self.ensure_one()
-        return {
-            "name": self.name,
-            "adults": self.adults,
-            "children": self.children,
-            "checkin": checkin or self.checkin,
-            "checkout": checkout or self.checkout,
-            "folio_id": self.folio_id.id,
-            "state": self.state,
-            "overbooking": self.overbooking,
-            "reselling": self.reselling,
-            "price_total": self.price_total,
-            "price_tax": self.price_tax,
-            "price_subtotal": self.price_subtotal,
-            "splitted": self.splitted,
-            "room_type_id": self.room_type_id.id,
-            "preferred_room_id": self.preferred_room_id.id,
-        }
 
     def confirm(self):
         for record in self:
@@ -1584,37 +1536,6 @@ class PmsReservation(models.Model):
                 return "intime"
         return False
 
-    # TODO: eliminar este método y el get_reservations_date siguiente
-    def draft(self):
-        for record in self:
-            record.state = "draft"
-            record.reservation_line_ids.update({"cancel_discount": 0})
-
-    # INFO: This function is not in use and should include `dto` in the search
-    @api.model
-    def get_reservations_dates(self, dfrom, dto, room_type=False):
-        """
-        @param self: The object pointer
-        @param dfrom: range date from
-        @param dto: range date to
-        @return: dictionary of lists with reservations (a hash of arrays!)
-                 with the reservations dates between dfrom and dto
-        reservations_dates
-            {'2018-07-30': [pms.reservation(29,), pms.reservation(30,),
-                           pms.reservation(31,)],
-             '2018-07-31': [pms.reservation(22,), pms.reservation(35,),
-                           pms.reservation(36,)],
-            }
-        """
-        domain = [("date", ">=", dfrom), ("date", "<", dto)]
-        lines = self.env["pms.reservation.line"].search(domain)
-        reservations_dates = {}
-        for record in lines:
-            reservations_dates.setdefault(record.date, []).append(
-                [record.reservation_id, record.reservation_id.room_type_id]
-            )
-        return reservations_dates
-
     def action_reservation_checkout(self):
         for record in self:
             if not record.allowed_checkout:
@@ -1626,8 +1547,7 @@ class PmsReservation(models.Model):
                 ).action_done()
         return True
 
-    # TODO: cambiar nombre por action_checkin_partner_view
-    def action_checks(self):
+    def action_checkin_partner_view(self):
         self.ensure_one()
         tree_id = self.env.ref("pms.pms_checkin_partner_reservation_view_tree").id
         return {
@@ -1648,8 +1568,7 @@ class PmsReservation(models.Model):
             "target": "new",
         }
 
-    # TODO: cambiar nombre action_checkin_partner_onboard_view
-    def action_onboard(self):
+    def action_checkin_partner_onboard_view(self):
         self.ensure_one()
         kanban_id = self.env.ref("pms.pms_checkin_partner_kanban_view").id
         return {
