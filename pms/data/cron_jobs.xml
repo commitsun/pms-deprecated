@@ -28,7 +28,7 @@
             <field name="state">code</field>
             <field name="model_id" ref="model_pms_reservation" />
             <field name="nextcall" eval="DateTime.now()" />
-            <field name="code">model.auto_no_checkout()</field>
+            <field name="code">model.auto_departure_delayed()</field>
         </record>
         <!-- Scheduler For To Inform Guest About Reservation Before 24 Hours -->
         <record model="ir.cron" id="autocheckout_reservations">

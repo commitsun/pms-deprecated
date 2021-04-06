@@ -24,7 +24,7 @@ class PmsBoardService(models.Model):
     pms_property_ids = fields.Many2many(
         string="Properties",
         help="Properties with access to the element;"
-             " if not set, all properties can access",
+        " if not set, all properties can access",
         required=False,
         comodel_name="pms.property",
         relation="pms_board_service_pms_property_rel",
@@ -34,13 +34,14 @@ class PmsBoardService(models.Model):
     pms_board_service_room_type_ids = fields.One2many(
         string="Board Services Room Type",
         help="Board Services Room Type corresponding to this Board Service,"
-             "One board service for several room types",
+        "One board service for several room types",
         comodel_name="pms.board.service.room.type",
-        inverse_name="pms_board_service_id"
+        inverse_name="pms_board_service_id",
     )
     amount = fields.Float(
         string="Amount",
-        help="Price for this Board Service. It corresponds to the sum of his board service lines",
+        help="Price for this Board Service. "
+        "It corresponds to the sum of his board service lines",
         store=True,
         digits=("Product Price"),
         compute="_compute_board_amount",

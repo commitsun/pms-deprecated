@@ -31,7 +31,6 @@ class PmsReservation(models.Model):
         store="True",
         compute="_compute_priority",
     )
-
     preferred_room_id = fields.Many2one(
         string="Room",
         help="It's the preferred room assigned to reservation, "
@@ -256,7 +255,7 @@ class PmsReservation(models.Model):
     allowed_checkout = fields.Boolean(
         string="Allowed checkout",
         help="Technical field, Indicates that reservation is ready for checkout"
-        "only can be true if reservation state is 'onboard' or no_checkout"
+        "only can be true if reservation state is 'onboard' or departure_delayed"
         "and checkout is today or will be in the future",
         compute="_compute_allowed_checkout",
         search="_search_allowed_checkout",
@@ -265,7 +264,7 @@ class PmsReservation(models.Model):
     allowed_cancel = fields.Boolean(
         string="Allowed cancel",
         help="Technical field, Indicates that reservation can be cancelled,"
-        "that happened when state is 'cancelled', 'done', or 'no_checkout'",
+        "that happened when state is 'cancelled', 'done', or 'departure_delayed'",
         compute="_compute_allowed_cancel",
         search="_search_allowed_cancel",
     )
@@ -320,10 +319,10 @@ class PmsReservation(models.Model):
         tracking=True,
     )
     state = fields.Selection(
-        string="Status",
+        string="State",
         help="The state of the reservation. "
-        "It can be 'draft', 'confirm', 'onboard', 'done', "
-        "'cancelled', 'no_show' or 'no_checkout'",
+        "It can be 'Pre-reservation', 'Pending arrival', 'On Board', 'Out', "
+        "'Cancelled', 'Arrival Delayed' or 'Departure Delayed'",
         readonly=True,
         index=True,
         default=lambda *a: "draft",
@@ -335,7 +334,7 @@ class PmsReservation(models.Model):
             ("done", "Out"),
             ("cancelled", "Cancelled"),
             ("no_show", "No Show"),
-            ("no_checkout", "No Checkout"),
+            ("departure_delayed", "Departure delayed"),
         ],
         tracking=True,
     )
@@ -355,7 +354,6 @@ class PmsReservation(models.Model):
     rooms = fields.Char(
         string="Room/s",
         help="Rooms that are reserved",
-        store=True,
         compute="_compute_rooms",
         tracking=True,
     )
@@ -363,8 +361,8 @@ class PmsReservation(models.Model):
         string="Credit Card Details", help="", related="folio_id.credit_card_details"
     )
     cancelled_reason = fields.Selection(
-        string="Cause of cancellation",
-        help="Field indicating the cause of cancellation. "
+        string="Reason of cancellation",
+        help="Field indicating type of cancellation. "
         "It can be 'late', 'intime' or 'noshow'",
         copy=False,
         selection=[("late", "Late"), ("intime", "In time"), ("noshow", "No Show")],
@@ -376,9 +374,7 @@ class PmsReservation(models.Model):
     )
     checkin = fields.Date(
         string="Check In",
-        help="It is the checkin date of the reservation, "
-        "which is collected from the folio"
-        " and if it does not exist in it, it is set to today",
+        help="It is the checkin date of the reservation, ",
         required=True,
         default=lambda self: self._get_default_checkin(),
         copy=False,
@@ -386,9 +382,7 @@ class PmsReservation(models.Model):
     )
     checkout = fields.Date(
         string="Check Out",
-        help="It is the checkout date of the reservation, "
-        "which is collected from the folio"
-        "and if it does not exist in it, it is set to one day after today",
+        help="It is the checkout date of the reservation, ",
         required=True,
         default=lambda self: self._get_default_checkout(),
         copy=False,
@@ -417,7 +411,7 @@ class PmsReservation(models.Model):
     checkout_datetime = fields.Datetime(
         string="Exact Departure",
         help="This field is the day and time of departure of the reservation."
-        "It is formed with the checkin and arrival_hour fields",
+        "It is formed with the checkout and departure_hour fields",
         compute="_compute_checkout_datetime",
     )
     checkin_partner_count = fields.Integer(
@@ -427,7 +421,7 @@ class PmsReservation(models.Model):
     )
     checkin_partner_pending_count = fields.Integer(
         string="Checkin Pending Num",
-        help="Number of checkinpartners pending to checkin in a reservation",
+        help="Number of checkin partners pending to checkin in a reservation",
         compute="_compute_checkin_partner_count",
         search="_search_checkin_partner_pending",
     )
@@ -437,6 +431,7 @@ class PmsReservation(models.Model):
         default=False,
         copy=False,
     )
+    # TODO: eliminar campo reselling
     reselling = fields.Boolean(
         string="Is Reselling",
         help="Indicates if the reservation is a reselling",
@@ -467,17 +462,17 @@ class PmsReservation(models.Model):
         help="Used to notify is the reservation folio has other reservations/services",
         compute="_compute_shared_folio",
     )
-    email = fields.Char(
+    partner_email = fields.Char(
         string="E-mail",
         help="E-mail of the checkin partner associated to the reservation",
         related="partner_id.email",
     )
-    mobile = fields.Char(
+    partner_mobile = fields.Char(
         string="Mobile",
         help="Mobile of the checkin partner associated to the reservation",
         related="partner_id.mobile",
     )
-    phone = fields.Char(
+    partner_phone = fields.Char(
         string="Phone",
         help="Phone of the checkin partner associated to the reservation",
         related="partner_id.phone",
@@ -487,8 +482,7 @@ class PmsReservation(models.Model):
         help="Internal reservation comment",
         related="partner_id.comment",
     )
-
-    requests = fields.Text(
+    partner_requests = fields.Text(
         string="Partner Requests",
         help="Guest requests",
     )
@@ -540,7 +534,7 @@ class PmsReservation(models.Model):
     )
     price_total = fields.Monetary(
         string="Total",
-        help="Total price without taxes",
+        help="Total price with taxes",
         readonly=True,
         store=True,
         compute="_compute_amount_reservation",
@@ -570,10 +564,10 @@ class PmsReservation(models.Model):
     discount = fields.Float(
         string="Discount (€)",
         help="Discount of total price in reservation",
-        digits=("Discount"),
-        compute="_compute_discount",
         readonly=False,
         store=True,
+        digits=("Discount"),
+        compute="_compute_discount",
         tracking=True,
     )
     date_order = fields.Date(
@@ -898,7 +892,7 @@ class PmsReservation(models.Model):
             record.allowed_checkout = (
                 True
                 if (
-                    record.state in ["onboard", "no_checkout"]
+                    record.state in ["onboard", "departure_delayed"]
                     and record.checkout >= fields.Date.today()
                 )
                 else False
@@ -909,7 +903,7 @@ class PmsReservation(models.Model):
         for record in self:
             record.allowed_cancel = (
                 True
-                if (record.state not in ["cancelled", "done", "no_checkout"])
+                if (record.state not in ["cancelled", "done", "departure_delayed"])
                 else False
             )
 
@@ -930,14 +924,6 @@ class PmsReservation(models.Model):
         super(PmsReservation, self)._compute_access_url()
         for reservation in self:
             reservation.access_url = "/my/reservations/%s" % (reservation.id)
-
-    def preview_reservation(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_url",
-            "target": "self",
-            "url": self.get_portal_url(),
-        }
 
     @api.depends("pms_property_id", "folio_id")
     def _compute_arrival_hour(self):
@@ -1099,6 +1085,54 @@ class PmsReservation(models.Model):
                     }
                 )
 
+    def _compute_shared_folio(self):
+        # Has this reservation more charges associates in folio?,
+        # Yes?, then, this is share folio ;)
+        for record in self:
+            if record.folio_id:
+                record.shared_folio = len(record.folio_id.reservation_ids) > 1 or any(
+                    record.folio_id.service_ids.filtered(
+                        lambda x: x.reservation_id.id != record.id
+                    )
+                )
+            else:
+                record.shared_folio = False
+
+    def _compute_checkin_partner_count(self):
+        for record in self:
+            if record.reservation_type != "out":
+                record.checkin_partner_count = len(record.checkin_partner_ids)
+                record.checkin_partner_pending_count = record.adults - len(
+                    record.checkin_partner_ids
+                )
+            else:
+                record.checkin_partner_count = 0
+                record.checkin_partner_pending_count = 0
+
+    @api.depends("room_type_id")
+    def _compute_tax_ids(self):
+        for record in self:
+            record = record.with_company(record.company_id)
+            product = self.env["product.product"].browse(
+                record.room_type_id.product_id.id
+            )
+            record.tax_ids = product.taxes_id.filtered(
+                lambda t: t.company_id == record.env.company
+            )
+
+    @api.depends("reservation_line_ids", "reservation_line_ids.room_id")
+    def _compute_rooms(self):
+        self.rooms = False
+
+        for reservation in self:
+            if reservation.splitted:
+                reservation.rooms = ", ".join(
+                    [r for r in reservation.reservation_line_ids.mapped("room_id.name")]
+                )
+                reservation.preferred_room_id = False
+            else:
+                reservation.rooms = reservation.preferred_room_id.name
+
     def _search_allowed_checkin(self, operator, value):
         if operator not in ("=",):
             raise UserError(
@@ -1129,7 +1163,7 @@ class PmsReservation(models.Model):
 
         today = fields.Date.context_today(self)
         return [
-            ("state", "in", ("onboard", "no_checkout")),
+            ("state", "in", ("onboard", "departure_delayed")),
             ("checkout", ">=", today),
         ]
 
@@ -1144,8 +1178,13 @@ class PmsReservation(models.Model):
                 _("Invalid domain right operand %s for left of cancel", value)
             )
         return [
-            ("state", "not in", ("cancelled", "done", "no_checkout")),
+            ("state", "not in", ("cancelled", "done", "departure_delayed")),
         ]
+
+    def _search_checkin_partner_pending(self, operator, value):
+        self.ensure_one()
+        recs = self.search([]).filtered(lambda x: x.checkin_partner_pending_count > 0)
+        return [("id", "in", [x.id for x in recs])] if recs else []
 
     def _get_default_checkin(self):
         folio = False
@@ -1191,9 +1230,7 @@ class PmsReservation(models.Model):
         3.-Check the reservation dates are not occuped
         """
         for record in self:
-            if fields.Date.from_string(record.checkin) >= fields.Date.from_string(
-                record.checkout
-            ):
+            if record.checkin >= record.checkout:
                 raise ValidationError(
                     _(
                         "Room line Check In Date Should be \
@@ -1304,8 +1341,6 @@ class PmsReservation(models.Model):
                 ):
                     raise ValidationError(_("Property isn't allowed in Board Service"))
 
-    # Action methods
-
     def open_folio(self):
         action = self.env.ref("pms.open_pms_folio1_form_tree_all").sudo().read()[0]
         if self.folio_id:
@@ -1346,7 +1381,6 @@ class PmsReservation(models.Model):
             },
         }
 
-    # ORM Overrides
     @api.model
     def name_search(self, name="", args=None, operator="ilike", limit=100):
         if args is None:
@@ -1370,6 +1404,7 @@ class PmsReservation(models.Model):
             result.append((res.id, name))
         return result
 
+    # REVIEW: Is it necessary?
     def copy_data(self, default=None):
         rooms_available = self.env["pms.availability.plan"].rooms_available(
             self.checkin,
@@ -1425,8 +1460,6 @@ class PmsReservation(models.Model):
             record.confirm()
         return record
 
-    # Business methods
-
     def update_prices(self):
         self.ensure_one()
         for line in self.reservation_line_ids:
@@ -1441,19 +1474,7 @@ class PmsReservation(models.Model):
             )
         )
 
-    def _compute_shared_folio(self):
-        # Has this reservation more charges associates in folio?,
-        # Yes?, then, this is share folio ;)
-        for record in self:
-            if record.folio_id:
-                record.shared_folio = len(record.folio_id.reservation_ids) > 1 or any(
-                    record.folio_id.service_ids.filtered(
-                        lambda x: x.reservation_id.id != record.id
-                    )
-                )
-            else:
-                record.shared_folio = False
-
+    # TODO: eliminar
     def _autoassign(self):
         self.ensure_one()
         room_chosen = False
@@ -1491,6 +1512,7 @@ class PmsReservation(models.Model):
         self.ensure_one()
         self.overbooking = not self.overbooking
 
+    # TODO:eliminar este método
     def generate_copy_values(self, checkin=False, checkout=False):
         self.ensure_one()
         return {
@@ -1526,6 +1548,7 @@ class PmsReservation(models.Model):
 
     def action_cancel(self):
         for record in self:
+            # else state = cancelled
             if not record.allowed_cancel:
                 raise UserError(_("This reservation cannot be cancelled"))
             else:
@@ -1561,6 +1584,7 @@ class PmsReservation(models.Model):
                 return "intime"
         return False
 
+    # TODO: eliminar este método y el get_reservations_date siguiente
     def draft(self):
         for record in self:
             record.state = "draft"
@@ -1591,22 +1615,6 @@ class PmsReservation(models.Model):
             )
         return reservations_dates
 
-    def _compute_checkin_partner_count(self):
-        for record in self:
-            if record.reservation_type != "out":
-                record.checkin_partner_count = len(record.checkin_partner_ids)
-                record.checkin_partner_pending_count = (
-                    record.adults + record.children
-                ) - len(record.checkin_partner_ids)
-            else:
-                record.checkin_partner_count = 0
-                record.checkin_partner_pending_count = 0
-
-    def _search_checkin_partner_pending(self, operator, value):
-        self.ensure_one()
-        recs = self.search([]).filtered(lambda x: x.checkin_partner_pending_count > 0)
-        return [("id", "in", [x.id for x in recs])] if recs else []
-
     def action_reservation_checkout(self):
         for record in self:
             if not record.allowed_checkout:
@@ -1618,6 +1626,7 @@ class PmsReservation(models.Model):
                 ).action_done()
         return True
 
+    # TODO: cambiar nombre por action_checkin_partner_view
     def action_checks(self):
         self.ensure_one()
         tree_id = self.env.ref("pms.pms_checkin_partner_reservation_view_tree").id
@@ -1639,6 +1648,7 @@ class PmsReservation(models.Model):
             "target": "new",
         }
 
+    # TODO: cambiar nombre action_checkin_partner_onboard_view
     def action_onboard(self):
         self.ensure_one()
         kanban_id = self.env.ref("pms.pms_checkin_partner_kanban_view").id
@@ -1672,7 +1682,7 @@ class PmsReservation(models.Model):
         no_show_reservations.state = "no_show"
 
     @api.model
-    def auto_no_checkout(self):
+    def auto_departure_delayed(self):
         # No checkout when pass checkout hour
         reservations = self.env["pms.reservation"].search(
             [
@@ -1682,28 +1692,12 @@ class PmsReservation(models.Model):
         )
         for reservation in reservations:
             if reservation.checkout_datetime <= fields.Datetime.now():
-                reservations.state = "no_checkout"
+                reservations.state = "departure_delayed"
 
-    @api.depends("room_type_id")
-    def _compute_tax_ids(self):
-        for record in self:
-            record = record.with_company(record.company_id)
-            product = self.env["product.product"].browse(
-                record.room_type_id.product_id.id
-            )
-            record.tax_ids = product.taxes_id.filtered(
-                lambda t: t.company_id == record.env.company
-            )
-
-    @api.depends("reservation_line_ids", "reservation_line_ids.room_id")
-    def _compute_rooms(self):
-        self.rooms = False
-
-        for reservation in self:
-            if reservation.splitted:
-                reservation.rooms = ", ".join(
-                    [r for r in reservation.reservation_line_ids.mapped("room_id.name")]
-                )
-                reservation.preferred_room_id = False
-            else:
-                reservation.rooms = reservation.preferred_room_id.name
+    def preview_reservation(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "target": "self",
+            "url": self.get_portal_url(),
+        }

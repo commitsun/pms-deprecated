@@ -358,7 +358,7 @@ class TestPmsCheckinPartner(common.SavepointCase):
         )
         freezer.stop()
 
-    def test_auto_no_checkout(self):
+    def test_auto_departure_delayed(self):
 
         # ARRANGE
         self.arrange_single_checkin()
@@ -368,14 +368,14 @@ class TestPmsCheckinPartner(common.SavepointCase):
         # ACTION
         freezer = freeze_time("2012-01-17 12:00:00")
         freezer.start()
-        PmsReservation.auto_no_checkout()
+        PmsReservation.auto_departure_delayed()
 
         freezer.stop()
         # ASSERT
         self.assertEqual(
             self.reservation_1.state,
-            "no_checkout",
-            "Reservations not set like No checkout",
+            "departure_delayed",
+            "Reservations not set like Departure delayed",
         )
 
     def test_not_valid_emails(self):

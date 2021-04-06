@@ -41,7 +41,6 @@ class PmsService(models.Model):
         copy=False,
         comodel_name="folio.sale.line",
         inverse_name="service_id",
-
     )
     reservation_id = fields.Many2one(
         string="Room",
@@ -58,7 +57,6 @@ class PmsService(models.Model):
         comodel_name="pms.service.line",
         inverse_name="service_id",
         compute="_compute_service_line_ids",
-
     )
     company_id = fields.Many2one(
         string="Company",
@@ -96,21 +94,17 @@ class PmsService(models.Model):
         store=True,
         related="folio_id.currency_id",
     )
-    sequence = fields.Integer(
-        string="Sequence",
-        help="",
-        default=10
-    )
+    sequence = fields.Integer(string="Sequence", help="", default=10)
     state = fields.Selection(
         string="State",
         help="Service status, it corresponds with folio status",
-        related="folio_id.state"
+        related="folio_id.state",
     )
     per_day = fields.Boolean(
         string="Per Day",
         help="Indicates if service is sold by days",
         related="product_id.per_day",
-        related_sudo=True
+        related_sudo=True,
     )
     product_qty = fields.Integer(
         string="Quantity",
@@ -130,12 +124,12 @@ class PmsService(models.Model):
         help="Image of the service",
         store=False,
         related="product_id.image_1024",
-        related_sudo=True
+        related_sudo=True,
     )
     invoice_status = fields.Selection(
         string="Invoice Status",
         help="State in which the service is with respect to invoices."
-             "It can be 'invoiced', 'to_invoice' or 'no'",
+        "It can be 'invoiced', 'to_invoice' or 'no'",
         readonly=True,
         default="no",
         store=True,
@@ -149,7 +143,7 @@ class PmsService(models.Model):
     channel_type = fields.Selection(
         string="Sales Channel",
         help="sales channel through which the service was sold."
-             "It can be 'door', 'mail', 'phone', 'call' or 'web'",
+        "It can be 'door', 'mail', 'phone', 'call' or 'web'",
         selection=[
             ("door", "Door"),
             ("mail", "Mail"),
@@ -163,14 +157,14 @@ class PmsService(models.Model):
         help="Subtotal price without taxes",
         readonly=True,
         store=True,
-        compute="_compute_amount_service"
+        compute="_compute_amount_service",
     )
     price_total = fields.Monetary(
         string="Total",
         help="Total price without taxes",
         readonly=True,
         store=True,
-        compute="_compute_amount_service"
+        compute="_compute_amount_service",
     )
     price_tax = fields.Float(
         string="Taxes Amount",
@@ -251,6 +245,7 @@ class PmsService(models.Model):
                         "price_subtotal": 0,
                     }
                 )
+
     @api.depends("product_id")
     def _compute_name(self):
         self.name = False
@@ -397,8 +392,6 @@ class PmsService(models.Model):
         elif self.env.context.get("default_reservation_id"):
             return self.env.context.get("default_reservation_id")
         return False
-
-
 
     # Action methods
     def open_service_ids(self):

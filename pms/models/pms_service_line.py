@@ -71,7 +71,7 @@ class PmsServiceLine(models.Model):
         help="Total price without taxes",
         readonly=True,
         store=True,
-        compute="_compute_day_amount_service"
+        compute="_compute_day_amount_service",
     )
     price_day_tax = fields.Float(
         string="Taxes Amount",
@@ -104,9 +104,7 @@ class PmsServiceLine(models.Model):
         compute="_compute_discount",
     )
     cancel_discount = fields.Float(
-        string="Cancelation Discount",
-        help="",
-        compute="_compute_cancel_discount"
+        string="Cancelation Discount", help="", compute="_compute_cancel_discount"
     )
 
     @api.depends("day_qty", "discount", "price_unit", "tax_ids")

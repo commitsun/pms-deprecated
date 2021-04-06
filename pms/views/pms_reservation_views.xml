@@ -31,7 +31,7 @@
                     <button
                         name="action_reservation_checkout"
                         string="Check Out"
-                        states="onboard,no_checkout"
+                        states="onboard,departure_delayed"
                         type="object"
                     />
                     <button
@@ -273,7 +273,7 @@
                             name="contact_details"
                         >
                             <field
-                                name="email"
+                                name="partner_email"
                                 colspan="2"
                                 nolabel="1"
                                 placeholder="email"
@@ -281,10 +281,10 @@
                                 force_save="1"
                                 attrs="{'invisible': [('reservation_type','in',('out'))],
                                        'readonly': [('partner_id', '!=', False),
-                                                   ('email','!=', False)]}"
+                                                   ('partner_email','!=', False)]}"
                             />
                             <field
-                                name="mobile"
+                                name="partner_mobile"
                                 colspan="2"
                                 nolabel="1"
                                 placeholder="mobile"
@@ -292,7 +292,7 @@
                                 force_save="1"
                                 attrs="{'invisible': [('reservation_type','in',('out'))],
                                        'readonly': [('partner_id', '!=', False),
-                                                   ('mobile','!=', False)]}"
+                                                   ('partner_mobile','!=', False)]}"
                             />
                             <field
                                 placeholder="Partner Notes"
@@ -585,7 +585,7 @@
                                 </div>
                                 <div class="col-6">
                                     <group>
-                                        <field name="requests" />
+                                        <field name="partner_requests" />
                                     </group>
                                 </div>
                             </div>
@@ -670,7 +670,7 @@
                     name="state"
                     decoration-success="state == 'onboard'"
                     decoration-info="state == 'confirm'"
-                    decoration-primary="state == 'no_checkout'"
+                    decoration-primary="state == 'departure_delayed'"
                     decoration-danger="state == 'cancelled'"
                     decoration-bf="state == 'draft'"
                     decoration-warning="state == 'no_show'"
@@ -680,7 +680,7 @@
                 <field
                     name="folio_payment_state"
                     decoration-success="folio_payment_state == 'paid'"
-                    decoration-danger="folio_payment_state == 'not_paid' and state in ['cancelled','onboard','done','no_show','no_checkout']"
+                    decoration-danger="folio_payment_state == 'not_paid' and state in ['cancelled','onboard','done','no_show','departure_delayed']"
                     decoration-info="folio_payment_state == 'not_paid' and state in ['draft','confirm',]"
                     decoration-warning="folio_payment_state == 'partial'"
                     widget="badge"

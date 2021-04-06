@@ -24,9 +24,9 @@ class PmsBoardServiceLine(models.Model):
     pms_property_ids = fields.Many2many(
         string="Properties",
         help="Properties with access to the element;"
-             " if not set, all properties can access",
+        " if not set, all properties can access",
         comodel_name="pms.property",
-        related="pms_board_service_id.pms_property_ids"
+        related="pms_board_service_id.pms_property_ids",
     )
     amount = fields.Float(
         string="Amount",
@@ -51,5 +51,3 @@ class PmsBoardServiceLine(models.Model):
                 for pms_property in record.pms_property_ids:
                     if pms_property not in record.product_id.pms_property_ids:
                         raise ValidationError(_("Property not allowed in product"))
-
-

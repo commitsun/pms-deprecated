@@ -259,6 +259,7 @@ class PmsFolio(models.Model):
     client_order_ref = fields.Char(string="Customer Reference", copy=False)
     reservation_type = fields.Selection(
         [("normal", "Normal"), ("staff", "Staff"), ("out", "Out of Service")],
+        required=True,
         string="Type",
         default=lambda *a: "normal",
     )
@@ -632,7 +633,6 @@ class PmsFolio(models.Model):
           other status is met.
         - to invoice: if any SO line is 'to invoice', the whole SO is 'to invoice'
         - invoiced: if all SO lines are invoiced, the SO is invoiced.
-        - upselling: if all SO lines are invoiced or upselling, the status is upselling.
         """
         unconfirmed_orders = self.filtered(lambda so: so.state in ["draft"])
         unconfirmed_orders.invoice_status = "no"
