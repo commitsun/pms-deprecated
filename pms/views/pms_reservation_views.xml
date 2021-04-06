@@ -34,13 +34,6 @@
                         states="onboard,departure_delayed"
                         type="object"
                     />
-                    <button
-                        name="draft"
-                        string="Set to Draft"
-                        states="cancelled"
-                        class="oe_highlight"
-                        type="object"
-                    />
                     <field name="state" widget="statusbar" />
                 </header>
                 <div
