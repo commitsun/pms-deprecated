@@ -401,101 +401,63 @@ class PmsFolio(models.Model):
     )
     def _compute_sale_line_ids(self):
         for folio in self:
-            sale_lines = [(5, 0, 0)]
-            reservations = folio.reservation_ids
-            services_without_room = folio.service_ids.filtered(
-                lambda s: not s.reservation_id
-            )
-            # TODO: Not delete old sale line ids
-            for reservation in reservations:
-                sale_lines.append(
-                    (
-                        0,
-                        False,
-                        {
-                            "display_type": "line_section",
-                            "name": reservation.name,
-                        },
-                    )
-                )
-                group_reservation_lines = {}
-                for line in reservation.reservation_line_ids:
-                    # On resevations the price, and discounts fields are used
-                    # by group, we need pass this in the create line
-                    group_key = (
-                        reservation.id,
-                        line.price,
-                        line.discount,
-                        line.cancel_discount,
-                    )
-                    if line.cancel_discount == 100:
-                        continue
-                    discount_factor = 1.0
-                    for discount in [line.discount, line.cancel_discount]:
-                        discount_factor = discount_factor * ((100.0 - discount) / 100.0)
-                    final_discount = 100.0 - (discount_factor * 100.0)
-                    if group_key not in group_reservation_lines:
-                        group_reservation_lines[group_key] = {
-                            "reservation_id": reservation.id,
-                            "discount": final_discount,
-                            "price_unit": line.price,
-                            "reservation_line_ids": [(4, line.id)],
-                        }
-                    else:
-                        group_reservation_lines[group_key][
-                            ("reservation_line_ids")
-                        ].append((4, line.id))
-                for item in group_reservation_lines.items():
-                    sale_lines.append((0, False, item[1]))
-                for service in reservation.service_ids:
-                    # Service days with different prices,
-                    # go to differente sale lines
-                    group_service_lines = {}
-                    for service_line in service.service_line_ids:
-                        service_group_key = (
-                            service_line.price_unit,
-                            service_line.discount,
-                            service_line.cancel_discount,
-                        )
-                        if service_group_key not in group_service_lines:
-                            # On service the price, and discounts fields are
-                            # compute in the sale.order.line
-                            group_service_lines[service_group_key] = {
-                                "name": service.name,
-                                "service_id": service.id,
-                                "discount": service_line.discount,
-                                "price_unit": service_line.price_unit,
-                                "service_line_ids": [(4, service_line.id)],
-                            }
-                        else:
-                            group_service_lines[service_group_key][
-                                ("service_line_ids")
-                            ].append((4, service_line.id))
-                    for item in group_service_lines.items():
-                        sale_lines.append((0, False, item[1]))
-            if services_without_room:
-                sale_lines.append(
-                    (
-                        0,
-                        False,
-                        {
-                            "display_type": "line_section",
-                            "name": _("Others"),
-                        },
-                    )
-                )
-                for service in services_without_room:
-                    sale_lines.append(
+            for reservation in folio.reservation_ids:
+                if not reservation.sale_line_ids.filtered(
+                    lambda x: x.name == reservation.name
+                ):
+                    reservation.sale_line_ids = [
                         (
                             0,
-                            False,
+                            0,
                             {
-                                "name": service.name,
-                                "service_id": service.id,
+                                "name": reservation.name,
+                                "display_type": "line_section",
+                                "folio_id": folio.id,
                             },
                         )
-                    )
-            folio.sale_line_ids = sale_lines
+                    ]
+                expected_lines = self.env["pms.reservation.line"].read_group(
+                    [("reservation_id", "=", reservation.id)],
+                    fields=["price", "discount", "cancel_discount"],
+                    groupby=["price", "discount", "cancel_discount"],
+                    orderby="date",
+                    lazy=False,
+                )
+
+                current_sale_line_ids = reservation.sale_line_ids.filtered(
+                    lambda x: x.reservation_id.id == reservation.id
+                    and not x.display_type
+                ).sorted(lambda x: x.id)
+
+                for index, item in enumerate(expected_lines):
+                    lines_to = self.env["pms.reservation.line"].search(item["__domain"])
+                    if current_sale_line_ids and index <= (
+                        len(current_sale_line_ids) - 1
+                    ):
+                        current_sale_line_ids[index].price_unit = item["price"]
+                        current_sale_line_ids[index].reservation_line_ids = lines_to.ids
+                        # todo pending add discount logic (also cancel discount) & taxes
+                    else:
+                        new = {
+                            "reservation_id": reservation.id,
+                            "price_unit": item["price"],
+                            # "discount": item[
+                            #     "discount"
+                            # ],
+                            # todo pending add discount logic
+                            #   (also cancel discount) & taxes
+                            "folio_id": folio.id,
+                            "reservation_line_ids": [(6, 0, lines_to.ids)],
+                        }
+                        reservation.sale_line_ids = [(0, 0, new)]
+                if len(expected_lines) < len(current_sale_line_ids):
+                    folio_sale_lines_to_remove = [
+                        value.id
+                        for index, value in enumerate(current_sale_line_ids)
+                        if index > (len(expected_lines) - 1)
+                    ]
+                    for fsl in folio_sale_lines_to_remove:
+                        self.env["folio.sale.line"].browse(fsl).unlink()
 
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):

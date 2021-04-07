@@ -44,15 +44,7 @@ class FolioSaleLine(models.Model):
     @api.depends("reservation_line_ids", "service_id")
     def _compute_name(self):
         for record in self:
-            if not record.name_updated:
-                record.name = record._get_compute_name()
-
-    @api.depends("name")
-    def _compute_name_updated(self):
-        self.name_updated = False
-        for record in self.filtered("name"):
-            if record.name != record._get_compute_name():
-                record.name_updated = True
+            record.name = record._get_compute_name()
 
     def _get_compute_name(self):
         self.ensure_one()
@@ -367,7 +359,6 @@ class FolioSaleLine(models.Model):
     name = fields.Text(
         string="Description", compute="_compute_name", store=True, readonly=False
     )
-    name_updated = fields.Boolean(compute="_compute_name_updated", store=True)
     reservation_line_ids = fields.Many2many(
         "pms.reservation.line",
         string="Nights",
