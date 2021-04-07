@@ -666,14 +666,14 @@
                     decoration-primary="state == 'departure_delayed'"
                     decoration-danger="state == 'cancelled'"
                     decoration-bf="state == 'draft'"
-                    decoration-warning="state == 'no_show'"
+                    decoration-warning="state == 'arrival_delayed'"
                     widget="badge"
                     optional="show"
                 />
                 <field
                     name="folio_payment_state"
                     decoration-success="folio_payment_state == 'paid'"
-                    decoration-danger="folio_payment_state == 'not_paid' and state in ['cancelled','onboard','done','no_show','departure_delayed']"
+                    decoration-danger="folio_payment_state == 'not_paid' and state in ['cancelled','onboard','done','arrival_delayed','departure_delayed']"
                     decoration-info="folio_payment_state == 'not_paid' and state in ['draft','confirm',]"
                     decoration-warning="folio_payment_state == 'partial'"
                     widget="badge"

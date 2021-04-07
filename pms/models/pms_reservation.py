@@ -333,7 +333,7 @@ class PmsReservation(models.Model):
             ("onboard", "On Board"),
             ("done", "Out"),
             ("cancelled", "Cancelled"),
-            ("no_show", "No Show"),
+            ("arrival_delayed", "Arrival Delayed"),
             ("departure_delayed", "Departure delayed"),
         ],
         tracking=True,
@@ -873,7 +873,7 @@ class PmsReservation(models.Model):
             record.allowed_checkin = (
                 True
                 if (
-                    record.state in ["draft", "confirm", "no_show"]
+                    record.state in ["draft", "confirm", "arrival_delayed"]
                     and record.checkin <= fields.Date.today()
                 )
                 else False
@@ -1139,7 +1139,7 @@ class PmsReservation(models.Model):
 
         today = fields.Date.context_today(self)
         return [
-            ("state", "in", ("draft", "confirm", "no_show")),
+            ("state", "in", ("draft", "confirm", "arrival_delayed")),
             ("checkin", "<=", today),
         ]
 
@@ -1590,15 +1590,15 @@ class PmsReservation(models.Model):
         }
 
     @api.model
-    def auto_no_show(self):
+    def auto_arrival_delayed(self):
         # No show when pass 1 day from checkin day
-        no_show_reservations = self.env["pms.reservation"].search(
+        arrival_delayed_reservations = self.env["pms.reservation"].search(
             [
                 ("state", "in", ("draft", "confirm")),
                 ("checkin", "<", fields.Date.today()),
             ]
         )
-        no_show_reservations.state = "no_show"
+        arrival_delayed_reservations.state = "arrival_delayed"
 
     @api.model
     def auto_departure_delayed(self):

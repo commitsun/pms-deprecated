@@ -335,7 +335,7 @@ class TestPmsCheckinPartner(common.SavepointCase):
             "Fail the checkins data ratio on reservation",
         )
 
-    def test_auto_no_show(self):
+    def test_auto_arrival_delayed(self):
 
         # ARRANGE
         self.arrange_folio_reservations()
@@ -344,15 +344,15 @@ class TestPmsCheckinPartner(common.SavepointCase):
         # ACTION
         freezer = freeze_time("2012-01-15 10:00:00")
         freezer.start()
-        PmsReservation.auto_no_show()
+        PmsReservation.auto_arrival_delayed()
 
-        no_show_reservations = self.folio_1.reservation_ids.filtered(
-            lambda r: r.state == "no_show"
+        arrival_delayed_reservations = self.folio_1.reservation_ids.filtered(
+            lambda r: r.state == "arrival_delayed"
         )
 
         # ASSERT
         self.assertEqual(
-            len(no_show_reservations),
+            len(arrival_delayed_reservations),
             3,
             "Reservations not set like No Show",
         )

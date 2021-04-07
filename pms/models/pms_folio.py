@@ -698,7 +698,7 @@ class PmsFolio(models.Model):
         for folio in self.filtered("reservation_ids"):
             folio.count_rooms_pending_arrival = len(
                 folio.reservation_ids.filtered(
-                    lambda c: c.state in ("draf", "confirm", "no_show")
+                    lambda c: c.state in ("draf", "confirm", "arrival_delayed")
                 )
             )
 
@@ -881,7 +881,7 @@ class PmsFolio(models.Model):
     def action_to_arrive(self):
         self.ensure_one()
         reservations = self.reservation_ids.filtered(
-            lambda c: c.state in ("draf", "confirm", "no_show")
+            lambda c: c.state in ("draf", "confirm", "arrival_delayed")
         )
         action = self.env.ref("pms.open_pms_reservation_form_tree_all").read()[0]
         action["domain"] = [("id", "in", reservations.ids)]

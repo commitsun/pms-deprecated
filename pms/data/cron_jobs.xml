@@ -15,7 +15,7 @@
                 name="nextcall"
                 eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 09:00:00')"
             />
-            <field name="code">model.auto_no_show()</field>
+            <field name="code">model.auto_arrival_delayed()</field>
         </record>
         <!-- Set reservation like No Checout if checkout is not confirmed-->
         <record model="ir.cron" id="nocheckout_reservations">
