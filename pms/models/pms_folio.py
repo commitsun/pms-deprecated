@@ -418,8 +418,8 @@ class PmsFolio(models.Model):
                     ]
                 expected_lines = self.env["pms.reservation.line"].read_group(
                     [("reservation_id", "=", reservation.id)],
-                    fields=["price", "discount", "cancel_discount"],
-                    groupby=["price", "discount", "cancel_discount"],
+                    ["price", "discount", "cancel_discount"],
+                    ["price", "discount", "cancel_discount"],
                     orderby="date",
                     lazy=False,
                 )
@@ -427,7 +427,7 @@ class PmsFolio(models.Model):
                 current_sale_line_ids = reservation.sale_line_ids.filtered(
                     lambda x: x.reservation_id.id == reservation.id
                     and not x.display_type
-                ).sorted(lambda x: x.id)
+                ).sorted(lambda x: min(x.reservation_line_ids.mapped("date")))
 
                 for index, item in enumerate(expected_lines):
                     lines_to = self.env["pms.reservation.line"].search(item["__domain"])
