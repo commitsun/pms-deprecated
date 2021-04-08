@@ -417,10 +417,12 @@ class PmsFolio(models.Model):
                         )
                     ]
                 expected_lines = self.env["pms.reservation.line"].read_group(
-                    [("reservation_id", "=", reservation.id)],
+                    [
+                        ("reservation_id", "=", reservation.id),
+                        ("cancel_discount", "<", 100),
+                    ],
                     ["price", "discount", "cancel_discount"],
                     ["price", "discount", "cancel_discount"],
-                    orderby="date",
                     lazy=False,
                 )
 
@@ -431,21 +433,23 @@ class PmsFolio(models.Model):
 
                 for index, item in enumerate(expected_lines):
                     lines_to = self.env["pms.reservation.line"].search(item["__domain"])
+                    discount_factor = 1.0
+                    for discount in [item["discount"], item["cancel_discount"]]:
+                        discount_factor = discount_factor * ((100.0 - discount) / 100.0)
+                    final_discount = 100.0 - (discount_factor * 100.0)
+
                     if current_sale_line_ids and index <= (
                         len(current_sale_line_ids) - 1
                     ):
                         current_sale_line_ids[index].price_unit = item["price"]
+                        current_sale_line_ids[index].discount = final_discount
                         current_sale_line_ids[index].reservation_line_ids = lines_to.ids
-                        # todo pending add discount logic (also cancel discount) & taxes
+                        # todo pending add taxes
                     else:
                         new = {
                             "reservation_id": reservation.id,
                             "price_unit": item["price"],
-                            # "discount": item[
-                            #     "discount"
-                            # ],
-                            # todo pending add discount logic
-                            #   (also cancel discount) & taxes
+                            "discount": final_discount,  # todo pending add taxes
                             "folio_id": folio.id,
                             "reservation_line_ids": [(6, 0, lines_to.ids)],
                         }
