@@ -1,7 +1,5 @@
 import datetime
 
-from freezegun import freeze_time
-
 from .common import TestHotel
 
 
@@ -46,9 +44,7 @@ class TestPmsFolioSaleLine(TestHotel):
             }
         )
 
-    @freeze_time("1980-11-01")
     def test_compute_folio_sale_lines(self):
-
         self.create_common_scenario()
 
         r_test = self.env["pms.reservation"].create(
@@ -61,13 +57,10 @@ class TestPmsFolioSaleLine(TestHotel):
                 "partner_id": self.env.ref("base.res_partner_12").id,
             }
         )
-        r_test.flush()
+        r_test.reservation_line_ids[0].price = 50.0
 
-        for _el in self.env["pms.reservation.line"].read_group(
-            [("reservation_id", "=", r_test.id)],
-            fields=["reservation_id", "price", "discount", "cancel_discount"],
-            groupby=["reservation_id", "price", "discount", "cancel_discount"],
-            lazy=False,
-        ):
-            # print(el)
-            pass
+        self.assertEqual(
+            len(set(r_test.reservation_line_ids.mapped("price"))),
+            len(r_test.folio_id.sale_line_ids.filtered(lambda x: not x.display_type)),
+            "Folio should contain 2 sale lines",
+        )
