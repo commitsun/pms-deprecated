@@ -864,6 +864,7 @@ class TestPmsReservations(common.SavepointCase):
 
         # ACT
         with freeze_time("1981-11-02"):
+            r1._cache.clear()
             r1.action_reservation_checkout()
 
         # ASSERT
