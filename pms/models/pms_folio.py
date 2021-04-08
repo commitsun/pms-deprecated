@@ -419,7 +419,7 @@ class PmsFolio(models.Model):
                             },
                         )
                     ]
-                expected_lines = self.env["pms.reservation.line"].read_group(
+                expected_reservation_lines = self.env["pms.reservation.line"].read_group(
                     [
                         ("reservation_id", "=", reservation.id),
                         ("cancel_discount", "<", 100),
@@ -428,13 +428,13 @@ class PmsFolio(models.Model):
                     ["price", "discount", "cancel_discount"],
                     lazy=False,
                 )
-
+                # RESERVATION LINES (DAYS)
                 current_sale_line_ids = reservation.sale_line_ids.filtered(
                     lambda x: x.reservation_id.id == reservation.id
                     and not x.display_type
                 ).sorted(lambda x: min(x.reservation_line_ids.mapped("date")))
 
-                for index, item in enumerate(expected_lines):
+                for index, item in enumerate(expected_reservation_lines):
                     lines_to = self.env["pms.reservation.line"].search(item["__domain"])
                     discount_factor = 1.0
                     for discount in [item["discount"], item["cancel_discount"]]:
@@ -457,14 +457,30 @@ class PmsFolio(models.Model):
                             "reservation_line_ids": [(6, 0, lines_to.ids)],
                         }
                         reservation.sale_line_ids = [(0, 0, new)]
-                if len(expected_lines) < len(current_sale_line_ids):
+                if len(expected_reservation_lines) < len(current_sale_line_ids):
                     folio_sale_lines_to_remove = [
                         value.id
                         for index, value in enumerate(current_sale_line_ids)
-                        if index > (len(expected_lines) - 1)
+                        if index > (len(expected_reservation_lines) - 1)
                     ]
                     for fsl in folio_sale_lines_to_remove:
                         self.env["folio.sale.line"].browse(fsl).unlink()
+
+                # # RESERVATION SERVICES
+                expected_reservation_services = self.env["pms.service.line"].read_group(
+                    [
+                        ("reservation_id", "=", reservation.id),
+                    ],
+                    ["name", "price_total"],
+                    ["name", "price_total"],
+                    lazy=False,
+                )
+                print(expected_reservation_services)
+
+
+
+
+
 
     @api.depends("partner_id", "agency_id")
     def _compute_pricelist_id(self):

@@ -87,7 +87,7 @@ class PmsServiceLine(models.Model):
         store=True,
         related="service_id.currency_id",
     )
-    room_id = fields.Many2one(
+    reservation_id = fields.Many2one(
         string="Room",
         help="Room to which the services will be applied",
         readonly=True,

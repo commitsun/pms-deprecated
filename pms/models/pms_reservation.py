@@ -741,6 +741,7 @@ class PmsReservation(models.Model):
                     res = {
                         "product_id": line.product_id.id,
                         "is_board_service": True,
+                        # TODO: REVIEW why not working properly when the folio doesnt exist yet
                         "folio_id": reservation.folio_id.id,
                         "reservation_id": reservation.id,
                     }
