@@ -51,8 +51,8 @@ class PmsServiceLine(models.Model):
     currency_id = fields.Many2one(
         related="service_id.currency_id", store=True, string="Currency", readonly=True
     )
-    room_id = fields.Many2one(
-        string="Room", related="service_id.reservation_id", readonly=True, store=True
+    reservation_id = fields.Many2one(
+        string="Reservation", related="service_id.reservation_id", readonly=True, store=True
     )
     discount = fields.Float(
         string="Discount (%)",
