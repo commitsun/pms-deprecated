@@ -52,7 +52,10 @@ class PmsServiceLine(models.Model):
         related="service_id.currency_id", store=True, string="Currency", readonly=True
     )
     reservation_id = fields.Many2one(
-        string="Reservation", related="service_id.reservation_id", readonly=True, store=True
+        string="Reservation",
+        related="service_id.reservation_id",
+        readonly=True,
+        store=True,
     )
     discount = fields.Float(
         string="Discount (%)",
@@ -63,7 +66,10 @@ class PmsServiceLine(models.Model):
         store=True,
     )
     cancel_discount = fields.Float(
-        "Cancelation Discount", compute="_compute_cancel_discount"
+        "Cancelation Discount",
+        compute="_compute_cancel_discount",
+        readonly=False,
+        store=True,
     )
 
     @api.depends("day_qty", "discount", "price_unit", "tax_ids")
