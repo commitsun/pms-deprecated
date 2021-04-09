@@ -265,8 +265,11 @@
                             <field
                                 name="sale_line_ids"
                                 widget="section_and_note_one2many"
+                                default_order="folio_id, sequence, reservation_id asc, service_order, date_order"
                             >
-                                <tree string="Sales Lines" editable="bottom">
+                                <tree string="Sales Lines" editable="bottom"
+                                      default_order="reservation_id asc, service_order, date_order"
+                                >
                                     <control>
                                         <create
                                             name="add_product_control"
@@ -283,7 +286,10 @@
                                             context="{'default_display_type': 'line_note'}"
                                         />
                                     </control>
-
+                                    <field name="service_order" invisible="1"/>
+                                    <field name="date_order" invisible="1"/>
+                                    <field name="reservation_id" invisible="1"/>
+                                    <field name="service_id" invisible="1"/>
                                     <field name="sequence" widget="handle" />
                                     <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
                                     <field name="display_type" invisible="1" />
@@ -294,8 +300,21 @@
                                         title="Board Service"
                                         class="oe_stat_button"
                                         icon="fa-1x fa-bed"
+                                        attrs="{'invisible':[('service_id','!=', False)]}"
+                                    />
+                                    <button
+                                        title="Board Service"
+                                        class="oe_stat_button"
+                                        icon="fa-1x fa-cutlery"
                                         name="open_service_ids"
                                         attrs="{'invisible':[('is_board_service','=', False)]}"
+                                    />
+                                     <button
+                                        title="Board Service"
+                                        class="oe_stat_button"
+                                        icon="fa-1x fa-tags"
+                                        attrs="{'invisible':['|',('is_board_service','=',True),('service_id','=',False)]}"
+
                                     />
                                     <field
                                         name="product_id"

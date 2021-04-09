@@ -9,7 +9,8 @@ from odoo.tools import float_compare, float_is_zero
 class FolioSaleLine(models.Model):
     _name = "folio.sale.line"
     _description = "Folio Sale Line"
-    _order = "folio_id, sequence, id"
+    _order = "folio_id, sequence, reservation_id asc, service_order, date_order"
+
     _check_company_auto = True
 
     @api.depends("state", "product_uom_qty", "qty_to_invoice", "qty_invoiced")
@@ -41,7 +42,7 @@ class FolioSaleLine(models.Model):
             else:
                 line.invoice_status = "no"
 
-    @api.depends("reservation_line_ids", "service_id")
+    @api.depends("reservation_line_ids", "service_line_ids", "service_id")
     def _compute_name(self):
         for record in self:
             record.name = record._get_compute_name()
@@ -61,8 +62,19 @@ class FolioSaleLine(models.Model):
                 else:
                     name += ", " + date.strftime("%d")
             return name
-        elif self.service_id:
-            return self.service_id.name
+        elif self.service_id and self.reservation_id:
+            month = False
+            name = False
+            lines = self.service_line_ids.filtered(lambda x: x.service_id == self.service_id).sorted("date")
+            for date in lines.mapped("date"):
+                if date.month != month:
+                    name = name + "\n" if name else ""
+                    name += date.strftime("%B-%Y") + ": "
+                    name += date.strftime("%d")
+                    month = date.month
+                else:
+                    name += ", " + date.strftime("%d")
+            return name
         else:
             return False
 
@@ -125,7 +137,7 @@ class FolioSaleLine(models.Model):
     @api.depends("reservation_id.room_type_id", "service_id.product_id")
     def _compute_product_id(self):
         for record in self:
-            if record.reservation_id:
+            if record.reservation_id and not record.service_id:
                 record.product_id = record.reservation_id.room_type_id.product_id
             elif record.service_id:
                 record.product_id = record.service_id.product_id
@@ -552,6 +564,39 @@ class FolioSaleLine(models.Model):
         default=False,
         help="Technical field for UX purpose.",
     )
+
+    service_order = fields.Integer(
+        string="Service id",
+        compute="_compute_service_order",
+        help="Field to order by service id",
+        store=True,
+        readonly=True,
+    )
+
+    date_order = fields.Date(
+        string="Date",
+        compute="_compute_date_order",
+        help="Field to order by service date",
+        store=True,
+        readonly=True,
+    )
+
+    @api.depends("qty_to_invoice")
+    def _compute_service_order(self):
+        for record in self:
+            record.service_order = record.service_id if record.service_id else -1 if record.display_type else 0
+
+    @api.depends("service_order")
+    def _compute_date_order(self):
+        for record in self:
+            if record.display_type:
+                record.date_order = False
+            elif record.reservation_id and not record.service_id:
+                record.date_order = min(record.reservation_line_ids.mapped('date'))
+            elif record.reservation_id and record.service_id:
+                record.date_order = min(record.service_line_ids.mapped('date'))
+            # else:
+            #     record.date_order = 0
 
     @api.depends("reservation_line_ids", "service_line_ids", "service_line_ids.day_qty")
     def _compute_product_uom_qty(self):

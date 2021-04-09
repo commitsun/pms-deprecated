@@ -104,7 +104,10 @@ class PmsServiceLine(models.Model):
         compute="_compute_discount",
     )
     cancel_discount = fields.Float(
-        string="Cancelation Discount", help="", compute="_compute_cancel_discount"
+        "Cancelation Discount",
+        compute="_compute_cancel_discount",
+        readonly=False,
+        store=True,
     )
 
     @api.depends("day_qty", "discount", "price_unit", "tax_ids")

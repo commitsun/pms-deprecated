@@ -419,7 +419,9 @@ class PmsFolio(models.Model):
                             },
                         )
                     ]
-                expected_reservation_lines = self.env["pms.reservation.line"].read_group(
+                expected_reservation_lines = self.env[
+                    "pms.reservation.line"
+                ].read_group(
                     [
                         ("reservation_id", "=", reservation.id),
                         ("cancel_discount", "<", 100),
@@ -428,11 +430,13 @@ class PmsFolio(models.Model):
                     ["price", "discount", "cancel_discount"],
                     lazy=False,
                 )
-                # RESERVATION LINES (DAYS)
+                # RESERVATION LINES (ORDER BY DATE)
+
                 current_sale_line_ids = reservation.sale_line_ids.filtered(
                     lambda x: x.reservation_id.id == reservation.id
-                    and not x.display_type
-                ).sorted(lambda x: min(x.reservation_line_ids.mapped("date")))
+                              and not x.display_type
+                              and not x.service_id
+                ).sorted(key=lambda x: min(x.reservation_line_ids.mapped("date")) if x.reservation_line_ids else x.id)
 
                 for index, item in enumerate(expected_reservation_lines):
                     lines_to = self.env["pms.reservation.line"].search(item["__domain"])
@@ -466,20 +470,57 @@ class PmsFolio(models.Model):
                     for fsl in folio_sale_lines_to_remove:
                         self.env["folio.sale.line"].browse(fsl).unlink()
 
-                # # RESERVATION SERVICES
-                expected_reservation_services = self.env["pms.service.line"].read_group(
-                    [
-                        ("reservation_id", "=", reservation.id),
-                    ],
-                    ["name", "price_total"],
-                    ["name", "price_total"],
-                    lazy=False,
-                )
-                print(expected_reservation_services)
+                for service in reservation.service_ids:
+                    # # RESERVATION SERVICES
+                    expected_reservation_services = self.env["pms.service.line"].read_group(
+                        [
+                            ("reservation_id", "=", reservation.id),
+                            ("service_id", "=", service.id),
+                            ("cancel_discount", "<", 100),
+                        ],
+                        ["price_unit", "discount", "cancel_discount"],
+                        ["price_unit", "discount", "cancel_discount"],
+                        lazy=False,
+                    )
+                    # SERVICE LINES (ORDER BY DATES)
+                    current_sale_service_ids = reservation.sale_line_ids.filtered(
+                        lambda x: x.reservation_id.id == reservation.id
+                                  and not x.display_type
+                                  and x.service_id.id == service.id
+                    ).sorted(key=lambda x: min(x.service_line_ids.mapped("date")) if x.service_line_ids else x.id)
 
+                    for index, item in enumerate(expected_reservation_services):
+                        lines_to = self.env["pms.service.line"].search(item["__domain"])
+                        discount_factor = 1.0
+                        for discount in [item["discount"], item["cancel_discount"]]:
+                            discount_factor = discount_factor * ((100.0 - discount) / 100.0)
+                        final_discount = 100.0 - (discount_factor * 100.0)
 
-
-
+                        if current_sale_service_ids and index <= (
+                            len(current_sale_service_ids) - 1
+                        ):
+                            current_sale_service_ids[index].price_unit = item["price_unit"]
+                            current_sale_service_ids[index].discount = final_discount
+                            current_sale_service_ids[index].service_line_ids = lines_to.ids
+                            # todo pending add taxes
+                        else:
+                            new = {
+                                "service_id": service.id,
+                                "price_unit": item["price_unit"],
+                                "discount": final_discount,  # todo pending add taxes
+                                "folio_id": folio.id,
+                                "service_line_ids": [(6, 0, lines_to.ids)],
+                            }
+                            reservation.sale_line_ids = [(0, 0, new)]
+                    if len(expected_reservation_services) < len(current_sale_service_ids):
+                        folio_sale_lines_to_remove = [
+                            value.id
+                            for index, value in enumerate(current_sale_service_ids)
+                            if index > (len(expected_reservation_services) - 1)
+                        ]
+                        for fsl in folio_sale_lines_to_remove:
+                            self.env["folio.sale.line"].browse(fsl).unlink()
+                    ###################################
 
 
     @api.depends("partner_id", "agency_id")
