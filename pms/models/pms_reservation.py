@@ -275,7 +275,7 @@ class PmsReservation(models.Model):
         "account.tax",
         string="Taxes",
         compute="_compute_tax_ids",
-        readonly="False",
+        readonly=False,
         store=True,
         ondelete="restrict",
         domain=["|", ("active", "=", False), ("active", "=", True)],
