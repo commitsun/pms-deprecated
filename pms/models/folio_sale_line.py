@@ -52,7 +52,7 @@ class FolioSaleLine(models.Model):
         if self.reservation_line_ids:
             month = False
             name = False
-            lines = self.reservation_line_ids.sorted("date")
+            lines = self.reservation_line_ids.sorted(key="date")
             for date in lines.mapped("date"):
                 if date.month != month:
                     name = name + "\n" if name else ""
@@ -62,10 +62,10 @@ class FolioSaleLine(models.Model):
                 else:
                     name += ", " + date.strftime("%d")
             return name
-        elif self.service_id and self.reservation_id:
+        elif self.service_id and self.reservation_id and self.service_line_ids:
             month = False
             name = False
-            lines = self.service_line_ids.filtered(lambda x: x.service_id == self.service_id).sorted("date")
+            lines = self.service_line_ids.filtered(lambda x: x.service_id == self.service_id).sorted(key="date")
             for date in lines.mapped("date"):
                 if date.month != month:
                     name = name + "\n" if name else ""
@@ -590,11 +590,11 @@ class FolioSaleLine(models.Model):
     def _compute_date_order(self):
         for record in self:
             if record.display_type:
-                record.date_order = False
+                record.date_order = 0
             elif record.reservation_id and not record.service_id:
-                record.date_order = min(record.reservation_line_ids.mapped('date'))
+                record.date_order = min(record.reservation_line_ids.mapped('date')) if record.reservation_line_ids else 0
             elif record.reservation_id and record.service_id:
-                record.date_order = min(record.service_line_ids.mapped('date'))
+                record.date_order = min(record.service_line_ids.mapped('date')) if record.service_line_ids else 0
             # else:
             #     record.date_order = 0
 
