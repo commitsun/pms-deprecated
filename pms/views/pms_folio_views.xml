@@ -267,11 +267,7 @@
                                 widget="section_and_note_one2many"
                                 default_order="folio_id, sequence, reservation_id asc, service_order, date_order, display_type"
                             >
-                                <tree
-                                    string="Sales Lines"
-                                    editable="bottom"
-                                    default_order="reservation_id asc, service_order, date_order"
-                                >
+                                <tree string="Sales Lines" editable="bottom">
                                     <control>
                                         <create
                                             name="add_product_control"
