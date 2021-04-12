@@ -403,7 +403,7 @@ class PmsFolio(models.Model):
         "reservation_ids.reservation_line_ids.cancel_discount",
     )
     def _compute_sale_line_ids(self):
-        print('_compute_sale_line_ids')
+        print("_compute_sale_line_ids")
         for folio in self:
             for reservation in folio.reservation_ids:
                 if not reservation.sale_line_ids.filtered(
@@ -435,9 +435,9 @@ class PmsFolio(models.Model):
 
                 current_sale_line_ids = reservation.sale_line_ids.filtered(
                     lambda x: x.reservation_id.id == reservation.id
-                              and not x.display_type
-                              and not x.service_id
-                )#.sorted(key=lambda x: min(x.reservation_line_ids.mapped("date")) if x.reservation_line_ids else x.id)
+                    and not x.display_type
+                    and not x.service_id
+                )  # .sorted(key=lambda x: min(x.reservation_line_ids.mapped("date")) if x.reservation_line_ids else x.id)
 
                 for index, item in enumerate(expected_reservation_lines):
                     lines_to = self.env["pms.reservation.line"].search(item["__domain"])
@@ -473,7 +473,9 @@ class PmsFolio(models.Model):
 
                 for service in reservation.service_ids:
                     # # RESERVATION SERVICES
-                    expected_reservation_services = self.env["pms.service.line"].read_group(
+                    expected_reservation_services = self.env[
+                        "pms.service.line"
+                    ].read_group(
                         [
                             ("reservation_id", "=", reservation.id),
                             ("service_id", "=", service.id),
@@ -486,23 +488,29 @@ class PmsFolio(models.Model):
                     # SERVICE LINES (ORDER BY DATES)
                     current_sale_service_ids = reservation.sale_line_ids.filtered(
                         lambda x: x.reservation_id.id == reservation.id
-                                  and not x.display_type
-                                  and x.service_id.id == service.id
-                    )#.sorted(key=lambda x: min(x.service_line_ids.mapped("date")) if x.service_line_ids else x.id)
+                        and not x.display_type
+                        and x.service_id.id == service.id
+                    )  # .sorted(key=lambda x: min(x.service_line_ids.mapped("date")) if x.service_line_ids else x.id)
 
                     for index, item in enumerate(expected_reservation_services):
                         lines_to = self.env["pms.service.line"].search(item["__domain"])
                         discount_factor = 1.0
                         for discount in [item["discount"], item["cancel_discount"]]:
-                            discount_factor = discount_factor * ((100.0 - discount) / 100.0)
+                            discount_factor = discount_factor * (
+                                (100.0 - discount) / 100.0
+                            )
                         final_discount = 100.0 - (discount_factor * 100.0)
 
                         if current_sale_service_ids and index <= (
                             len(current_sale_service_ids) - 1
                         ):
-                            current_sale_service_ids[index].price_unit = item["price_unit"]
+                            current_sale_service_ids[index].price_unit = item[
+                                "price_unit"
+                            ]
                             current_sale_service_ids[index].discount = final_discount
-                            current_sale_service_ids[index].service_line_ids = lines_to.ids
+                            current_sale_service_ids[
+                                index
+                            ].service_line_ids = lines_to.ids
                             # todo pending add taxes
                         else:
                             new = {
@@ -513,7 +521,9 @@ class PmsFolio(models.Model):
                                 "service_line_ids": [(6, 0, lines_to.ids)],
                             }
                             reservation.sale_line_ids = [(0, 0, new)]
-                    if len(expected_reservation_services) < len(current_sale_service_ids):
+                    if len(expected_reservation_services) < len(
+                        current_sale_service_ids
+                    ):
                         folio_sale_lines_to_remove = [
                             value.id
                             for index, value in enumerate(current_sale_service_ids)
@@ -523,15 +533,13 @@ class PmsFolio(models.Model):
                             self.env["folio.sale.line"].browse(fsl).unlink()
                     ###################################
 
-            if not folio.sale_line_ids.filtered(
-                lambda x: x.name == _("Others")
-            ):
+            if not folio.sale_line_ids.filtered(lambda x: x.name == _("Others")):
                 folio.sale_line_ids = [
                     (
                         0,
                         0,
                         {
-                            "reservation_id": max(folio.reservation_ids.ids)+1,
+                            "reservation_id": max(folio.reservation_ids.ids) + 1,
                             "display_type": "line_section",
                             "name": _("Others"),
                         },
@@ -554,8 +562,8 @@ class PmsFolio(models.Model):
                 # SERVICE LINES (ORDER BY DATES)
                 current_folio_service_ids = folio.sale_line_ids.filtered(
                     lambda x: x.folio_id.id == folio.id
-                              and not x.display_type
-                              and x.service_id.id == folio_service.id
+                    and not x.display_type
+                    and x.service_id.id == folio_service.id
                 )
 
                 for index, item in enumerate(expected_folio_services):
