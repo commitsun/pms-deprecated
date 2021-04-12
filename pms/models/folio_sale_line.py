@@ -9,7 +9,7 @@ from odoo.tools import float_compare, float_is_zero
 class FolioSaleLine(models.Model):
     _name = "folio.sale.line"
     _description = "Folio Sale Line"
-    _order = "folio_id, sequence, reservation_id asc, service_order, date_order"
+    _order = "folio_id, sequence, reservation_order desc, service_order, date_order"
 
     _check_company_auto = True
 
@@ -61,7 +61,7 @@ class FolioSaleLine(models.Model):
                     month = date.month
                 else:
                     name += ", " + date.strftime("%d")
-            return name
+            return "{} ({}).".format(self.product_id.name, name)
         elif self.service_id and self.reservation_id and self.service_line_ids:
             month = False
             name = False
@@ -76,9 +76,9 @@ class FolioSaleLine(models.Model):
                     month = date.month
                 else:
                     name += ", " + date.strftime("%d")
-            return name
+            return "{} ({}).".format(self.service_id.name, name)
         else:
-            return False
+            return self.service_id.name
 
     @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids")
     def _compute_amount(self):
@@ -575,6 +575,14 @@ class FolioSaleLine(models.Model):
         readonly=True,
     )
 
+    reservation_order = fields.Integer(
+        string="Reservation id",
+        compute="_compute_reservation_order",
+        help="Field to order by reservation id",
+        store=True,
+        readonly=True,
+    )
+
     date_order = fields.Date(
         string="Date",
         compute="_compute_date_order",
@@ -613,6 +621,13 @@ class FolioSaleLine(models.Model):
                 )
             # else:
             #     record.date_order = 0
+
+    @api.depends("date_order")
+    def _compute_reservation_order(self):
+        for record in self:
+            record.reservation_order = (
+                record.reservation_id if record.reservation_id else 0
+            )
 
     @api.depends("reservation_line_ids", "service_line_ids", "service_line_ids.day_qty")
     def _compute_product_uom_qty(self):
