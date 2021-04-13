@@ -816,6 +816,7 @@ class TestPmsReservations(TestHotel):
         checkin.flush()
 
         # ACT
+        r1._cache.clear()
         r1.action_reservation_checkout()
 
         # ASSERT
