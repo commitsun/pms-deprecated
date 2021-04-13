@@ -391,20 +391,25 @@ class PmsFolio(models.Model):
             folio.number_of_services = sum(folio.service_ids.mapped("product_qty"))
 
     @api.depends(
-        "reservation_ids",
         "service_ids",
         "service_ids.reservation_id",
         "service_ids.service_line_ids.price_day_total",
         "service_ids.service_line_ids.discount",
         "service_ids.service_line_ids.cancel_discount",
+        "service_ids.service_line_ids.day_qty",
+        "service_ids.service_line_ids.tax_ids",
+
         "reservation_ids.reservation_line_ids",
         "reservation_ids.reservation_line_ids.price",
         "reservation_ids.reservation_line_ids.discount",
         "reservation_ids.reservation_line_ids.cancel_discount",
+        "reservation_ids.tax_ids",
+
     )
     def _compute_sale_line_ids(self):
         for folio in self:
             for reservation in folio.reservation_ids:
+                # RESERVATION LINES
                 self.generate_reservation_lines_sale_lines(folio, reservation)
 
                 # RESERVATION SERVICES
