@@ -63,6 +63,20 @@ class PmsCheckinPartner(models.Model):
         readonly=False,
     )
 
+    code_ine_id = fields.Many2one(
+        comodel_name="code.ine",
+        string="Code in INE",
+        compute="_compute_code_ine",
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends("partner_id", "partner_id.code_ine_id")
+    def _compute_code_ine(self):
+        for record in self:
+            if not record.code_ine_id:
+                record.code_ine_id = record.partner_id.code_ine_id
+
     @api.depends("partner_id", "partner_id.lastname")
     def _compute_lastname(self):
         for record in self:
@@ -126,6 +140,7 @@ class PmsCheckinPartner(models.Model):
                 "document_type",
                 "document_expedition_date",
                 "gender",
+                "code_ine_id",
             ]
         )
         return mandatory_fields

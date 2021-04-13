@@ -13,6 +13,7 @@
                     <field name="document_type" />
                     <field name="document_number" />
                     <field name="document_expedition_date" />
+                    <field name='code_ine_id' />
                 </xpath>
             </data>
         </field>
@@ -32,6 +33,7 @@
                     <field name="document_type" />
                     <field name="document_number" />
                     <field name="document_expedition_date" />
+                    <field name='code_ine_id' />
                 </xpath>
             </data>
         </field>
@@ -51,6 +53,7 @@
                     <field name="document_type" />
                     <field name="document_number" />
                     <field name="document_expedition_date" />
+                    <field name='code_ine_id' />
                 </xpath>
             </data>
         </field>
@@ -70,6 +73,7 @@
                     <field name="document_type" />
                     <field name="document_number" />
                     <field name="document_expedition_date" />
+                    <field name='code_ine_id' />
                 </xpath>
             </data>
         </field>
@@ -89,6 +93,7 @@
                     <field name="document_type" />
                     <field name="document_number" />
                     <field name="document_expedition_date" />
+                    <field name='code_ine_id' />
                 </xpath>
             </data>
         </field>
