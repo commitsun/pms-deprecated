@@ -398,13 +398,11 @@ class PmsFolio(models.Model):
         "service_ids.service_line_ids.cancel_discount",
         "service_ids.service_line_ids.day_qty",
         "service_ids.service_line_ids.tax_ids",
-
         "reservation_ids.reservation_line_ids",
         "reservation_ids.reservation_line_ids.price",
         "reservation_ids.reservation_line_ids.discount",
         "reservation_ids.reservation_line_ids.cancel_discount",
         "reservation_ids.tax_ids",
-
     )
     def _compute_sale_line_ids(self):
         for folio in self:
