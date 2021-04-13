@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+<data noupdate="0">
+    <!--Group for hotel export data bi -->
+    <record id="group_pms_export_data" model="res.groups">
+        <field name="name">Property Management / Export data BI</field>
+    </record>
+</data>
+</odoo>

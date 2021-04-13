@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+export_access_pms_budget,pms.budget.export,model_pms_budget,group_pms_export_data,1,1,1,1
+manager_access_pms_budget,pms.budget.manager,model_pms_budget,pms.group_pms_manager,1,1,1,1

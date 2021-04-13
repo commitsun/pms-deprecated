@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Hotel Settings -->
+    <data>
+        <!-- Inherit Company view to add 'Hotel dataBI' -->
+        <record id="data_bi_view_company_form" model="ir.ui.view">
+            <field name="name">inherit_pms_property_form</field>
+            <field name="model">pms.property</field>
+            <field name="inherit_id" ref="pms.pms_property_views_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='property_rooms']" position="after">
+                    <page string="DataBi MOP" name="property_databi">
+                        <group>
+                            <field name="expedia_rate" />
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+</odoo>
