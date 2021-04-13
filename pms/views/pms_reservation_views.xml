@@ -481,7 +481,7 @@
                                             type="object"
                                             class="oe_stat_button"
                                             icon="fa-1x fa-bed"
-                                            help="service"
+                                            name="open_service_ids"
                                             attrs="{'invisible':[('is_board_service','=', False)]}"
                                         />
                                         <field
