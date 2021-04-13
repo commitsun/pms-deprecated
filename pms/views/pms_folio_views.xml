@@ -295,7 +295,7 @@
 
                                     <!-- <field name="product_updatable" invisible="1"/> -->
                                     <button
-                                        title="Board Service"
+                                        title="Room"
                                         class="oe_stat_button"
                                         icon="fa-1x fa-bed"
                                         attrs="{'invisible':[('service_id','!=', False)]}"
@@ -304,11 +304,10 @@
                                         title="Board Service"
                                         class="oe_stat_button"
                                         icon="fa-1x fa-cutlery"
-                                        name="open_service_ids"
                                         attrs="{'invisible':[('is_board_service','=', False)]}"
                                     />
                                      <button
-                                        title="Board Service"
+                                        title="Extra Service"
                                         class="oe_stat_button"
                                         icon="fa-1x fa-tags"
                                         attrs="{'invisible':['|',('is_board_service','=',True),('service_id','=',False)]}"
