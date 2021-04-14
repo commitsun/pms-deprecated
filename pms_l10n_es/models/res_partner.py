@@ -20,6 +20,11 @@ class ResPartner(models.Model):
         string="Document number",
     )
     document_expedition_date = fields.Date(string="Document expedition date")
+    code_ine_id = fields.Many2one(
+        comodel_name="code.ine",
+        string="Code in INE",
+        required=False,
+    )
 
     @api.constrains("document_number", "document_type")
     def _check_document(self):

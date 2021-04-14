@@ -26,6 +26,7 @@ class ProductTemplate(models.Model):
     )
     daily_limit = fields.Integer("Daily limit")
     is_extra_bed = fields.Boolean("Is extra bed", default=False)
+    is_crib = fields.Boolean("Is a baby crib", default=False)
     show_in_calendar = fields.Boolean(
         "Show in Calendar",
         default=False,

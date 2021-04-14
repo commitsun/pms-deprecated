@@ -991,7 +991,7 @@ class PmsReservation(models.Model):
         for reservation in self:
             if reservation.commission_percent > 0:
                 reservation.commission_amount = (
-                    reservation.price_total * reservation.commission_percent
+                    reservation.price_total * reservation.commission_percent / 100
                 )
             else:
                 reservation.commission_amount = 0
