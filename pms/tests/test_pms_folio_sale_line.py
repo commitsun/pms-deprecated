@@ -200,8 +200,6 @@ class TestPmsFolioSaleLine(TestHotel):
             ),
         )
 
-    # TODO: TEST FOR DIFFERENT TAXES (RESERVATION LINES)
-
     def test_comp_fsl_rooms_increase_stay(self):
         # TEST CASE
         # 2-night reservation increases 1 night with the same price,
@@ -612,8 +610,6 @@ class TestPmsFolioSaleLine(TestHotel):
                 expected_board_service_sale_lines
             ),
         )
-
-    # TODO: TEST FOR DIFFERENT TAXES (BOARD SERVICES)
 
     def test_comp_fsl_board_services_increase_stay(self):
         # TEST CASE
@@ -1071,8 +1067,6 @@ class TestPmsFolioSaleLine(TestHotel):
             ),
         )
 
-    # TODO: TEST FOR DIFFERENT TAXES (RESERVATION SERVICES)
-
     def test_comp_fsl_res_extra_services_increase_stay(self):
         # TEST CASE
         # 2-night reservation increases 1 night with the same price,
@@ -1231,8 +1225,6 @@ class TestPmsFolioSaleLine(TestHotel):
             "Previous records of reservation service sales lines should not be "
             "deleted if it is not necessary",
         )
-
-    # TODO TESTS FOR RESERVATION EXTRA NOT DAILY SERVICES
 
     # FOLIO EXTRA SERVICES
     def test_comp_fsl_fol_extra_services_one(self):

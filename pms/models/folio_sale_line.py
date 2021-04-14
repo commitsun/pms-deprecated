@@ -62,21 +62,21 @@ class FolioSaleLine(models.Model):
                 else:
                     name += ", " + date.strftime("%d")
             return "{} ({}).".format(self.product_id.name, name)
-        elif self.service_id and self.reservation_id and self.service_line_ids:
-            month = False
-            name = False
-            lines = self.service_line_ids.filtered(
-                lambda x: x.service_id == self.service_id
-            ).sorted(key="date")
-            for date in lines.mapped("date"):
-                if date.month != month:
-                    name = name + "\n" if name else ""
-                    name += date.strftime("%B-%Y") + ": "
-                    name += date.strftime("%d")
-                    month = date.month
-                else:
-                    name += ", " + date.strftime("%d")
-            return "{} ({}).".format(self.service_id.name, name)
+        # elif self.service_id and self.reservation_id and self.service_line_ids:
+        # month = False
+        # name = False
+        # lines = self.service_line_ids.filtered(
+        #     lambda x: x.service_id == self.service_id
+        # ).sorted(key="date")
+        # for date in lines.mapped("date"):
+        #     if date.month != month:
+        #         name = name + "\n" if name else ""
+        #         name += date.strftime("%B-%Y") + ": "
+        #         name += date.strftime("%d")
+        #         month = date.month
+        #     else:
+        #         name += ", " + date.strftime("%d")
+        # return "{} ({}).".format(self.service_id.name, name)
         else:
             return self.service_id.name
 
