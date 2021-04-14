@@ -18,6 +18,7 @@
     "installable": True,
     "depends": [
         "base",
+        "base_automation",
         "mail",
         # "account_payment_return",
         # "partner_firstname",
