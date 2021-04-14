@@ -1,6 +1,8 @@
 # Copyright 2020  Dario Lodeiros
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from math import ceil
+
 from odoo import _, api, fields, models
 from odoo.osv import expression
 from odoo.tools import float_compare, float_is_zero
@@ -45,15 +47,31 @@ class FolioSaleLine(models.Model):
     @api.depends("reservation_line_ids", "service_line_ids", "service_id")
     def _compute_name(self):
         for record in self:
-            record.name = record._get_compute_name()
+            record.name = self.generate_folio_sale_name(
+                record.reservation_id,
+                record.product_id,
+                record.service_id,
+                record.reservation_line_ids,
+                record.service_line_ids,
+            )
 
-    def _get_compute_name(self):
-        self.ensure_one()
-        if self.reservation_line_ids:
+    @api.model
+    def generate_folio_sale_name(
+        self,
+        reservation_id,
+        product_id,
+        service_id,
+        reservation_line_ids,
+        service_line_ids,
+        qty=False,
+    ):
+        if reservation_line_ids:
             month = False
             name = False
-            lines = self.reservation_line_ids.sorted(key="date")
-            for date in lines.mapped("date"):
+            lines = reservation_line_ids.sorted(key="date")
+            for index, date in enumerate(lines.mapped("date")):
+                if qty and index > (qty - 1):
+                    break
                 if date.month != month:
                     name = name + "\n" if name else ""
                     name += date.strftime("%B-%Y") + ": "
@@ -61,24 +79,28 @@ class FolioSaleLine(models.Model):
                     month = date.month
                 else:
                     name += ", " + date.strftime("%d")
-            return "{} ({}).".format(self.product_id.name, name)
-        # elif self.service_id and self.reservation_id and self.service_line_ids:
-        # month = False
-        # name = False
-        # lines = self.service_line_ids.filtered(
-        #     lambda x: x.service_id == self.service_id
-        # ).sorted(key="date")
-        # for date in lines.mapped("date"):
-        #     if date.month != month:
-        #         name = name + "\n" if name else ""
-        #         name += date.strftime("%B-%Y") + ": "
-        #         name += date.strftime("%d")
-        #         month = date.month
-        #     else:
-        #         name += ", " + date.strftime("%d")
-        # return "{} ({}).".format(self.service_id.name, name)
+
+            return "{} ({}).".format(product_id.name, name)
+        elif service_line_ids:
+            month = False
+            name = False
+            lines = service_line_ids.filtered(
+                lambda x: x.service_id == service_id
+            ).sorted(key="date")
+
+            for index, date in enumerate(lines.mapped("date")):
+                if qty and index > (ceil(qty / reservation_id.adults) - 1):
+                    break
+                if date.month != month:
+                    name = name + "\n" if name else ""
+                    name += date.strftime("%B-%Y") + ": "
+                    name += date.strftime("%d")
+                    month = date.month
+                else:
+                    name += ", " + date.strftime("%d")
+            return "{} ({}).".format(service_id.name, name)
         else:
-            return self.service_id.name
+            return service_id.name
 
     @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids")
     def _compute_amount(self):
