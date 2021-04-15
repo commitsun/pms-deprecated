@@ -60,12 +60,14 @@ class AccountMoveLine(models.Model):
             )
             # TODO: check why this code doesn't work
             # if not record.name_changed_by_user:
-            #     record.with_context(auto_name=True).name = self.env["folio.sale.line"].generate_folio_sale_name(
-            #                                 record.folio_line_ids.service_id,
-            #                                 record.folio_line_ids.reservation_line_ids,
-            #                                 record.product_id,
-            #                                 qty=record.quantity)
-            #     record.with_context(auto_name=True)._compute_name_changed_by_user()
+            #     record.with_context(auto_name=True).name = self
+            #       .env["folio.sale.line"].generate_folio_sale_name(
+            #           record.folio_line_ids.service_id,
+            #           record.folio_line_ids.reservation_line_ids,
+            #           record.product_id,
+            #           qty=record.quantity)
+            #     record.with_context(auto_name=True).
+            #       _compute_name_changed_by_user()
 
     def _copy_data_extend_business_fields(self, values):
         super(AccountMoveLine, self)._copy_data_extend_business_fields(values)
