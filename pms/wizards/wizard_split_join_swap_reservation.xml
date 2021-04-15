@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <odoo>
     <record id="reservation_wizard" model="ir.ui.view">
-        <field name="name">Reservation Wizard</field>
-        <field name="model">pms.reservation.wizard</field>
+        <field name="name">Split, join or swap reservations</field>
+        <field name="model">pms.reservation.split.join.swap.wizard</field>
         <field name="arch" type="xml">
             <form string="Choose The Details">
                 <group>

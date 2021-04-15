@@ -1324,7 +1324,7 @@ class PmsReservation(models.Model):
             "view_type": "form",
             "view_mode": "form",
             "name": "Unify the reservation",
-            "res_model": "pms.reservation.wizard",
+            "res_model": "pms.reservation.split.join.swap.wizard",
             "target": "new",
             "type": "ir.actions.act_window",
             "context": {

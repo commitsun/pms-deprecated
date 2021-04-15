@@ -1,8 +1,8 @@
 from odoo import fields, models
 
 
-class ReservationWizard(models.TransientModel):
-    _name = "pms.reservation.wizard"
+class ReservationSplitJoinSwapWizard(models.TransientModel):
+    _name = "pms.reservation.split.join.swap.wizard"
     allowed_rooms = fields.One2many("pms.room", compute="_compute_allowed_rooms")
     options = fields.Many2one("pms.room", string="Room")
 
