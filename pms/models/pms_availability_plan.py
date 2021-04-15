@@ -13,6 +13,7 @@ class PmsAvailabilityPlan(models.Model):
 
     _name = "pms.availability.plan"
     _description = "Reservation availability plan"
+    _check_pms_properties_auto = True
 
     @api.model
     def _get_default_pms_property(self):
@@ -35,6 +36,7 @@ class PmsAvailabilityPlan(models.Model):
         help="Pricelists of the availability plan ",
         comodel_name="product.pricelist",
         inverse_name="availability_plan_id",
+        check_pms_properties=True,
     )
 
     rule_ids = fields.One2many(
@@ -42,6 +44,7 @@ class PmsAvailabilityPlan(models.Model):
         help="Rules in a availability plan",
         comodel_name="pms.availability.plan.rule",
         inverse_name="availability_plan_id",
+        check_pms_properties=True,
     )
 
     active = fields.Boolean(

@@ -1,12 +1,12 @@
 # Copyright 2017  Dario Lodeiros
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 
 
 class PmsBoardServiceLine(models.Model):
     _name = "pms.board.service.line"
     _description = "Services on Board Service included"
+    _check_pms_properties_auto = True
 
     pms_board_service_id = fields.Many2one(
         string="Board Service",
@@ -14,12 +14,14 @@ class PmsBoardServiceLine(models.Model):
         required=True,
         comodel_name="pms.board.service",
         ondelete="cascade",
+        check_pms_properties=True,
     )
     product_id = fields.Many2one(
         string="Product",
         help="Product associated with this board service line",
         required=True,
         comodel_name="product.product",
+        check_pms_properties=True,
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
@@ -43,11 +45,3 @@ class PmsBoardServiceLine(models.Model):
     def onchange_product_id(self):
         if self.product_id:
             self.update({"amount": self.product_id.list_price})
-
-    @api.constrains("pms_property_ids", "product_id")
-    def _check_property_integrity(self):
-        for record in self:
-            if record.pms_property_ids and record.product_id.pms_property_ids:
-                for pms_property in record.pms_property_ids:
-                    if pms_property not in record.product_id.pms_property_ids:
-                        raise ValidationError(_("Property not allowed in product"))

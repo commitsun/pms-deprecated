@@ -18,6 +18,7 @@ class PmsFolio(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin"]
     _order = "date_order"
     _check_company_auto = True
+    _check_pms_properties_auto = True
 
     # Default Methods ang Gets
     def name_get(self):
@@ -81,6 +82,7 @@ class PmsFolio(models.Model):
         help="Services detail provide to customer and it will "
         "include in main Invoice.",
         check_company=True,
+        check_pms_properties=True,
         domain="['|',"
         "('pms_property_id','=',pms_property_id),"
         "('pms_property_id','=',False)]",
@@ -132,9 +134,10 @@ class PmsFolio(models.Model):
         store=True,
         readonly=False,
         help="Pricelist for current folio.",
-        domain="['|',"
-        "(pms_property_id, 'in', 'pms_property_ids'),"
-        "('pms_property_ids','=',False)]",
+        check_pms_properties=True,
+        # domain="['|',"
+        # "(pms_property_id, 'in', 'pms_property_ids'),"
+        # "('pms_property_ids','=',False)]",
     )
     commission = fields.Float(
         string="Commission",
@@ -247,9 +250,10 @@ class PmsFolio(models.Model):
     )
     closure_reason_id = fields.Many2one(
         "room.closure.reason",
-        domain="['|',"
-        "(pms_property_id, 'in', 'pms_property_ids'),"
-        "('pms_property_ids', '=', False)]",
+        check_pms_properties=True,
+        # domain="['|',"
+        # "(pms_property_id, 'in', 'pms_property_ids'),"
+        # "('pms_property_ids', '=', False)]",
     )
     segmentation_ids = fields.Many2many(
         "res.partner.category", string="Segmentation", ondelete="restrict"
@@ -1395,18 +1399,6 @@ class PmsFolio(models.Model):
                 raise models.ValidationError(
                     _("The Sale Channel does not correspond to the agency's")
                 )
-
-    @api.constrains(
-        "closure_reason_id",
-    )
-    def _check_property_integrity(self):
-        for rec in self:
-            if rec.pms_property_id:
-                if (
-                    rec.pms_property_id.id
-                    not in rec.closure_reason_id.pms_property_ids.ids
-                ):
-                    raise ValidationError(_("Property not allowed"))
 
     @api.model
     def _prepare_down_payment_section_line(self, **optional_values):

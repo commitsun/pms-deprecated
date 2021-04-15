@@ -2,8 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import logging
 
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -15,6 +14,7 @@ class ProductPricelist(models.Model):
     """
 
     _inherit = "product.pricelist"
+    _check_pms_properties_auto = True
 
     # Fields declaration
     pms_property_ids = fields.Many2many(
@@ -23,11 +23,12 @@ class ProductPricelist(models.Model):
     cancelation_rule_id = fields.Many2one(
         "pms.cancelation.rule",
         string="Cancelation Policy",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            ("pms_property_ids", "in", pms_property_ids),
-        ],
+        check_pms_properties=True,
+        # domain=[
+        #    "|",
+        #    ("pms_property_ids", "=", False),
+        #    ("pms_property_ids", "in", pms_property_ids),
+        # ],
     )
     pricelist_type = fields.Selection(
         [("daily", "Daily Plan")], string="Pricelist Type", default="daily"
@@ -40,11 +41,12 @@ class ProductPricelist(models.Model):
         comodel_name="pms.availability.plan",
         string="Availability Plan",
         ondelete="restrict",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            ("pms_property_ids", "in", pms_property_ids),
-        ],
+        check_pms_properties=True,
+        # domain=[
+        #    "|",
+        #    ("pms_property_ids", "=", False),
+        #    ("pms_property_ids", "in", pms_property_ids),
+        # ],
     )
 
     # Constraints and onchanges
@@ -168,25 +170,3 @@ class ProductPricelist(models.Model):
                     "pricelist_id": self.id,
                 },
             }
-
-    @api.constrains(
-        "cancelation_rule_id",
-    )
-    def _check_property_integrity(self):
-        for rec in self:
-            if rec.pms_property_ids:
-                for p in rec.pms_property_ids:
-                    if p.id not in rec.cancelation_rule_id.pms_property_ids.ids:
-                        raise ValidationError(
-                            _("Property not allowed in cancelation rule")
-                        )
-
-    @api.constrains("pms_property_ids", "availability_plan_id")
-    def _check_availability_plan_property_integrity(self):
-        for record in self:
-            if record.pms_property_ids and record.availability_plan_id.pms_property_ids:
-                for pms_property in record.pms_property_ids:
-                    if pms_property not in record.availability_plan_id.pms_property_ids:
-                        raise ValidationError(
-                            _("Property not allowed availability plan")
-                        )

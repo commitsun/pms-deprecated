@@ -67,9 +67,10 @@ class BaseModel(models.AbstractModel):
             return
 
         inconsistencies = []
+
         for record in self:
             pms_properties = False
-            if record.name == "pms.property":
+            if record._name == "pms.property":
                 pms_properties = record
             if "pms_property_id" in record:
                 pms_properties = record.pms_property_id
@@ -86,9 +87,19 @@ class BaseModel(models.AbstractModel):
                 if "pms_property_ids" in corecord:
                     co_pms_properties = corecord.pms_property_ids
                 if (
-                    pms_properties
-                    and co_pms_properties
-                    and not pms_properties & co_pms_properties
+                    (
+                        pms_properties
+                        and co_pms_properties
+                        and (
+                            not pms_properties & co_pms_properties
+                            or len(pms_properties) > len(co_pms_properties)
+                        )
+                    )
+                    or (not pms_properties and co_pms_properties)
+                    or (
+                        len(pms_properties) == len(co_pms_properties)
+                        and pms_properties != co_pms_properties
+                    )
                 ):
                     inconsistencies.append((record, name, corecord))
 

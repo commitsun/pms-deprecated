@@ -12,6 +12,7 @@ _logger = logging.getLogger(__name__)
 class PmsService(models.Model):
     _name = "pms.service"
     _description = "Services and its charges"
+    _check_pms_properties_auto = True
 
     name = fields.Char(
         string="Service description",
@@ -26,6 +27,8 @@ class PmsService(models.Model):
         required=True,
         comodel_name="product.product",
         ondelete="restrict",
+
+        check_pms_properties=True,
     )
     folio_id = fields.Many2one(
         string="Folio",
@@ -57,6 +60,7 @@ class PmsService(models.Model):
         comodel_name="pms.service.line",
         inverse_name="service_id",
         compute="_compute_service_line_ids",
+        check_pms_properties=True,
     )
     company_id = fields.Many2one(
         string="Company",

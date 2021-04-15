@@ -143,21 +143,7 @@ class PmsRoom(models.Model):
                     )
                 )
 
-<<<<<<< HEAD
-    @api.constrains(
-        "allowed_property_ids",
-        "pms_property_id",
-    )
-    def _check_property_integrity(self):
-        for rec in self:
-            if rec.pms_property_id:
-                if rec.pms_property_id.id not in rec.allowed_property_ids.ids:
-                    raise ValidationError(
-                        _("Property not allowed in room type or in ubication")
-                    )
-=======
     # Business methods
->>>>>>> [ADD] room multiproperty check
 
     def get_capacity(self, extra_bed=0):
         for record in self:

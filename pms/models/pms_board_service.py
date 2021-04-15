@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError
 class PmsBoardService(models.Model):
     _name = "pms.board.service"
     _description = "Board Services"
+    _check_pms_properties_auto = True
 
     name = fields.Char(
         string="Board Service Name",

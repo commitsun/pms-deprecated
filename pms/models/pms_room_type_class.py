@@ -48,6 +48,7 @@ class PmsRoomTypeClass(models.Model):
         help="Room Types that belong to this Room Type Class",
         comodel_name="pms.room.type",
         inverse_name="class_id",
+        check_pms_properties=True,
     )
     default_code = fields.Char(
         string="Code", help="Room type class identification code", required=True

@@ -35,5 +35,3 @@ class PmsCancelationRule(models.Model):
         default="all",
     )
     days_noshow = fields.Integer("NoShow first days", default="2")
-
-    # TODO: Constrain coherence pms_property_ids pricelist and cancelation_rules

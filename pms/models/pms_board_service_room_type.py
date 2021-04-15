@@ -10,6 +10,7 @@ class PmsBoardServiceRoomType(models.Model):
     _rec_name = "pms_board_service_id"
     _log_access = False
     _description = "Board Service included in Room"
+    _check_pms_properties_auto = True
 
     pms_board_service_id = fields.Many2one(
         string="Board Service",
@@ -18,6 +19,7 @@ class PmsBoardServiceRoomType(models.Model):
         index=True,
         comodel_name="pms.board.service",
         ondelete="cascade",
+        check_pms_properties=True,
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
@@ -33,12 +35,8 @@ class PmsBoardServiceRoomType(models.Model):
         required=True,
         index=True,
         comodel_name="pms.room.type",
-        domain=[
-            "|",
-            ("pms_property_ids", "=", False),
-            ("pms_property_ids", "in", pms_property_ids),
-        ],
         ondelete="cascade",
+        check_pms_properties=True,
     )
     board_service_line_ids = fields.One2many(
         string="Board Service Lines",
@@ -105,9 +103,18 @@ class PmsBoardServiceRoomType(models.Model):
     @api.model
     def create(self, vals):
         if "pms_board_service_id" in vals:
+            board_service = self.env["pms.board.service"].browse(
+                vals["pms_board_service_id"]
+            )
+            vals.update(
+                {
+                    "pms_property_ids": board_service.pms_property_ids,
+                }
+            )
             vals.update(
                 self.prepare_board_service_reservation_ids(vals["pms_board_service_id"])
             )
+
         return super(PmsBoardServiceRoomType, self).create(vals)
 
     def write(self, vals):
