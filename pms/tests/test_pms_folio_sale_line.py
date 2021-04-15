@@ -6,9 +6,9 @@ from .common import TestPms
 class TestPmsFolioSaleLine(TestPms):
     def create_common_scenario(self):
         # create a room type availability
-        self.room_type_availability = self.env[
-            "pms.availability.plan"
-        ].create({"name": "Availability plan for TEST"})
+        self.room_type_availability = self.env["pms.availability.plan"].create(
+            {"name": "Availability plan for TEST"}
+        )
 
         # create a property
         self.property = self.env["pms.property"].create(
