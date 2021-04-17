@@ -14,6 +14,10 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
         self.test_pricelist1 = self.env["product.pricelist"].create(
             {
                 "name": "test pricelist 1",
+                "pms_property_ids": [
+                    (4, self.test_property1.id),
+                    (4, self.test_property2.id),
+                ],
             }
         )
         self.test_pricelist2 = self.env["product.pricelist"].create(

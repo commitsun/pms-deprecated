@@ -24,11 +24,6 @@ class ProductPricelist(models.Model):
         "pms.cancelation.rule",
         string="Cancelation Policy",
         check_pms_properties=True,
-        # domain=[
-        #    "|",
-        #    ("pms_property_ids", "=", False),
-        #    ("pms_property_ids", "in", pms_property_ids),
-        # ],
     )
     pricelist_type = fields.Selection(
         [("daily", "Daily Plan")], string="Pricelist Type", default="daily"
@@ -42,11 +37,6 @@ class ProductPricelist(models.Model):
         string="Availability Plan",
         ondelete="restrict",
         check_pms_properties=True,
-        # domain=[
-        #    "|",
-        #    ("pms_property_ids", "=", False),
-        #    ("pms_property_ids", "in", pms_property_ids),
-        # ],
     )
 
     # Constraints and onchanges

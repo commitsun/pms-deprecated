@@ -1,7 +1,8 @@
 from psycopg2 import IntegrityError
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 from odoo.tools import mute_logger
+
 
 from .common import TestPms
 
@@ -38,9 +39,7 @@ class TestPmsRoom(TestPms):
             }
         )
         # ACT & ARRANGE
-        with self.assertRaises(
-            ValidationError, msg="Room has been created and it should't"
-        ):
+        with self.assertRaises(UserError, msg="Room has been created and it should't"):
             self.env["pms.room"].create(
                 {
                     "name": "Room 101",
@@ -60,9 +59,7 @@ class TestPmsRoom(TestPms):
             }
         )
         # ACT & ARRANGE
-        with self.assertRaises(
-            ValidationError, msg="Room has been created and it should't"
-        ):
+        with self.assertRaises(UserError, msg="Room has been created and it should't"):
             self.env["pms.room"].create(
                 {
                     "name": "Room 101",
