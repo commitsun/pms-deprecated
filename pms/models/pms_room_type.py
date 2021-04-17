@@ -31,6 +31,7 @@ class PmsRoomType(models.Model):
         required=True,
         delegate=True,
         ondelete="cascade",
+        #check_pms_properties=True,
     )
     room_ids = fields.One2many(
         string="Rooms",

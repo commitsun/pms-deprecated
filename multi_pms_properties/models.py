@@ -80,26 +80,46 @@ class BaseModel(models.AbstractModel):
             # records linked via relation fields are compatible
             # with the properties of the origin document,
             for name in regular_fields:
+                field = self._fields[name]
                 co_pms_properties = False
+
+
                 corecord = record.sudo()[name]
+
                 if "pms_property_id" in corecord:
                     co_pms_properties = corecord.pms_property_id
                 if "pms_property_ids" in corecord:
                     co_pms_properties = corecord.pms_property_ids
+                print(corecord)
+                print(pms_properties)
+                print(co_pms_properties)
+                print(field)
+                print(field.type)
+
                 if (
+
+                    # There is an inconsistency if:
+                    #       - Record has properties and corecord too and there's no match between them:
+                    #       X  Pms_room_class with Property1 cannot contain Pms_room with property2   X
+
+                    #       - Record has a relation one2many with corecord and corecord properties aren't included in record properties
+                    # or what is the same, subtraction between corecord properties and record properties must be False.
+                    #       X  Pricelist with Prop1 and Prop2 cannot contain Pricelist_item with Prop1 and Prop3  X
+                    #       X  Pricelist with Prop1 and Prop2 cannot contain Pricelist_item with Prop1, Prop2 and Prop3  X
+
+                    #       -In case that record has a relation many2one with corecord the condition is the same as avobe
                     (
                         pms_properties
                         and co_pms_properties
                         and (
                             not pms_properties & co_pms_properties
-                            or len(pms_properties) > len(co_pms_properties)
                         )
                     )
-                    or (not pms_properties and co_pms_properties)
-                    or (
-                        len(pms_properties) == len(co_pms_properties)
-                        and pms_properties != co_pms_properties
-                    )
+                    or (field.type == 'one2many' and pms_properties and co_pms_properties - pms_properties != False)
+                    or (field.type == 'many2one' and co_pms_properties and pms_properties - co_pms_properties != False)
+                    #or (field.type == 'many2one' and co_pms_properties and pms_properties and pms_properties - co_pms_properties == True)
+                    #or (field.type == 'many2one' and co_pms_properties and not pms_properties)
+
                 ):
                     inconsistencies.append((record, name, corecord))
 
