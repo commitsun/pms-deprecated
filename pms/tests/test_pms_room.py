@@ -3,7 +3,6 @@ from psycopg2 import IntegrityError
 from odoo.exceptions import UserError
 from odoo.tools import mute_logger
 
-
 from .common import TestPms
 
 

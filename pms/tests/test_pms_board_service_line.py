@@ -72,5 +72,4 @@ class TestPmsBoardService(common.SavepointCase):
                     "pms_board_service_id": self.board_service.id,
                 }
             )
-            #board_service_line.product_id = [self.product.id]
             board_service_line.pms_property_ids = [self.property2.id]

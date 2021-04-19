@@ -1,4 +1,4 @@
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 
 from .common import TestPms
 
