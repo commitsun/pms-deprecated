@@ -27,19 +27,26 @@ def _description_domain(self, env):
             else:
                 return f"[('company_id', 'in', [{cid}, False])]"
 
-    # if self.check_pms_properties:
-    #    record = env[self.model_name]
-    #    prop = "pms_property_id" if "pms_property_id" in record else "pms_property_ids"
-    #    coprop = "pms_property_id" if "pms_property_id" in self.comodel_name else "pms_property_ids"
-    #    if prop == "pms_property_id" and coprop == "pms_property_id":
-    #        return f"[({prop}, '=', [{coprop}])]"
-    # [(pms_property_id,'=', "pms_property_id")]
-    #    if prop == "pms_property_ids" and coprop == "pms_property_ids":
-    #        return f"['|', ({coprop}, '=', False), ({prop}, 'in', [{coprop}])]"
-    # ['|',("pms_property_ids",'=',False),(pms_property_ids,'in',["pms_property_ids"])]
-    #    if prop == "pms_property_id" and coprop == "pms_property_ids":
-    #        return f"['|', ({coprop}, '=', False), ({prop}, 'in', [{coprop}])]"
-    # ['|',("pms_property_ids",'=',False),(pms_property_id,'in',["pms_property_ids"])]
+    if self.check_pms_properties and not self.domain:
+        record = env[self.model_name]
+        # REVIEW: "pms_property_id" is currently always mandatory field,
+        # if there were the case of pms_property_id = False,
+        # the (not "[pms_property_id]", '=', True) domain would be wrong:
+        # not [False] not is True)
+        prop = (
+            "[pms_property_id]"
+            if "pms_property_id" in record._fields
+            else "pms_property_ids"
+        )
+        coprop = (
+            "pms_property_id"
+            if "pms_property_id" in env[self.comodel_name]._fields
+            else "pms_property_ids"
+        )
+        return f"['|', '|', \
+            (not {prop}, '=', True), \
+            ('{coprop}', 'in', {prop}), \
+            ('{coprop}', '=', False)]"
 
     return self.domain(env[self.model_name]) if callable(self.domain) else self.domain
 

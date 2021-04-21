@@ -86,7 +86,7 @@ class BaseModel(models.AbstractModel):
                 co_pms_properties = False
 
                 corecord = record.sudo()[name]
-
+                # TODO:res.users management properties
                 if "pms_property_id" in corecord:
                     co_pms_properties = corecord.pms_property_id
                 if "pms_property_ids" in corecord:
