@@ -11,7 +11,10 @@ class AccountMove(models.Model):
 
     # Field Declarations
     folio_ids = fields.Many2many(
-        comodel_name="pms.folio", compute="_compute_folio_origin"
+        comodel_name="pms.folio",
+        compute="_compute_folio_origin",
+        store=True,
+        readonly=False,
     )
     pms_property_id = fields.Many2one("pms.property")
     outstanding_folios_debits_widget = fields.Text(
