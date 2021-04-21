@@ -29,24 +29,21 @@ def _description_domain(self, env):
 
     if self.check_pms_properties and not self.domain:
         record = env[self.model_name]
-        # REVIEW: "pms_property_id" is currently always mandatory field,
-        # if there were the case of pms_property_id = False,
-        # the (not "[pms_property_id]", '=', True) domain would be wrong:
-        # not [False] not is True)
-        prop = (
-            "[pms_property_id]"
-            if "pms_property_id" in record._fields
-            else "pms_property_ids"
-        )
-        coprop = (
-            "pms_property_id"
-            if "pms_property_id" in env[self.comodel_name]._fields
-            else "pms_property_ids"
-        )
-        return f"['|', '|', \
-            (not {prop}, '=', True), \
-            ('{coprop}', 'in', {prop}), \
-            ('{coprop}', '=', False)]"
+        if self.check_pms_properties and not self.domain:
+            if "pms_property_id" in record._fields:
+                prop1 = "pms_property_id"
+                prop2 = f"[{prop1}]"
+            else:
+                prop1 = prop2 = "pms_property_ids"
+            coprop = (
+                "pms_property_id"
+                if "pms_property_id" in env[self.comodel_name]._fields
+                else "pms_property_ids"
+            )
+            return f"['|', '|', \
+                (not {prop1}, '=', True), \
+                ('{coprop}', 'in', {prop2}), \
+                ('{coprop}', '=', False)]"
 
     return self.domain(env[self.model_name]) if callable(self.domain) else self.domain
 
