@@ -46,11 +46,6 @@ class PmsRoomType(models.Model):
         comodel_name="pms.room.type.class",
         required=True,
         check_pms_properties=True,
-        # domain="["
-        # "'|', "
-        # "('pms_property_ids', '=', False), "
-        # "('pms_property_ids', 'in', pms_property_ids)"
-        # "]",
     )
     board_service_room_type_ids = fields.One2many(
         string="Board Services",

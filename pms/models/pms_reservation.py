@@ -39,9 +39,13 @@ class PmsReservation(models.Model):
         "empty if reservation is splitted",
         copy=False,
         comodel_name="pms.room",
-        domain="[('id', 'in', allowed_room_ids)]",
         ondelete="restrict",
+        domain="["
+        "('id', 'in', allowed_room_ids),"
+        "('pms_property_id', '=', pms_property_id),"
+        "]",
         tracking=True,
+        check_pms_properties=True,
     )
     allowed_room_ids = fields.Many2many(
         string="Allowed Rooms",
