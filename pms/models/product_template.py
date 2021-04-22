@@ -17,6 +17,8 @@ class ProductTemplate(models.Model):
         relation="product_template_pms_property_rel",
         column1="product_tmpl_id",
         column2="pms_property_id",
+        ondelete="restrict",
+        check_pms_properties=True,
     )
     per_day = fields.Boolean(
         string="Unit increment per day",

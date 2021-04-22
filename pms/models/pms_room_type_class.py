@@ -42,6 +42,7 @@ class PmsRoomTypeClass(models.Model):
         column1="room_type_class_id",
         column2="pms_property_id",
         ondelete="restrict",
+        check_pms_properties=True,
     )
     room_type_ids = fields.One2many(
         string="Types",

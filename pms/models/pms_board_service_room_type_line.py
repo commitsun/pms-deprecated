@@ -24,12 +24,7 @@ class PmsBoardServiceRoomTypeLine(models.Model):
         string="Product",
         help="Product associated with this board service room type line",
         readonly=True,
-<<<<<<< HEAD
-        required=True,
-        comodel_name="product.product",
-=======
         check_pms_properties=True,
->>>>>>> [IMP] Fix multiproperty checks logic
     )
     # TODO def default_amount "amount of service"
     amount = fields.Float(
@@ -38,16 +33,3 @@ class PmsBoardServiceRoomTypeLine(models.Model):
         default=0.0,
         digits=("Product Price"),
     )
-
-    # @api.constrains("pms_board_service_room_type_id", "product_id")
-    # def _check_property_integrity(self):
-    #    for record in self:
-    #        if (
-    #            record.pms_board_service_room_type_id.pms_property_ids
-    #            and record.product_id.pms_property_ids
-    #        ):
-    #           for (
-    #                pms_property
-    #           ) in record.pms_board_service_room_type_id.pms_property_ids:
-    #               if pms_property not in record.product_id.pms_property_ids:
-    #                   raise ValidationError(_("Property not allowed"))

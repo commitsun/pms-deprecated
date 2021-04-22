@@ -18,7 +18,16 @@ class ProductPricelist(models.Model):
 
     # Fields declaration
     pms_property_ids = fields.Many2many(
-        "pms.property", string="Properties", required=False, ondelete="restrict"
+        string="Properties",
+        help="Properties with access to the element;"
+        " if not set, all properties can access",
+        required=False,
+        comodel_name="pms.property",
+        relation="product_pricelist_pms_property_rel",
+        column1="product_pricelist_id",
+        column2="pms_property_id",
+        ondelete="restrict",
+        check_pms_properties=True,
     )
     cancelation_rule_id = fields.Many2one(
         "pms.cancelation.rule",
@@ -29,15 +38,17 @@ class ProductPricelist(models.Model):
         [("daily", "Daily Plan")], string="Pricelist Type", default="daily"
     )
     pms_sale_channel_ids = fields.Many2many(
-        "pms.sale.channel", string="Available Channels"
+        "pms.sale.channel",
+        string="Available Channels",
+        check_pms_properties=True,
     )
-
     availability_plan_id = fields.Many2one(
         comodel_name="pms.availability.plan",
         string="Availability Plan",
         ondelete="restrict",
         check_pms_properties=True,
     )
+    item_ids = fields.One2many(check_pms_properties=True)
 
     # Constraints and onchanges
     # @api.constrains("pricelist_type", "pms_property_ids")

@@ -27,9 +27,11 @@ class PmsAvailabilityPlan(models.Model):
         help="Properties with access to the element;"
         " if not set, all properties can access",
         comodel_name="pms.property",
+        ondelete="restrict",
         relation="pms_availability_plan_pms_property_rel",
         column1="availability_plan_id",
         column2="pms_property_id",
+        check_pms_properties=True,
     )
     pms_pricelist_ids = fields.One2many(
         string="Pricelists",

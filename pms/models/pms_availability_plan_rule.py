@@ -93,6 +93,7 @@ class PmsAvailabilityPlanRule(models.Model):
         store=True,
         readonly=False,
         ondelete="restrict",
+        check_pms_properties=True,
     )
     real_avail = fields.Integer(
         string="Real availability",

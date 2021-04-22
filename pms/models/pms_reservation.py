@@ -114,9 +114,7 @@ class PmsReservation(models.Model):
         string="Closure Reason",
         help="Reason why the reservation cannot be made",
         related="folio_id.closure_reason_id",
-        domain="['|',"
-        "(pms_property_id, 'in', 'pms_property_ids'),"
-        "('pms_property_ids', '=', False)]",
+        check_pms_properties=True,
     )
     company_id = fields.Many2one(
         string="Company",
@@ -144,6 +142,7 @@ class PmsReservation(models.Model):
         compute="_compute_reservation_line_ids",
         comodel_name="pms.reservation.line",
         inverse_name="reservation_id",
+        check_pms_properties=True,
     )
     service_ids = fields.One2many(
         string="Services",
@@ -206,6 +205,7 @@ class PmsReservation(models.Model):
         compute="_compute_checkin_partner_ids",
         comodel_name="pms.checkin.partner",
         inverse_name="reservation_id",
+        check_pms_properties=True,
     )
     count_pending_arrival = fields.Integer(
         string="Pending Arrival",

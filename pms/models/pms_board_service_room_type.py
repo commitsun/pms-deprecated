@@ -23,11 +23,15 @@ class PmsBoardServiceRoomType(models.Model):
     )
     pms_property_ids = fields.Many2many(
         string="Properties",
-        help="Properties with access to the element; "
-        "if not set, all properties can access",
+        help="Properties with access to the element;"
+        " if not set, all properties can access",
         required=False,
-        comodel_name="pms.property",
         ondelete="restrict",
+        comodel_name="pms.property",
+        relation="pms_board_service_room_type_pms_property_rel",
+        column1="pms_board_service_room_type_id",
+        column2="pms_property_id",
+        check_pms_properties=True,
     )
     pms_room_type_id = fields.Many2one(
         string="Room Type",
@@ -43,6 +47,7 @@ class PmsBoardServiceRoomType(models.Model):
         help="Services included in this Board Service",
         comodel_name="pms.board.service.room.type.line",
         inverse_name="pms_board_service_room_type_id",
+        required=True,
     )
     amount = fields.Float(
         string="Amount",
@@ -102,19 +107,28 @@ class PmsBoardServiceRoomType(models.Model):
 
     @api.model
     def create(self, vals):
+        properties = False
         if "pms_board_service_id" in vals:
-            board_service = self.env["pms.board.service"].browse(
-                vals["pms_board_service_id"]
-            )
-            vals.update(
-                {
-                    "pms_property_ids": board_service.pms_property_ids,
-                }
-            )
             vals.update(
                 self.prepare_board_service_reservation_ids(vals["pms_board_service_id"])
             )
-
+            board_service = self.env["pms.board.service"].browse(
+                vals["pms_board_service_id"]
+            )
+            properties = board_service.pms_property_ids
+        if "pms_room_type_id" in vals:
+            room_type = self.env["pms.room.type"].browse(vals["pms_room_type_id"])
+            properties = (
+                properties + room_type.pms_property_ids
+                if properties
+                else room_type.pms_property_ids
+            )
+        if properties:
+            vals.update(
+                {
+                    "pms_property_ids": properties,
+                }
+            )
         return super(PmsBoardServiceRoomType, self).create(vals)
 
     def write(self, vals):

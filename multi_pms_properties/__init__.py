@@ -30,7 +30,10 @@ def _description_domain(self, env):
     if self.check_pms_properties and not self.domain:
         record = env[self.model_name]
         if self.check_pms_properties and not self.domain:
-            if "pms_property_id" in record._fields:
+            if self.model_name == "pms.property":
+                prop1 = "id"
+                prop2 = f"[{prop1}]"
+            elif "pms_property_id" in record._fields:
                 prop1 = "pms_property_id"
                 prop2 = f"[{prop1}]"
             else:

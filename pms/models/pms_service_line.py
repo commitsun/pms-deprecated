@@ -95,6 +95,7 @@ class PmsServiceLine(models.Model):
         readonly=True,
         store=True,
         related="service_id.reservation_id",
+        check_pms_properties=True,
     )
     discount = fields.Float(
         string="Discount (%)",

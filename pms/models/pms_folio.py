@@ -55,6 +55,7 @@ class PmsFolio(models.Model):
         ondelete="restrict",
         store=True,
         readonly=False,
+        check_pms_properties=True,
     )
     reservation_ids = fields.One2many(
         "pms.reservation",
@@ -63,6 +64,7 @@ class PmsFolio(models.Model):
         states={"done": [("readonly", True)]},
         help="Room reservation detail.",
         check_company=True,
+        check_pms_properties=True,
     )
     number_of_rooms = fields.Integer(
         "Number of Rooms",
@@ -83,9 +85,6 @@ class PmsFolio(models.Model):
         "include in main Invoice.",
         check_company=True,
         check_pms_properties=True,
-        domain="['|',"
-        "('pms_property_id','=',pms_property_id),"
-        "('pms_property_id','=',False)]",
     )
     sale_line_ids = fields.One2many(
         "folio.sale.line",
@@ -135,9 +134,6 @@ class PmsFolio(models.Model):
         readonly=False,
         help="Pricelist for current folio.",
         check_pms_properties=True,
-        # domain="['|',"
-        # "(pms_property_id, 'in', 'pms_property_ids'),"
-        # "('pms_property_ids','=',False)]",
     )
     commission = fields.Float(
         string="Commission",
@@ -161,6 +157,7 @@ class PmsFolio(models.Model):
         string="Agency",
         ondelete="restrict",
         domain=[("is_agency", "=", True)],
+        check_pms_properties=True,
     )
     channel_type_id = fields.Many2one(
         "pms.sale.channel",
@@ -170,6 +167,7 @@ class PmsFolio(models.Model):
         string="Direct Sale Channel",
         ondelete="restrict",
         domain=[("channel_type", "=", "direct")],
+        check_pms_properties=True,
     )
     transaction_ids = fields.Many2many(
         "payment.transaction",
@@ -239,6 +237,7 @@ class PmsFolio(models.Model):
         store=True,
         readonly=False,
         help="Invoice address for current group.",
+        check_pms_properties=True,
     )
     # REVIEW THIS
     # partner_invoice_state_id = fields.Many2one(related="partner_invoice_id.state_id")
@@ -251,9 +250,6 @@ class PmsFolio(models.Model):
     closure_reason_id = fields.Many2one(
         "room.closure.reason",
         check_pms_properties=True,
-        # domain="['|',"
-        # "(pms_property_id, 'in', 'pms_property_ids'),"
-        # "('pms_property_ids', '=', False)]",
     )
     segmentation_ids = fields.Many2many(
         "res.partner.category", string="Segmentation", ondelete="restrict"

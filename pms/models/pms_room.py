@@ -78,18 +78,6 @@ class PmsRoom(models.Model):
         translate=True,
     )
 
-    allowed_property_ids = fields.Many2many(
-        string="Allowed Properties",
-        help="Allowed properties for rooms",
-        store=True,
-        readonly=True,
-        compute="_compute_allowed_property_ids",
-        comodel_name="pms.property",
-        relation="room_property_rel",
-        column1="room_id",
-        column2="property_id",
-    )
-
     _sql_constraints = [
         (
             "room_property_unique",
@@ -108,30 +96,7 @@ class PmsRoom(models.Model):
             result.append((room.id, name))
         return result
 
-    @api.depends(
-        "room_type_id",
-        "room_type_id.pms_property_ids",
-        "ubication_id",
-        "ubication_id.pms_property_ids",
-    )
-    # TODO: Dario, revisar flujo de allowed properties
-    def _compute_allowed_property_ids(self):
-        for record in self:
-            if not (
-                record.room_type_id.pms_property_ids
-                or record.ubication_id.pms_property_ids
-            ):
-                record.allowed_property_ids = self.env["pms.property"].search([])
-            elif not record.room_type_id.pms_property_ids:
-                record.allowed_property_ids = record.ubication_id.pms_property_ids
-            elif not record.ubication_id.pms_property_ids:
-                record.allowed_property_ids = record.room_type_id.pms_property_ids
-            else:
-                record.allowed_property_ids = (
-                    record.room_type_id.pms_property_ids
-                    & record.ubication_id.pms_property_ids
-                )
-
+    # Constraints and onchanges
     @api.constrains("capacity")
     def _check_capacity(self):
         for record in self:

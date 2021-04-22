@@ -52,6 +52,49 @@ class BaseModel(models.AbstractModel):
         if fnames is None:
             fnames = self._fields
 
+        regular_fields = self._get_regular_fields(fnames)
+
+        if not regular_fields:
+            return
+
+        inconsistencies = self._check_inconsistencies(regular_fields)
+
+        if inconsistencies:
+            lines = [_("Incompatible properties on records:")]
+            property_msg = _(
+                """- Record is properties %(pms_properties)r and %(field)r
+                (%(fname)s: %(values)s) belongs to another properties."""
+            )
+            record_msg = _(
+                """- %(record)r belongs to properties %(pms_properties)r and
+                %(field)r (%(fname)s: %(values)s) belongs to another properties."""
+            )
+            for record, name, corecords in inconsistencies[:5]:
+                if record._name == "pms.property":
+                    msg, pms_properties = property_msg, record
+                else:
+                    msg, pms_properties = (
+                        record_msg,
+                        record.pms_property_id.name
+                        if "pms_property_id" in record
+                        else ", ".join(repr(p.name) for p in record.pms_property_ids),
+                    )
+                field = self.env["ir.model.fields"]._get(self._name, name)
+                lines.append(
+                    msg
+                    % {
+                        "record": record.display_name,
+                        "pms_properties": pms_properties,
+                        "field": field.field_description,
+                        "fname": field.name,
+                        "values": ", ".join(
+                            repr(rec.display_name) for rec in corecords
+                        ),
+                    }
+                )
+            raise UserError("\n".join(lines))
+
+    def _get_regular_fields(self, fnames):
         regular_fields = []
         for name in fnames:
             field = self._fields[name]
@@ -64,12 +107,10 @@ class BaseModel(models.AbstractModel):
                 )
             ):
                 regular_fields.append(name)
+        return regular_fields
 
-        if not regular_fields:
-            return
-
+    def _check_inconsistencies(self, regular_fields):
         inconsistencies = []
-
         for record in self:
             pms_properties = False
             if record._name == "pms.property":
@@ -78,6 +119,20 @@ class BaseModel(models.AbstractModel):
                 pms_properties = record.pms_property_id
             if "pms_property_ids" in record:
                 pms_properties = record.pms_property_ids
+            # Check the property & company consistence
+            if "company_id" in self._fields:
+                if record.company_id and pms_properties:
+                    property_companies = pms_properties.mapped("company_id")
+                    if (
+                        len(property_companies) > 1
+                        or record.company_id != property_companies
+                    ):
+                        raise UserError(
+                            _(
+                                "The company of the properties must match "
+                                "the company on account journal"
+                            )
+                        )
             # Check verifies that all
             # records linked via relation fields are compatible
             # with the properties of the origin document,
@@ -127,38 +182,4 @@ class BaseModel(models.AbstractModel):
                     )
                 ):
                     inconsistencies.append((record, name, corecord))
-
-        if inconsistencies:
-            lines = [_("Incompatible properties on records:")]
-            property_msg = _(
-                """- Record is properties %(pms_properties)r and %(field)r
-                (%(fname)s: %(values)s) belongs to another properties."""
-            )
-            record_msg = _(
-                """- %(record)r belongs to properties %(pms_properties)r and
-                %(field)r (%(fname)s: %(values)s) belongs to another properties."""
-            )
-            for record, name, corecords in inconsistencies[:5]:
-                if record._name == "pms.property":
-                    msg, pms_properties = property_msg, record
-                else:
-                    msg, pms_properties = (
-                        record_msg,
-                        record.pms_property_id.name
-                        if "pms_property_id" in record
-                        else ", ".join(repr(p.name) for p in record.pms_property_ids),
-                    )
-                field = self.env["ir.model.fields"]._get(self._name, name)
-                lines.append(
-                    msg
-                    % {
-                        "record": record.display_name,
-                        "pms_properties": pms_properties,
-                        "field": field.field_description,
-                        "fname": field.name,
-                        "values": ", ".join(
-                            repr(rec.display_name) for rec in corecords
-                        ),
-                    }
-                )
-            raise UserError("\n".join(lines))
+        return inconsistencies
