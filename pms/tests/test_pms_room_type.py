@@ -68,7 +68,7 @@ class TestRoomType(TestPms):
         """
         # ARRANGE & ACT & ASSERT
         with self.assertRaises(
-            ValidationError, msg="The room type has been created and it shouldn't"
+            UserError, msg="The room type has been created and it shouldn't"
         ):
             # room_type1
             self.env["pms.room.type"].create(
@@ -95,7 +95,7 @@ class TestRoomType(TestPms):
         """
         # ARRANGE & ACT & ASSERT
         with self.assertRaises(
-            ValidationError, msg="The room type has been created and it shouldn't"
+            UserError, msg="The room type has been created and it shouldn't"
         ):
             # room_type1
             self.env["pms.room.type"].create(

@@ -52,6 +52,9 @@ class ResPartner(models.Model):
         ondelete="restrict",
         check_pms_properties=True,
     )
+    company_id = fields.Many2one(
+        check_pms_properties=True,
+    )
 
     def _compute_reservations_count(self):
         # TODO: recuperar las reservas de los folios del partner

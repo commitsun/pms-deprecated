@@ -29,6 +29,9 @@ class ProductPricelist(models.Model):
         ondelete="restrict",
         check_pms_properties=True,
     )
+    company_id = fields.Many2one(
+        check_pms_properties=True,
+    )
     cancelation_rule_id = fields.Many2one(
         "pms.cancelation.rule",
         string="Cancelation Policy",

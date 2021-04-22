@@ -28,6 +28,7 @@ class BaseModel(models.AbstractModel):
             if (
                 fname == "pms_property_id"
                 or fname == "pms_property_ids"
+                or fname == "company_id"
                 or (field.relational and field.check_pms_properties)
             ):
                 check_pms_properties = True
@@ -122,10 +123,10 @@ class BaseModel(models.AbstractModel):
             # Check the property & company consistence
             if "company_id" in self._fields:
                 if record.company_id and pms_properties:
-                    property_companies = pms_properties.mapped("company_id")
+                    property_companies = pms_properties.mapped("company_id.id")
                     if (
                         len(property_companies) > 1
-                        or record.company_id != property_companies
+                        or record.company_id.id != property_companies[0]
                     ):
                         raise UserError(
                             _(

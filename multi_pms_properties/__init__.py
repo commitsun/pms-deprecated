@@ -29,7 +29,12 @@ def _description_domain(self, env):
 
     if self.check_pms_properties and not self.domain:
         record = env[self.model_name]
-        if self.check_pms_properties and not self.domain:
+        # Skip company_id domain to avoid domain multiproperty error in inherited views
+        if (
+            self.check_pms_properties
+            and not self.domain
+            and self.name not in ["company_id"]
+        ):
             if self.model_name == "pms.property":
                 prop1 = "id"
                 prop2 = f"[{prop1}]"
