@@ -9,7 +9,7 @@ class AccountJournal(models.Model):
         help="Properties with access to the element;"
         " if not set, all properties can access",
         comodel_name="pms.property",
-        ondelete='restrict',
+        ondelete="restrict",
         relation="account_journal_pms_property_rel",
         column1="account_journal_id",
         column2="pms_property_id",

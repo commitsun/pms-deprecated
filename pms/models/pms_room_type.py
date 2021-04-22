@@ -160,7 +160,7 @@ class PmsRoomType(models.Model):
                 )
         return self.browse(list(res.values()))
 
-    @api.constrains("code_type", "pms_property_ids", "company_id")
+    @api.constrains("default_code", "pms_property_ids", "company_id")
     def _check_code_property_company_uniqueness(self):
         msg = _("Already exists another room type with the same code and properties")
         for rec in self:

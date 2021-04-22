@@ -28,7 +28,11 @@ class PmsBoardServiceLine(models.Model):
         help="Properties with access to the element;"
         " if not set, all properties can access",
         comodel_name="pms.property",
-        related="pms_board_service_id.pms_property_ids",
+        relation="pms_board_service_line_pms_property_rel",
+        column1="pms_board_service_line_id",
+        column2="pms_property_id",
+        store=True,
+        check_pms_properties=True,
     )
     amount = fields.Float(
         string="Amount",
@@ -45,3 +49,34 @@ class PmsBoardServiceLine(models.Model):
     def onchange_product_id(self):
         if self.product_id:
             self.update({"amount": self.product_id.list_price})
+
+    @api.model
+    def create(self, vals):
+        properties = False
+        if "pms_board_service_id" in vals:
+            board_service = self.env["pms.board.service"].browse(
+                vals["pms_board_service_id"]
+            )
+            properties = board_service.pms_property_ids
+        if properties:
+            vals.update(
+                {
+                    "pms_property_ids": properties,
+                }
+            )
+        return super(PmsBoardServiceLine, self).create(vals)
+
+    def write(self, vals):
+        properties = False
+        if "pms_board_service_id" in vals:
+            board_service = self.env["pms.board.service"].browse(
+                vals["pms_board_service_id"]
+            )
+            properties = board_service.pms_property_ids
+        if properties:
+            vals.update(
+                {
+                    "pms_property_ids": properties,
+                }
+            )
+        return super(PmsBoardServiceLine, self).write(vals)

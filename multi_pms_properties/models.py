@@ -129,8 +129,8 @@ class BaseModel(models.AbstractModel):
                     ):
                         raise UserError(
                             _(
-                                "The company of the properties must match "
-                                "the company on account journal"
+                                "You cannot establish a company other than "
+                                "the one with the established properties"
                             )
                         )
             # Check verifies that all

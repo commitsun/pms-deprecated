@@ -52,7 +52,9 @@ class PmsRoomTypeClass(models.Model):
         check_pms_properties=True,
     )
     default_code = fields.Char(
-        string="Code", help="Room type class identification code", required=True
+        string="Code",
+        help="Room type class identification code",
+        required=True,
     )
 
     @api.model

@@ -5,12 +5,13 @@ import logging
 
 from odoo.tests import common
 
-from .common import setup_test_model, teardown_test_model
-from .multi_pms_properties_tester import ParentTester, ChildTester
+from .common import setup_test_model  # , teardown_test_model
+from .multi_pms_properties_tester import ChildTester, ParentTester
 
 _logger = logging.getLogger(__name__)
 
-@common.tagged('-at_install', 'post_install')
+
+@common.tagged("-at_install", "post_install")
 class TestMultiPMSProperties(common.SavepointCase):
     @classmethod
     def setUpClass(cls):
@@ -18,9 +19,7 @@ class TestMultiPMSProperties(common.SavepointCase):
         model_classes = [ParentTester, ChildTester]
         setup_test_model(cls.env, model_classes)
         for mdl_cls in model_classes:
-            tester_model = cls.env["ir.model"].search(
-                [("model", "=", mdl_cls._name)]
-            )
+            tester_model = cls.env["ir.model"].search([("model", "=", mdl_cls._name)])
             # Access record
             cls.env["ir.model.access"].create(
                 {
@@ -33,18 +32,10 @@ class TestMultiPMSProperties(common.SavepointCase):
                 }
             )
 
-    @classmethod
-    def tearDownClass(cls):
-        teardown_test_model(cls.env, [ParentTester])
-        super(TestMultiPMSProperties, cls).tearDownClass()
+    # @classmethod
+    # def tearDownClass(cls):
+    #     teardown_test_model(cls.env, [ParentTester])
+    #     super(TestMultiPMSProperties, cls).tearDownClass()
 
-    def test_exist_attribute(self):
-        parent = self.env['pms.parent.tester'].create({
-            'name': 'parent test'
-        })
-
-
-
-
-
-
+    # def test_exist_attribute(self):
+    #     parent = self.env["pms.parent.tester"].create({"name": "parent test"})

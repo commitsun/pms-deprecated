@@ -1,6 +1,7 @@
 # Copyright 2021 Eric Antones
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+
 def setup_test_model(env, model_clses):
     for model_cls in model_clses:
         model_cls._build_model(env.registry, env.cr)

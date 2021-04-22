@@ -72,7 +72,7 @@ class PmsFolio(models.Model):
         store="True",
     )
     number_of_services = fields.Integer(
-        "Number of Rooms",
+        "Number of Services",
         compute="_compute_number_of_services",
         store="True",
     )
@@ -99,8 +99,8 @@ class PmsFolio(models.Model):
     company_id = fields.Many2one(
         "res.company",
         "Company",
-        required=True,
-        default=lambda self: self.env.company,
+        compute="_compute_company_id",
+        store=True,
     )
     move_line_ids = fields.Many2many(
         "account.move.line",
@@ -471,6 +471,11 @@ class PmsFolio(models.Model):
             ]
             for fsl in folio_sale_lines_to_remove:
                 self.env["folio.sale.line"].browse(fsl).unlink()
+
+    @api.depends("pms_property_id")
+    def _compute_company_id(self):
+        for record in self:
+            record.company_id = record.pms_property_id.company_id
 
     @api.model
     def generate_reservation_services_sale_lines(self, folio, reservation):

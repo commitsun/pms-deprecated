@@ -99,9 +99,9 @@ class ProductPricelist(models.Model):
                 FROM   product_pricelist_item item
                        LEFT JOIN product_category categ
                             ON item.categ_id = categ.id
-                       LEFT JOIN pms_property_product_pricelist_rel cab
+                       LEFT JOIN product_pricelist_pms_property_rel cab
                             ON item.pricelist_id = cab.product_pricelist_id
-                       LEFT JOIN pms_property_product_pricelist_item_rel lin
+                       LEFT JOIN product_pricelist_item_pms_property_rel lin
                             ON item.id = lin.product_pricelist_item_id
                        LEFT JOIN board_service_pricelist_item_rel board
                             ON item.id = board.pricelist_item_id
@@ -124,10 +124,10 @@ class ProductPricelist(models.Model):
                           item.date_end - item.date_start ASC,
                           item.date_end_overnight - item.date_start_overnight ASC,
                           NULLIF((SELECT COUNT(1)
-                           FROM   pms_property_product_pricelist_item_rel l
+                           FROM   product_pricelist_item_pms_property_rel l
                            WHERE  item.id = l.product_pricelist_item_id)
                           + (SELECT COUNT(1)
-                             FROM   pms_property_product_pricelist_rel c
+                             FROM   product_pricelist_pms_property_rel c
                              WHERE  item.pricelist_id = c.product_pricelist_id),0)
                           NULLS LAST,
                           item.id DESC;

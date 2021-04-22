@@ -27,7 +27,6 @@ class PmsService(models.Model):
         required=True,
         comodel_name="product.product",
         ondelete="restrict",
-
         check_pms_properties=True,
     )
     folio_id = fields.Many2one(

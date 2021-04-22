@@ -1,8 +1,7 @@
 # Copyright 2017  Alexandre Díaz
 # Copyright 2017  Dario Lodeiros
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import fields, models
 
 
 class PmsRoomAmenityType(models.Model):
@@ -26,7 +25,7 @@ class PmsRoomAmenityType(models.Model):
         help="Properties with access to the element;"
         " if not set, all properties can access",
         comodel_name="pms.property",
-        ondelete='restrict',
+        ondelete="restrict",
         relation="pms_amenity_type_pms_property_rel",
         column1="amenity_type_id",
         column2="pms_property_id",

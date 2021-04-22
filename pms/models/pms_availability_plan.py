@@ -191,9 +191,7 @@ class PmsAvailabilityPlan(models.Model):
             domain_rules.append(
                 ("availability_plan_id", "=", pricelist.availability_plan_id.id)
             )
-            rule_items = self.env["pms.room.type.availability.rule"].search(
-                domain_rules
-            )
+            rule_items = self.env["pms.availability.plan.rule"].search(domain_rules)
             if len(rule_items) > 0:
                 for item in rule_items:
                     if self.any_rule_applies(checkin, checkout, item):
@@ -209,7 +207,7 @@ class PmsAvailabilityPlan(models.Model):
         pms_property_id,
         current_lines=False,
     ):
-        Avail = self.env["pms.room.type.availability"]
+        Avail = self.env["pms.availability"]
         count_free_rooms = len(
             self.env["pms.room.type"]
             .browse(room_type_id)

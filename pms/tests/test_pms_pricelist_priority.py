@@ -122,7 +122,6 @@ class TestPmsPricelistRules(common.SavepointCase):
                 "partner_id": self.partner1.id,
             }
         )
-
         # ACT
         n_days = (reservation.checkout - reservation.checkin).days
         expected_price = self.room.room_type_id.list_price * n_days

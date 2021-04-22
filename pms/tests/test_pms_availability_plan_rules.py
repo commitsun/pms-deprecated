@@ -3,7 +3,7 @@ import datetime
 from freezegun import freeze_time
 
 from odoo import fields
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import common
 
 
@@ -39,10 +39,8 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             }
         )
 
-        # pms.room.type.availability.plan
-        self.test_room_type_availability1 = self.env[
-            "pms.room.type.availability.plan"
-        ].create(
+        # pms.availability.plan
+        self.test_room_type_availability1 = self.env["pms.availability.plan"].create(
             {
                 "name": "Availability plan for TEST",
                 "pms_pricelist_ids": [(6, 0, [self.test_pricelist1.id])],
@@ -636,7 +634,7 @@ class TestPmsRoomTypeAvailabilityRules(common.SavepointCase):
             (4, self.test_property2.id),
             (4, self.test_property.id),
         ]
-        rule = self.env["pms.room.type.availability.rule"].create(
+        rule = self.env["pms.availability.plan.rule"].create(
             {
                 "availability_plan_id": self.test_room_type_availability1.id,
                 "room_type_id": self.test_room_type_double.id,

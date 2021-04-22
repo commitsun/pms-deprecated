@@ -86,7 +86,6 @@ class TestPmsBoardServiceRoomTypeLine(common.SavepointCase):
         self.product = self.env["product.product"].create(
             {"name": "Product", "pms_property_ids": self.property2}
         )
-
         with self.assertRaises(UserError):
             self.env["pms.board.service.room.type.line"].create(
                 {

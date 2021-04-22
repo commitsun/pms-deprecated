@@ -87,12 +87,20 @@ class PmsReservation(models.Model):
         copy=False,
         store=True,
         comodel_name="pms.room.type",
+        compute="_compute_room_type_id",
         tracking=True,
         check_pms_properties=True,
     )
     partner_id = fields.Many2one(
+        string="Customer",
+        help="Name of who made the reservation",
+        readonly=False,
+        store=True,
+        comodel_name="res.partner",
+        ondelete="restrict",
         compute="_compute_partner_id",
         tracking=True,
+        check_pms_properties=True,
     )
     agency_id = fields.Many2one(
         string="Agency",
@@ -268,7 +276,7 @@ class PmsReservation(models.Model):
     )
     currency_id = fields.Many2one(
         string="Currency",
-        hepl="The currency used in relation to the pricelist",
+        help="The currency used in relation to the pricelist",
         readonly=True,
         store=True,
         related="pricelist_id.currency_id",

@@ -1,4 +1,4 @@
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 from .common import TestPms
 
@@ -51,7 +51,7 @@ class TestPmsAmenity(TestPms):
             }
         )
         # ACT & ASSERT
-        with self.assertRaises(ValidationError), self.cr.savepoint():
+        with self.assertRaises(UserError), self.cr.savepoint():
             Amenity.create(
                 {
                     "name": "TestAmenity1",
