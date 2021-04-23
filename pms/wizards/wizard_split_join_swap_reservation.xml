@@ -4,26 +4,117 @@
         <field name="name">Split, join or swap reservations</field>
         <field name="model">pms.reservation.split.join.swap.wizard</field>
         <field name="arch" type="xml">
-            <form string="Choose The Details">
-                <group>
-                    <field
-                        name="options"
-                        string="Suggested rooms to unify the reservation:"
-                        options="{'no_create': True,'no_open': True}"
-                        required="1"
-                        domain="[('id', 'in', allowed_rooms)]"
-                    />
-                    <field name="allowed_rooms" invisible="1" />
-                </group>
-                <footer>
+            <form>
+                <div class="row">
+                    <div class="col-3">
+                        <label for="main_options" class="font-weight-bold" />
+                        <br />
+                        <field name="main_options" widget="radio" />
+                        <field name="allowed_room_sources" invisible="1" />
+                        <field name="capacity_room_source" invisible="1" />
+                    </div>
+                    <div class="col-3">
+                        <span attrs="{'invisible': [('main_options','=','swap')]}">
+                            <label for="reservation_id" /> <br />
+                            <field name="reservation_id" /><br />
+                        </span>
+                        <span attrs="{'invisible': [('main_options','!=','swap')]}">
+                            <label for="checkin" /> <br />
+                            <field
+                                name="checkin"
+                                widget="daterange"
+                                options="{'related_end_date': 'checkout'}"
+                            /><br />
+                            <label for="checkout" /> <br />
+                            <field
+                                name="checkout"
+                                widget="daterange"
+                                options="{'related_start_date': 'checkin'}"
+                            /><br />
+                        </span>
+                    </div>
+                    <div class="col-4">
+                        <div>
+                            <span attrs="{'invisible': [('main_options','!=','swap')]}">
+                                <label for="room_source" />
+                                <br />
+                                <field name="room_source" />
+                                <br />
+                            </span>
+                            <span attrs="{'invisible': [('main_options','=','split')]}">
+                                <label
+                                    attrs="{'invisible': [('main_options','=','join')]}"
+                                    for="room_target"
+                                />
+                                <label
+                                    attrs="{'invisible': [('main_options','!=','join')]}"
+                                    for="room_target"
+                                    string="Room"
+                                />
+
+                                <br />
+                                <field name="room_target" />
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        class="col-12"
+                        attrs="{'invisible': [('main_options','!=','swap')]}"
+                    >
+                        <field
+                            name="reservations"
+                            nolabel="1"
+                            readonly="1"
+                            default_order='rooms desc'
+                            context="{'custom_order': True}"
+                        >
+                            <tree
+                                default_order='rooms desc'
+                            >
+                                <field string="Reservation" name="name" />
+                                <field name="checkin" />
+                                <field name="checkout" />
+                                <field name="rooms" />
+                            </tree>
+                        </field>
+                    </div>
+                    <div
+                        class="col-12"
+                        attrs="{'invisible': [('main_options','!=','split')]}"
+                    >
+                        <field name="reservation_lines_to_change" nolabel="1">
+                            <tree editable="bottom" create="false" delete="false">
+                                <field name="reservation_wizard_id" invisible="1" />
+                                <field name="date" />
+                                <field name="room_id" />
+                            </tree>
+                        </field>
+                    </div>
+                </div>
+                <footer class="text-right">
+                    <button string="Cancel" class="oe_link border" special="cancel" />
+                    or
                     <button
-                        name="unify"
-                        string="Unify"
+                        name="action_unify"
+                        attrs="{'invisible': [('main_options','!=','join')]}"
+                        string="Unify reservation"
                         type="object"
                         class="oe_highlight"
                     />
-                    or
-                    <button string="Cancel" class="oe_link" special="cancel" />
+                    <button
+                        name="action_split"
+                        attrs="{'invisible': [('main_options','!=','split')]}"
+                        string="Split reservation"
+                        type="object"
+                        class="oe_highlight"
+                    />
+                    <button
+                        name="action_swap"
+                        attrs="{'invisible': [('main_options','!=','swap')]}"
+                        string="Swap reservations"
+                        type="object"
+                        class="oe_highlight"
+                    />
                 </footer>
             </form>
         </field>

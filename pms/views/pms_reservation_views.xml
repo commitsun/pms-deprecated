@@ -950,10 +950,7 @@
         parent="pms.menu_reservations"
     />
 
-    <record
-        id="action_view_reservation_operations"
-        model="ir.actions.act_window"
-    >
+    <record id="action_view_reservation_operations" model="ir.actions.act_window">
         <field name="name">Reservation operations</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">pms.reservation.split.join.swap.wizard</field>

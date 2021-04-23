@@ -353,6 +353,8 @@ class PmsReservation(models.Model):
         string="Room/s",
         help="Rooms that are reserved",
         compute="_compute_rooms",
+        store=True,
+        readonly=False,
         tracking=True,
     )
     credit_card_details = fields.Text(
