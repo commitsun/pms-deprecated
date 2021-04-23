@@ -20,7 +20,7 @@
                             />
                             <field name="folio_id" invisible="1" />
                             <field name="agency_id" />
-                            <field name="segmentation_ids" />
+                            <field name="segmentation_ids" widget="many2many_tags" />
                         </group>
                     </div>
                     <div class="col-5">
