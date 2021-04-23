@@ -253,4 +253,38 @@ class ReservationLinesToSplit(models.TransientModel):
     room_id = fields.Many2one(
         string="Room",
         comodel_name="pms.room",
+        domain="[('id', 'in', allowed_room_ids)]",
     )
+    allowed_room_ids = fields.Many2many(
+        string="Allowed Rooms",
+        help="It contains all available rooms for this line",
+        comodel_name="pms.room",
+        compute="_compute_allowed_room_ids",
+    )
+
+    @api.depends(
+        "date",
+        "room_id",
+        "reservation_wizard_id.reservation_id.pricelist_id",
+    )
+    def _compute_allowed_room_ids(self):
+        for line in self:
+            reservation = line.reservation_wizard_id.reservation_id
+            rooms_available = False
+            if line.date and reservation:
+                if reservation.overbooking or reservation.state in ("cancelled"):
+                    line.allowed_room_ids = self.env["pms.room"].search(
+                        [("active", "=", True)]
+                    )
+                    return
+                rooms_available = self.env["pms.availability.plan"].rooms_available(
+                    checkin=line.date,
+                    checkout=line.date + datetime.timedelta(days=1),
+                    room_type_id=False,  # Allows to choose any available room
+                    pricelist_id=reservation.pricelist_id.id,
+                    pms_property_id=reservation.pms_property_id.id,
+                )
+                rooms_available += line.room_id
+                line.allowed_room_ids = rooms_available
+            else:
+                line.allowed_room_ids = False

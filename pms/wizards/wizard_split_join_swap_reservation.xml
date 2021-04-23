@@ -77,8 +77,12 @@
                         <field name="reservation_lines_to_change" nolabel="1">
                             <tree editable="bottom" create="false" delete="false">
                                 <field name="reservation_wizard_id" invisible="1" />
+                                <field name="allowed_room_ids" invisible="0" />
                                 <field name="date" />
-                                <field name="room_id" />
+                                <field
+                                    name="room_id"
+                                    domain="[('id', 'in', allowed_room_ids)]"
+                                />
                             </tree>
                         </field>
                     </div>
