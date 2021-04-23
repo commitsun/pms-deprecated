@@ -147,6 +147,11 @@ class PmsCheckinPartner(models.Model):
             if not record.mobile:
                 record.mobile = record.partner_id.mobile
 
+    def _compute_access_url(self):
+        super(PmsCheckinPartner, self)._compute_access_url()
+        for checkin in self:
+            checkin.access_url = "/my/precheckin/%s" % (checkin.id)
+
     @api.model
     def _checkin_mandatory_fields(self, depends=False):
         # api.depends need "reservation_id.state" in the lambda function
