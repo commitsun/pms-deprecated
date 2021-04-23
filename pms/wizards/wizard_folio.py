@@ -168,9 +168,9 @@ class FolioWizard(models.TransientModel):
                         "pricelist_id": record.pricelist_id.id,
                         "partner_id": record.partner_id.id,
                         "pms_property_id": record.pms_property_id.id,
-                        "agency_id":record.agency_id.id,
-                        "channel_type_id":record.channel_type_id.id,
-                        "segmentation_ids": [(6, 0, record.segmentation_ids.ids)]
+                        "agency_id": record.agency_id.id,
+                        "channel_type_id": record.channel_type_id.id,
+                        "segmentation_ids": [(6, 0, record.segmentation_ids.ids)],
                     }
                 )
             else:
@@ -186,7 +186,7 @@ class FolioWizard(models.TransientModel):
                             "partner_id": record.partner_id.id,
                             "pricelist_id": record.pricelist_id.id,
                             "pms_property_id": folio.pms_property_id.id,
-                            "board_service_room_id":line.board_service_room_id.id,
+                            "board_service_room_id": line.board_service_room_id.id,
                         }
                     )
                     res.reservation_line_ids.discount = record.discount * 100
