@@ -61,16 +61,8 @@
                         class="col-12"
                         attrs="{'invisible': [('main_options','!=','swap')]}"
                     >
-                        <field
-                            name="reservations"
-                            nolabel="1"
-                            readonly="1"
-                            default_order='rooms desc'
-                            context="{'custom_order': True}"
-                        >
-                            <tree
-                                default_order='rooms desc'
-                            >
+                        <field name="reservations" nolabel="1" readonly="1">
+                            <tree>
                                 <field string="Reservation" name="name" />
                                 <field name="checkin" />
                                 <field name="checkout" />

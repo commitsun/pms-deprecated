@@ -44,7 +44,6 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         comodel_name="pms.reservation",
         compute="_compute_reservations",
         store=True,
-        readonly=False,
     )
     room_source = fields.Many2one(
         string="Room Source",
@@ -54,7 +53,6 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
     capacity_room_source = fields.Integer(
         string="Capacity of selected room",
         store=True,
-        readonly=False,
         compute="_compute_capacity_room_source",
     )
     allowed_room_sources = fields.Many2many(
@@ -62,7 +60,6 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         comodel_name="pms.room",
         compute="_compute_allowed_rooms_source",
         store=True,
-        readonly=False,
     )
     room_target = fields.Many2one(
         string="Room Target",
@@ -86,19 +83,21 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                     record.checkin + datetime.timedelta(days=x)
                     for x in range(0, (record.checkout - record.checkin).days)
                 ]:
-                    lines = self.env['pms.reservation.line'].search(
+                    lines = self.env["pms.reservation.line"].search(
                         [
-                            ('date', '=', date_iterator),
+                            ("date", "=", date_iterator),
                         ]
                     )
-                    reservation_ids.extend(
-                        lines.mapped('reservation_id').ids
+                    reservation_ids.extend(lines.mapped("reservation_id.id"))
+                reservations = (
+                    self.env["pms.reservation"]
+                    .search(
+                        [
+                            ("id", "in", reservation_ids),
+                            ("rooms", "!=", False),
+                        ]
                     )
-                reservation_ids = list(set(reservation_ids))
-                reservations = self.env['pms.reservation'].search(
-                    [
-                        ('id', 'in', reservation_ids)
-                    ]
+                    .sorted("rooms")
                 )
                 record.reservations = reservations
 
@@ -108,7 +107,7 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                         in x.reservation_line_ids.mapped("room_id")
                         or record.room_target
                         in x.reservation_line_ids.mapped("room_id")
-                    )
+                    ).sorted("rooms")
             else:
                 record.reservations = False
 
@@ -200,17 +199,11 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
             checkin + datetime.timedelta(days=x)
             for x in range(0, (checkout - checkin).days)
         ]:
-            line_room_source = self.env['pms.reservation.line'].search(
-                [
-                    ("date", "=", date_iterator),
-                    ("room_id", "=", source)
-                ]
+            line_room_source = self.env["pms.reservation.line"].search(
+                [("date", "=", date_iterator), ("room_id", "=", source)]
             )
-            line_room_target = self.env['pms.reservation.line'].search(
-                [
-                    ("date", "=", date_iterator),
-                    ("room_id", "=", target)
-                ]
+            line_room_target = self.env["pms.reservation.line"].search(
+                [("date", "=", date_iterator), ("room_id", "=", target)]
             )
             if line_room_source and line_room_target:
 
@@ -220,6 +213,8 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
 
                 line_room_target.room_id = source
                 line_room_source.room_id = target
+
+                self.flush()
 
                 line_room_target._compute_occupies_availability()
                 line_room_source._compute_occupies_availability()
@@ -259,9 +254,3 @@ class ReservationLinesToSplit(models.TransientModel):
         string="Room",
         comodel_name="pms.room",
     )
-
-
-# class ReservationsToSwap(models.Model):
-#     _inherit = "pms.reservation"
-#     _order = "rooms, checkin asc, checkout asc"
-
