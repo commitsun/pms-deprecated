@@ -107,7 +107,7 @@
                     <button
                         name="action_swap"
                         attrs="{'invisible': [('main_options','!=','swap')]}"
-                        string="Swap reservations"
+                        string="Swap reservation rooms"
                         type="object"
                         class="oe_highlight"
                     />

@@ -15,6 +15,14 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         string="Operation",
         default="swap",
     )
+    main_options_no_splitted = fields.Selection(
+        [
+            ("swap", "Swap rooms"),
+            ("split", "Split reservation"),
+        ],
+        string="Operation",
+        default="swap",
+    )
     reservation_id = fields.Many2one(
         string="Reservation",
         comodel_name="pms.reservation",
@@ -23,6 +31,9 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         .id
         if self._context.get("active_id")
         else False,
+    )
+    splitted = fields.Boolean(
+        compute="_compute_splitted"
     )
     pricelist_id = fields.Many2one(
         string="Pricelist",
@@ -73,6 +84,14 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         store=True,
         readonly=False,
     )
+
+    @api.depends("reservation_id")
+    def _compute_splitted(self):
+        for record in self:
+            if record.reservation_id and record.reservation_id.splitted:
+                record.splitted = True
+            else:
+                record.splitted = False
 
     @api.depends("checkin", "checkout", "room_source", "room_target")
     def _compute_reservations(self):
@@ -195,6 +214,21 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
 
     @api.model
     def reservations_swap(self, checkin, checkout, source, target):
+        reservations = self.env['pms.reservation'].search(
+            [
+                ('checkin', '>=', checkin),
+                ('checkout', '<=', checkout)
+            ]
+        )
+        lines = self.env['pms.reservation.line'].search_count(
+            [
+                ('room_id', '=', source),
+                ("reservation_id", "in", reservations.ids)
+            ]
+        )
+        if not lines:
+            raise UserError(_("There's no reservations lines with provided room"))
+
         for date_iterator in [
             checkin + datetime.timedelta(days=x)
             for x in range(0, (checkout - checkin).days)
