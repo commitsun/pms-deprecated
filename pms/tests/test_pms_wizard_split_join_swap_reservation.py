@@ -57,7 +57,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # pms.room.type.class
         self.test_room_type_class = self.env["pms.room.type.class"].create(
-            {"name": "Room", "code_class": "ROOM"}
+            {"name": "Room", "default_code": "ROOM"}
         )
 
         # pms.room.type
@@ -132,7 +132,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r1.reservation_line_ids[0].room_id = self.room2
         # ACT
-        self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+        self.env["pms.reservation.split.join.swap.wizard"].reservation_join(
             r1, self.room2
         )
         # ASSERT
@@ -188,7 +188,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r2.flush()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_join(
                 r1, self.room1
             )
 
@@ -221,7 +221,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         r2.flush()
         with self.assertRaises(UserError):
-            self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_join(
                 r2, self.env["pms.room"]
             )
 
