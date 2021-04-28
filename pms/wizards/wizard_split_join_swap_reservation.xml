@@ -7,59 +7,64 @@
             <form>
                 <div class="row">
                     <div class="col-3">
-                        <label for="main_options" class="font-weight-bold" />
+                        <label for="operation" class="font-weight-bold" />
                         <br />
-                        <field name="main_options" widget="radio" />
-                        <field name="allowed_room_sources" invisible="1" />
-                        <field name="capacity_room_source" invisible="1" />
+                        <field name="operation" widget="radio" />
+                        <field name="allowed_rooms_sources" invisible="1" />
+                        <field name="allowed_rooms_target" invisible="1" />
                     </div>
-                    <div class="col-3">
-                        <span attrs="{'invisible': [('main_options','=','swap')]}">
+                    <div class="col-5">
+                        <span attrs="{'invisible': [('operation','=','swap')]}">
                             <label for="reservation_id" /> <br />
-                            <field name="reservation_id" /><br />
+                            <field name="reservation_id" readonly="1" /><br />
                         </span>
-                        <span attrs="{'invisible': [('main_options','!=','swap')]}">
-                            <label for="checkin" /> <br />
-                            <field
-                                name="checkin"
-                                widget="daterange"
-                                options="{'related_end_date': 'checkout'}"
-                            /><br />
-                            <label for="checkout" /> <br />
-                            <field
-                                name="checkout"
-                                widget="daterange"
-                                options="{'related_start_date': 'checkin'}"
-                            /><br />
+                        <span attrs="{'invisible': [('operation','!=','swap')]}">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="checkin" /> <br />
+                                    <field
+                                        name="checkin"
+                                        widget="daterange"
+                                        options="{'related_end_date': 'checkout'}"
+                                    /><br />
+                                    <label for="checkout" /> <br />
+                                    <field
+                                        name="checkout"
+                                        widget="daterange"
+                                        options="{'related_start_date': 'checkin'}"
+                                    /><br />
+                                </div>
+                            </div>
                         </span>
                     </div>
                     <div class="col-4">
                         <div>
-                            <span attrs="{'invisible': [('main_options','!=','swap')]}">
+                            <span attrs="{'invisible': [('operation','!=','swap')]}">
                                 <label for="room_source" />
                                 <br />
                                 <field name="room_source" />
                                 <br />
                             </span>
-                            <span attrs="{'invisible': [('main_options','=','split')]}">
-                                <label
-                                    attrs="{'invisible': [('main_options','=','join')]}"
-                                    for="room_target"
-                                />
-                                <label
-                                    attrs="{'invisible': [('main_options','!=','join')]}"
-                                    for="room_target"
-                                    string="Room"
-                                />
+                            <label
+                                attrs="{'invisible': [('operation','!=','swap')]}"
+                                for="room_target"
+                            />
+                            <label
+                                attrs="{'invisible': [('operation','!=','join')]}"
+                                for="room_target"
+                                string="Room"
+                            />
+                            <br />
+                            <field
+                                name="room_target"
+                                attrs="{'invisible': [('operation','=','split')]}"
+                            />
 
-                                <br />
-                                <field name="room_target" />
-                            </span>
                         </div>
                     </div>
                     <div
                         class="col-12"
-                        attrs="{'invisible': [('main_options','!=','swap')]}"
+                        attrs="{'invisible': [('operation','!=','swap')]}"
                     >
                         <field name="reservations" nolabel="1" readonly="1">
                             <tree>
@@ -72,13 +77,17 @@
                     </div>
                     <div
                         class="col-12"
-                        attrs="{'invisible': [('main_options','!=','split')]}"
+                        attrs="{'invisible': [('operation','!=','split')]}"
                     >
-                        <field name="reservation_lines_to_change" nolabel="1">
+                        <field
+                            name="reservation_lines_to_change"
+                            nolabel="1"
+                            default_order="rooms"
+                        >
                             <tree editable="bottom" create="false" delete="false">
                                 <field name="reservation_wizard_id" invisible="1" />
-                                <field name="allowed_room_ids" invisible="0" />
-                                <field name="date" />
+                                <field name="allowed_room_ids" invisible="1" />
+                                <field name="date" readonly="0" />
                                 <field
                                     name="room_id"
                                     domain="[('id', 'in', allowed_room_ids)]"
@@ -91,22 +100,22 @@
                     <button string="Cancel" class="oe_link border" special="cancel" />
                     or
                     <button
-                        name="action_unify"
-                        attrs="{'invisible': [('main_options','!=','join')]}"
-                        string="Unify reservation"
+                        name="action_join"
+                        attrs="{'invisible': [('operation','!=','join')]}"
+                        string="Join reservation"
                         type="object"
                         class="oe_highlight"
                     />
                     <button
                         name="action_split"
-                        attrs="{'invisible': [('main_options','!=','split')]}"
+                        attrs="{'invisible': [('operation','!=','split')]}"
                         string="Split reservation"
                         type="object"
                         class="oe_highlight"
                     />
                     <button
                         name="action_swap"
-                        attrs="{'invisible': [('main_options','!=','swap')]}"
+                        attrs="{'invisible': [('operation','!=','swap')]}"
                         string="Swap reservation rooms"
                         type="object"
                         class="oe_highlight"

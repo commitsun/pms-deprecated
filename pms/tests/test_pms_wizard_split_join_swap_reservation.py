@@ -115,9 +115,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         # | room/date  |  01  |  02  |  03  | 04 | 05 | 06 |
         # +------------+------+------+------+----+----+----+
         # | Double 101 |  r1  |      |  r1  |    |    |    |
-        # | Double 102 |      |  R1  |      |    |    |    |
+        # | Double 102 |      |  r1  |      |    |    |    |
         # +------------+------+------+------+----+----+----+
-        # TODO: REFACTOR
         # ARRANGE
         self.create_common_scenario()
         r1 = self.env["pms.reservation"].create(
@@ -131,13 +130,16 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
             }
         )
         r1.flush()
+        r1.reservation_line_ids[0].room_id = self.room2
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservation_unify(r1, self.room2)
+        self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+            r1, self.room2
+        )
         # ASSERT
         self.assertEqual(
-            r1.reservation_line_ids.mapped('room_id'),
+            r1.reservation_line_ids.mapped("room_id"),
             self.room2,
-            "The unify operation should assign the indicated room to all nights"
+            "The unify operation should assign the indicated room to all nights",
         )
 
     def test_unify_reservation_avail_not(self):
@@ -148,35 +150,47 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         # +------------+------+------+------+----+----+----+
         # | room/date  |  01  |  02  |  03  | 04 | 05 | 06 |
         # +------------+------+------+------+----+----+----+
-        # | Double 101 |  r1  |  r1  |  r1  |    |    |    |
-        # | Double 102 |  r2  |  r2  |  r2  |    |    |    |
+        # | Double 101 |  r1  |  r1  |  r2  |    |    |    |
+        # | Double 102 |  r0  |  r0  |  r1  |    |    |    |
         # +------------+------+------+------+----+----+----+
         # ARRANGE
         self.create_common_scenario()
-        r1 = self.env["pms.reservation"].create(
+        self.env["pms.reservation"].create(
             {
                 "pms_property_id": self.test_property.id,
                 "checkin": datetime.datetime.now(),
-                "checkout": datetime.datetime.now() + datetime.timedelta(days=3),
+                "checkout": datetime.datetime.now() + datetime.timedelta(days=2),
                 "adults": 2,
-                "preferred_room_id": self.room1.id,
+                "preferred_room_id": self.room2.id,
                 "partner_id": self.env.ref("base.res_partner_12").id,
             }
         )
         r2 = self.env["pms.reservation"].create(
             {
                 "pms_property_id": self.test_property.id,
+                "checkin": datetime.datetime.now() + datetime.timedelta(days=2),
+                "checkout": datetime.datetime.now() + datetime.timedelta(days=3),
+                "adults": 2,
+                "preferred_room_id": self.room1.id,
+                "partner_id": self.env.ref("base.res_partner_12").id,
+            }
+        )
+        r1 = self.env["pms.reservation"].create(
+            {
+                "pms_property_id": self.test_property.id,
                 "checkin": datetime.datetime.now(),
                 "checkout": datetime.datetime.now() + datetime.timedelta(days=3),
                 "adults": 2,
-                "preferred_room_id": self.room2.id,
+                "room_type_id": self.test_room_type_double.id,
                 "partner_id": self.env.ref("base.res_partner_12").id,
             }
         )
         r2.flush()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_unify(r2, self.room1)
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+                r1, self.room1
+            )
 
     def test_unify_reservation_avail_not_room_exist(self):
         # TEST CASE
@@ -185,7 +199,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
 
         # ARRANGE
         self.create_common_scenario()
-        r1 = self.env["pms.reservation"].create(
+        self.env["pms.reservation"].create(
             {
                 "pms_property_id": self.test_property.id,
                 "checkin": datetime.datetime.now(),
@@ -207,9 +221,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         r2.flush()
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_unify(
-                r2,
-                self.env['pms.room']
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_unify(
+                r2, self.env["pms.room"]
             )
 
     # SWAP TESTS
@@ -257,7 +270,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room1.id,
@@ -265,8 +278,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids.room_id == self.room1
+            r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids.room_id == self.room1
         )
 
     def test_swap_reservation_rooms_02(self):
@@ -313,7 +326,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room1.id,
@@ -321,8 +334,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids[1:].room_id == self.room1
+            r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids[1:].room_id == self.room1
         )
 
     def test_swap_reservation_rooms_03(self):
@@ -369,7 +382,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room2.id,
@@ -377,8 +390,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids.room_id == self.room1
+            r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids.room_id == self.room1
         )
 
     def test_swap_reservation_rooms_04(self):
@@ -425,7 +438,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room1.id,
@@ -433,8 +446,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids[:1].room_id == self.room1
+            r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids[:1].room_id == self.room1
         )
 
     def test_swap_reservation_rooms_05(self):
@@ -481,7 +494,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room2.id,
@@ -489,8 +502,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids.room_id == self.room1
+            r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids.room_id == self.room1
         )
 
     def test_swap_reservation_rooms_06(self):
@@ -529,16 +542,14 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
 
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room2.id,
             self.room1.id,
         )
         # ASSERT
-        self.assertTrue(
-            r1.reservation_line_ids.room_id == self.room1
-        )
+        self.assertTrue(r1.reservation_line_ids.room_id == self.room1)
 
     def test_swap_reservation_rooms_gap_01(self):
         # TEST CASE
@@ -595,7 +606,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room1.id,
@@ -603,12 +614,11 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         # ASSERT
         self.assertTrue(
-            r0.reservation_line_ids.room_id == self.room2 and
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids[0].room_id == self.room1 and
-            r2.reservation_line_ids[2].room_id == self.room1 and
-            r2.reservation_line_ids[1].room_id == self.room2
-
+            r0.reservation_line_ids.room_id == self.room2
+            and r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids[0].room_id == self.room1
+            and r2.reservation_line_ids[2].room_id == self.room1
+            and r2.reservation_line_ids[1].room_id == self.room2
         )
 
     def test_swap_reservation_rooms_gap_02(self):
@@ -666,19 +676,17 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         r2.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+        self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
             datetime.datetime.now(),
             datetime.datetime.now() + datetime.timedelta(days=3),
             self.room2.id,
             self.room1.id,
-
         )
         # ASSERT
         self.assertTrue(
-            r0.reservation_line_ids.room_id == self.room2 and
-            r1.reservation_line_ids.room_id == self.room2 and
-            r2.reservation_line_ids.room_id == self.room1
-
+            r0.reservation_line_ids.room_id == self.room2
+            and r1.reservation_line_ids.room_id == self.room2
+            and r2.reservation_line_ids.room_id == self.room1
         )
 
     # NOT VALID TEST CASES
@@ -698,7 +706,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
 
         # ARRANGE
         self.create_common_scenario()
-        r1 = self.env["pms.reservation"].create(
+        self.env["pms.reservation"].create(
             {
                 "pms_property_id": self.test_property.id,
                 "checkin": datetime.datetime.now(),
@@ -711,7 +719,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
 
         # ASSERT & ACT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservations_swap(
+            self.env["pms.reservation.split.join.swap.wizard"].reservations_swap(
                 datetime.datetime.now(),
                 datetime.datetime.now() + datetime.timedelta(days=3),
                 self.room1.id,
@@ -745,10 +753,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         r1.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
-            r1,
-            datetime.date.today(),
-            self.room2
+        self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
+            r1, datetime.date.today(), self.room2
         )
         # ASSERT
         self.assertTrue(
@@ -782,16 +788,17 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         r1.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
+        self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
             r1,
             (
                 datetime.datetime(
                     year=datetime.date.today().year,
                     month=datetime.date.today().month,
-                    day=datetime.date.today().day
-                ) + datetime.timedelta(days=2)
+                    day=datetime.date.today().day,
+                )
+                + datetime.timedelta(days=2)
             ).date(),
-            self.room2
+            self.room2,
         )
         # ASSERT
         self.assertTrue(
@@ -825,16 +832,17 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         )
         r1.flush()
         # ACT
-        self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
+        self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
             r1,
             (
                 datetime.datetime(
                     year=datetime.date.today().year,
                     month=datetime.date.today().month,
-                    day=datetime.date.today().day
-                ) + datetime.timedelta(days=1)
+                    day=datetime.date.today().day,
+                )
+                + datetime.timedelta(days=1)
             ).date(),
-            self.room2
+            self.room2,
         )
         # ASSERT
         self.assertTrue(
@@ -872,10 +880,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         room_not_exist.unlink()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
-                r1,
-                datetime.datetime.now(),
-                room_not_exist
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
+                r1, datetime.datetime.now(), room_not_exist
             )
 
     def test_split_reservation_check_room_splitted_not_valid_02(self):
@@ -898,10 +904,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
-                r1,
-                datetime.datetime.now() + datetime.timedelta(days=100),
-                self.room2
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
+                r1, datetime.datetime.now() + datetime.timedelta(days=100), self.room2
             )
 
     def test_split_reservation_check_room_splitted_not_valid_03(self):
@@ -924,10 +928,8 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
-                self.env['pms.reservation'],
-                datetime.datetime.now(),
-                self.room2
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
+                self.env["pms.reservation"], datetime.datetime.now(), self.room2
             )
 
     def test_split_reservation_check_room_splitted_not_valid_04(self):
@@ -937,7 +939,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
 
         # ARRANGE
         self.create_common_scenario()
-        r0 = self.env["pms.reservation"].create(
+        self.env["pms.reservation"].create(
             {
                 "pms_property_id": self.test_property.id,
                 "checkin": datetime.datetime.now(),
@@ -960,8 +962,6 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         r1.flush()
         # ACT & ASSERT
         with self.assertRaises(UserError):
-            self.env['pms.reservation.split.join.swap.wizard'].reservation_split(
-                r1,
-                datetime.datetime.now(),
-                self.room2
+            self.env["pms.reservation.split.join.swap.wizard"].reservation_split(
+                r1, datetime.datetime.now(), self.room2
             )

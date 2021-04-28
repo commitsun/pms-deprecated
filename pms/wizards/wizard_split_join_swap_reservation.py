@@ -6,22 +6,17 @@ from odoo.exceptions import UserError
 
 class ReservationSplitJoinSwapWizard(models.TransientModel):
     _name = "pms.reservation.split.join.swap.wizard"
-    main_options = fields.Selection(
+    operation = fields.Selection(
         [
             ("swap", "Swap rooms"),
             ("split", "Split reservation"),
             ("join", "Join reservation"),
         ],
         string="Operation",
-        default="swap",
-    )
-    main_options_no_splitted = fields.Selection(
-        [
-            ("swap", "Swap rooms"),
-            ("split", "Split reservation"),
-        ],
-        string="Operation",
-        default="swap",
+        help="Operation to be applied on the reservation",
+        default=lambda self: self._context.get("default_operation")
+        if self._context.get("default_operation")
+        else "swap",
     )
     reservation_id = fields.Many2one(
         string="Reservation",
@@ -32,50 +27,66 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         if self._context.get("active_id")
         else False,
     )
-    splitted = fields.Boolean(
-        compute="_compute_splitted"
-    )
-    pricelist_id = fields.Many2one(
-        string="Pricelist",
-        comodel_name="product.pricelist",
-    )
-    pms_property_id = fields.Many2one(
-        string="Pms Property",
-        default=lambda self: self.env.user.get_active_property_ids()[0],
-        comodel_name="pms.property",
-    )
     checkin = fields.Date(
         string="Check In",
+        default=lambda self: self.env["pms.reservation"]
+        .browse(self._context.get("active_id"))
+        .checkin
+        if self._context.get("active_id")
+        else False,
     )
     checkout = fields.Date(
         string="Check Out",
+        default=lambda self: self.env["pms.reservation"]
+        .browse(self._context.get("active_id"))
+        .checkout
+        if self._context.get("active_id")
+        else False,
     )
     reservations = fields.Many2many(
         string="Reservations",
         comodel_name="pms.reservation",
         compute="_compute_reservations",
+        readonly=False,
         store=True,
     )
     room_source = fields.Many2one(
         string="Room Source",
         comodel_name="pms.room",
-        domain="[('id', 'in', allowed_room_sources)]",
-    )
-    capacity_room_source = fields.Integer(
-        string="Capacity of selected room",
-        store=True,
-        compute="_compute_capacity_room_source",
-    )
-    allowed_room_sources = fields.Many2many(
-        string="Allowed rooms source",
-        comodel_name="pms.room",
-        compute="_compute_allowed_rooms_source",
-        store=True,
+        domain="[('id', 'in', allowed_rooms_sources)]",
+        default=lambda self: self.env["pms.reservation"]
+        .browse(self._context.get("active_id"))
+        .preferred_room_id
+        if self._context.get("active_id")
+        and not self.env["pms.reservation"]
+        .browse(self._context.get("active_id"))
+        .splitted
+        else False,
     )
     room_target = fields.Many2one(
         string="Room Target",
         comodel_name="pms.room",
-        domain="[('id', '!=', room_source), ('capacity', '>=', capacity_room_source )]",
+        domain="[('id', 'in', allowed_rooms_target)]",
+    )
+    allowed_rooms_sources = fields.Many2many(
+        string="Allowed rooms source",
+        comodel_name="pms.room",
+        relation="pms_wizard_split_join_swap_reservation_rooms_source",
+        column1="wizard_id",
+        column2="room_id",
+        compute="_compute_allowed_rooms_source",
+        store=True,
+        readonly=False,
+    )
+    allowed_rooms_target = fields.Many2many(
+        string="Allowed rooms target",
+        comodel_name="pms.room",
+        relation="pms_wizard_split_join_swap_reservation_rooms_target",
+        column1="wizard_id",
+        column2="room_id",
+        compute="_compute_allowed_rooms_target",
+        store=True,
+        readonly=False,
     )
     reservation_lines_to_change = fields.One2many(
         comodel_name="pms.wizard.reservation.lines.split",
@@ -84,14 +95,6 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         store=True,
         readonly=False,
     )
-
-    @api.depends("reservation_id")
-    def _compute_splitted(self):
-        for record in self:
-            if record.reservation_id and record.reservation_id.splitted:
-                record.splitted = True
-            else:
-                record.splitted = False
 
     @api.depends("checkin", "checkout", "room_source", "room_target")
     def _compute_reservations(self):
@@ -102,11 +105,18 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                     record.checkin + datetime.timedelta(days=x)
                     for x in range(0, (record.checkout - record.checkin).days)
                 ]:
-                    lines = self.env["pms.reservation.line"].search(
-                        [
-                            ("date", "=", date_iterator),
-                        ]
-                    )
+                    domain_lines = []
+                    if record.room_source and record.room_target:
+                        domain_lines.extend(
+                            [
+                                "|",
+                                ("room_id", "=", record.room_source.id),
+                                ("room_id", "=", record.room_target.id),
+                            ]
+                        )
+
+                    domain_lines.append(("date", "=", date_iterator))
+                    lines = self.env["pms.reservation.line"].search(domain_lines)
                     reservation_ids.extend(lines.mapped("reservation_id.id"))
                 reservations = (
                     self.env["pms.reservation"]
@@ -119,14 +129,6 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                     .sorted("rooms")
                 )
                 record.reservations = reservations
-
-                if record.room_source and record.room_target:
-                    record.reservations = record.reservations.filtered(
-                        lambda x: record.room_source
-                        in x.reservation_line_ids.mapped("room_id")
-                        or record.room_target
-                        in x.reservation_line_ids.mapped("room_id")
-                    ).sorted("rooms")
             else:
                 record.reservations = False
 
@@ -154,16 +156,47 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
     @api.depends("checkin", "checkout")
     def _compute_allowed_rooms_source(self):
         for record in self:
-            record.allowed_room_sources = (
+            record.allowed_rooms_sources = (
                 record.reservations.reservation_line_ids.mapped("room_id")
             )
 
-    @api.depends("room_source")
-    def _compute_capacity_room_source(self):
+    @api.depends_context("default_operation")
+    @api.depends("checkin", "checkout", "room_source", "operation")
+    def _compute_allowed_rooms_target(self):
         for record in self:
-            record.capacity_room_source = False
-            if record.room_source:
-                record.capacity_room_source = record.room_source.capacity
+            record.allowed_rooms_target = False
+            record.room_target = False
+            if record.checkin and record.checkout:
+                rooms_available = self.env["pms.availability.plan"].rooms_available(
+                    checkin=record.checkin,
+                    checkout=record.checkout,
+                    room_type_id=False,  # Allows to choose any available room
+                    current_lines=record.reservation_id.reservation_line_ids.ids,
+                    pricelist_id=record.reservation_id.pricelist_id.id,
+                    pms_property_id=record.reservation_id.pms_property_id.id,
+                )
+                domain = [("capacity", ">=", record.reservation_id.adults)]
+                if record.room_source:
+                    domain.append(("id", "!=", record.room_source.id))
+
+                if record.operation == "swap":
+                    domain.append(
+                        (
+                            "id",
+                            "in",
+                            record.reservations.reservation_line_ids.mapped(
+                                "room_id"
+                            ).ids,
+                        )
+                    )
+                else:
+                    domain.extend(
+                        [
+                            ("id", "in", rooms_available.ids),
+                        ]
+                    )
+                rooms = self.env["pms.room"].search(domain)
+                record.allowed_rooms_target = rooms
 
     @api.model
     def reservation_split(self, reservation, date, room):
@@ -194,7 +227,7 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
         ).room_id = room.id
 
     @api.model
-    def reservation_unify(self, reservation, room):
+    def reservation_join(self, reservation, room):
         rooms_available = self.env["pms.availability.plan"].rooms_available(
             checkin=reservation.checkin,
             checkout=reservation.checkout,
@@ -208,23 +241,17 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                 .search([("id", "=", reservation.id)])
                 .reservation_line_ids
             ):
-                line.room_id = room
+                line.room_id = room.id
         else:
             raise UserError(_("Room {} not available.".format(room.name)))
 
     @api.model
     def reservations_swap(self, checkin, checkout, source, target):
-        reservations = self.env['pms.reservation'].search(
-            [
-                ('checkin', '>=', checkin),
-                ('checkout', '<=', checkout)
-            ]
+        reservations = self.env["pms.reservation"].search(
+            [("checkin", ">=", checkin), ("checkout", "<=", checkout)]
         )
-        lines = self.env['pms.reservation.line'].search_count(
-            [
-                ('room_id', '=', source),
-                ("reservation_id", "in", reservations.ids)
-            ]
+        lines = self.env["pms.reservation.line"].search_count(
+            [("room_id", "=", source), ("reservation_id", "in", reservations.ids)]
         )
         if not lines:
             raise UserError(_("There's no reservations lines with provided room"))
@@ -265,9 +292,9 @@ class ReservationSplitJoinSwapWizard(models.TransientModel):
                     line.room_id,
                 )
 
-    def action_unify(self):
+    def action_join(self):
         for record in self:
-            self.reservation_unify(record.reservation_id, record.room_target)
+            self.reservation_join(record.reservation_id, record.room_target)
 
     def action_swap(self):
         self.reservations_swap(
@@ -294,6 +321,8 @@ class ReservationLinesToSplit(models.TransientModel):
         help="It contains all available rooms for this line",
         comodel_name="pms.room",
         compute="_compute_allowed_room_ids",
+        store=True,
+        # readonly=False
     )
 
     @api.depends(

@@ -77,15 +77,18 @@
                     style="margin-bottom:0px;"
                     attrs="{'invisible': [('splitted','=',False)]}"
                 >
-                    This reservation is part of splitted reservation, you can try to
-                    unify the reservation here
+                    This reservation is part of a splitted reservation, you can try to
+                    join the reservation here
                     <bold>
                         <button
                             class="alert-link"
                             type="object"
                             name="open_reservation_wizard"
-                            string="Unify the reservation"
+                            string="Join the reservation"
+                            context="{'default_operation': 'join'}"
                         />
+
+
                     </bold>
                 </div>
                 <sheet>
