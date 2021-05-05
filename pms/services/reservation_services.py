@@ -5,9 +5,9 @@ from odoo.addons.component.core import Component
 
 class PmsReservationService(Component):
     _inherit = "base.rest.service"
-    _name = "pms.reservation.service"
+    _name = "pms.service"
     _usage = "reservations"
-    _collection = "pms.reservation.services"
+    _collection = "pms.services"
     _description = """
         Reservation API Services
         Services developed with the new api provided by base_rest
@@ -21,7 +21,9 @@ class PmsReservationService(Component):
     )
     def search(self, reservation_search_param):
         """
-        Devuelve un listado de todas las reservas, admite parámetros de búsqueda 'id' y 'name' (ejs.: "/reservations", "/reservations?id=1&name=R/21003449")
+        Devuelve un listado de todas las reservas,
+        admite parámetros de búsqueda 'id' y 'name'
+        (ejs.: "/reservations", "/reservations?id=1&name=R/21003449")
         """
         domain = []
         if reservation_search_param.name:
@@ -59,7 +61,8 @@ class PmsReservationService(Component):
     )
     def search_by_id(self, reservation_id):
         """
-        Devuelve la reserva que se corresponde con el 'id' indicado en el path (ej.: /reservations/34)
+        Devuelve la reserva que se corresponde con el 'id' indicado
+        (ej.: /reservations/34)
         """
         reservation = self.env["pms.reservation"].sudo().browse(reservation_id)
         if reservation:
@@ -90,7 +93,8 @@ class PmsReservationService(Component):
     )
     def update_partner_requests(self, reservation_id, reservation_patch_params):
         """
-        Actualiza el campo de peticiones de huéspedes para la reserva indicada con el id (ej.: /reservations/34)
+        Actualiza el campo de peticiones de huéspedes para la reserva
+         indicada con el id (ej.: /reservations/34)
         """
         reservation = self.env["pms.reservation"].sudo().browse(reservation_id)
         reservation.partner_requests = reservation_patch_params.partner_requests
