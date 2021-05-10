@@ -24,6 +24,8 @@
         # "email_template_qweb",
         "sale",
         "multi_pms_properties",
+        "base_rest",
+        "base_rest_datamodel",
     ],
     "data": [
         "security/pms_security.xml",
