@@ -46,17 +46,13 @@ class PmsReservationService(Component):
                     if reservation.room_type_id
                     else "",
                     name=reservation.name,
-                    price=reservation.price_room_services_set,
-                    partner_requests=reservation.partner_requests
-                    if reservation.partner_requests
-                    else "",
                 )
             )
         return res
 
     @restapi.method(
         [(["/<int:id>"], "GET")],
-        output_param=Datamodel("pms.reservation.short.info"),
+        output_param=Datamodel("pms.reservation.long.info"),
         auth="public",
     )
     def search_by_id(self, reservation_id):
@@ -66,8 +62,8 @@ class PmsReservationService(Component):
         """
         reservation = self.env["pms.reservation"].sudo().browse(reservation_id)
         if reservation:
-            PmsReservationShortInfo = self.env.datamodels["pms.reservation.short.info"]
-            return PmsReservationShortInfo(
+            PmsReservationLongInfo = self.env.datamodels["pms.reservation.long.info"]
+            return PmsReservationLongInfo(
                 id=reservation.id,
                 partner=reservation.partner_id.name,
                 checkin=str(reservation.checkin),
