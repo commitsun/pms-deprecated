@@ -24,8 +24,11 @@ class AvailabilityWizard(models.TransientModel):
             ("pricelist", "Pricelist"),
             ("availability_plan", "Availability Plan"),
         ],
-        required=True,
-        default="availability_plan",
+        default=lambda self: "availability_plan"
+        if self._context.get("availability_plan_id")
+        else "pricelist"
+        if self._context.get("pricelist_id")
+        else "availability_plan",
     )
 
     availability_plan_id = fields.Many2many(
@@ -350,9 +353,9 @@ class AvailabilityWizard(models.TransientModel):
                     room_type_ids = record.room_type_id.ids
                     product_ids = (
                         self.env["pms.room.type"]
-                        .search([("id", "in", room_type_ids)])
-                        .mapped("product_id")
-                        .ids
+                            .search([("id", "in", room_type_ids)])
+                            .mapped("product_id")
+                            .ids
                     )
                     domain.append(
                         (
