@@ -483,6 +483,7 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )
+
     @freeze_time("2025-12-01")
     def test_several_availability_plan(self):
         self.create_common_scenario()
@@ -498,7 +499,10 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
         wizard = self.env["pms.massive.changes.wizard"].create(
             {
                 "massive_changes_on": "pricelist",
-                "availability_plan_id": [self.test_availability_plan.id, self.test_availability_plan_2.id],
+                "availability_plan_id": [
+                    self.test_availability_plan.id,
+                    self.test_availability_plan_2.id,
+                ],
                 "room_type_id": [self.test_room_type_double.id],
                 "pms_property_ids": [self.test_property.id],
                 "start_date": date_from,
@@ -506,9 +510,16 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
             }
         )
 
-        availability_plans = [self.test_availability_plan, self.test_availability_plan_2]
+        availability_plans = [
+            self.test_availability_plan,
+            self.test_availability_plan_2,
+        ]
         for avail_plan in wizard["availability_plan_id"]:
-            self.assertIn(avail_plan, availability_plans, "Some availability plan has not been write ")
+            self.assertIn(
+                avail_plan,
+                availability_plans,
+                "Some availability plan has not been write ",
+            )
 
     @freeze_time("2025-01-01")
     def test_several_pricelists(self):
@@ -545,7 +556,10 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
             {
                 "massive_changes_on": "pricelist",
                 "pricelist_id": [self.test_pricelist.id],
-                "room_type_id": [self.test_room_type_double.id, self.test_room_type_double.id],
+                "room_type_id": [
+                    self.test_room_type_double.id,
+                    self.test_room_type_double.id,
+                ],
                 "pms_property_ids": [self.test_property.id],
                 "start_date": date_from,
                 "end_date": date_to,

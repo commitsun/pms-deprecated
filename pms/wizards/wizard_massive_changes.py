@@ -264,12 +264,14 @@ class AvailabilityWizard(models.TransientModel):
             if not record.availability_plan_id and self._context.get(
                 "availability_plan_id"
             ):
-                record.availability_plan_id = self._context.get("availability_plan_id")
+                record.availability_plan_id = [
+                    (4, self._context.get("availability_plan_id"))
+                ]
                 record.massive_changes_on = "availability_plan"
 
             if record.availability_plan_id:
                 domain = [
-                    ("availability_plan_id", "=", record.availability_plan_id.ids),
+                    ("availability_plan_id", "in", record.availability_plan_id.ids),
                 ]
 
                 if record.room_type_id:
@@ -329,12 +331,12 @@ class AvailabilityWizard(models.TransientModel):
     def _compute_pricelist_items_to_overwrite(self):
         for record in self:
             if not record.pricelist_id and self._context.get("pricelist_id"):
-                record.pricelist_id = self._context.get("pricelist_id")
+                record.pricelist_id = [(4, self._context.get("pricelist_id"))]
                 record.massive_changes_on = "pricelist"
 
             if record.pricelist_id:
                 domain = [
-                    ("pricelist_id", "=", record.pricelist_id.ids),
+                    ("pricelist_id", "in", record.pricelist_id.ids),
                     "|",
                     ("pms_property_ids", "=", False),
                     ("pms_property_ids", "in", record.pms_property_ids.ids),
@@ -344,16 +346,21 @@ class AvailabilityWizard(models.TransientModel):
                     domain.append(("date_start_overnight", ">=", record.start_date))
                 if record.end_date:
                     domain.append(("date_end_overnight", "<=", record.end_date))
-                for room_type in record.room_type_id:
-                    if record.room_type_id:
-                        domain.append(
-                            (
-                                "product_tmpl_id",
-                                "=",
-                                room_type.product_id.product_tmpl_id.id,
-                            )
+                if record.room_type_id:
+                    room_type_ids = record.room_type_id.ids
+                    product_ids = (
+                        self.env["pms.room.type"]
+                        .search([("id", "in", room_type_ids)])
+                        .mapped("product_id")
+                        .ids
+                    )
+                    domain.append(
+                        (
+                            "product_id",
+                            "in",
+                            product_ids,
                         )
-
+                    )
                 week_days_to_apply = (
                     record.apply_on_monday,
                     record.apply_on_tuesday,
