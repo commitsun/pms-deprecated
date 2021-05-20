@@ -483,3 +483,75 @@ class TestPmsWizardMassiveChanges(common.SavepointCase):
                     and test_case[index],
                     "Rule not created on correct day of week",
                 )
+    @freeze_time("2025-12-01")
+    def test_several_availability_plan(self):
+        self.create_common_scenario()
+        date_from = fields.date.today()
+        date_to = date_from + datetime.timedelta(days=6)
+        self.test_availability_plan_2 = self.env["pms.availability.plan"].create(
+            {
+                "name": "Second availability plan for TEST",
+                "pms_pricelist_ids": [(6, 0, [self.test_pricelist.id])],
+            }
+        )
+
+        wizard = self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "availability_plan_id": [self.test_availability_plan.id, self.test_availability_plan_2.id],
+                "room_type_id": [self.test_room_type_double.id],
+                "pms_property_ids": [self.test_property.id],
+                "start_date": date_from,
+                "end_date": date_to,
+            }
+        )
+
+        availability_plans = [self.test_availability_plan, self.test_availability_plan_2]
+        for avail_plan in wizard["availability_plan_id"]:
+            self.assertIn(avail_plan, availability_plans, "Some availability plan has not been write ")
+
+    @freeze_time("2025-01-01")
+    def test_several_pricelists(self):
+        self.create_common_scenario()
+        date_from = fields.date.today()
+        date_to = date_from + datetime.timedelta(days=6)
+        self.test_pricelist_2 = self.env["product.pricelist"].create(
+            {
+                "name": "test pricelist 2",
+            }
+        )
+
+        wizard = self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": [self.test_pricelist.id, self.test_pricelist_2.id],
+                "room_type_id": [self.test_room_type_double.id],
+                "pms_property_ids": [self.test_property.id],
+                "start_date": date_from,
+                "end_date": date_to,
+            }
+        )
+
+        pricelists = [self.test_pricelist, self.test_pricelist_2]
+        for pricelist in wizard["pricelist_id"]:
+            self.assertIn(pricelist, pricelists, "Some pricelists has not been write ")
+
+    @freeze_time("2025-02-01")
+    def test_several_room_types(self):
+        self.create_common_scenario()
+        date_from = fields.date.today()
+        date_to = date_from + datetime.timedelta(days=6)
+        wizard = self.env["pms.massive.changes.wizard"].create(
+            {
+                "massive_changes_on": "pricelist",
+                "pricelist_id": [self.test_pricelist.id],
+                "room_type_id": [self.test_room_type_double.id, self.test_room_type_double.id],
+                "pms_property_ids": [self.test_property.id],
+                "start_date": date_from,
+                "end_date": date_to,
+            }
+        )
+
+        room_types = [self.test_room_type_double, self.test_room_type_double]
+        for room_type in wizard["room_type_id"]:
+            self.assertIn(room_type, room_types, "Some room_types has not been write ")
