@@ -31,6 +31,7 @@
         "data/cron_jobs.xml",
         "data/pms_sequence.xml",
         "data/pms_data.xml",
+        "data/mail_template.xml",
         "report/pms_folio.xml",
         "report/pms_folio_templates.xml",
         # "templates/pms_email_template.xml",
