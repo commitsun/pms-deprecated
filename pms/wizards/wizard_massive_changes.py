@@ -455,6 +455,7 @@ class AvailabilityWizard(models.TransientModel):
             )
 
             # dates between start and end (both included)
+            items = []
             for date in [
                 record.start_date + datetime.timedelta(days=x)
                 for x in range(0, (record.end_date - record.start_date).days + 1)
@@ -480,7 +481,9 @@ class AvailabilityWizard(models.TransientModel):
                     for room_type in room_types:
                         if record.massive_changes_on == "pricelist":
                             for pricelist in record.pricelist_id:
-                                self.env["product.pricelist.item"].create(
+                                pricelist_item = self.env[
+                                    "product.pricelist.item"
+                                ].create(
                                     {
                                         "pricelist_id": pricelist.id,
                                         "date_start_overnight": date,
@@ -493,6 +496,7 @@ class AvailabilityWizard(models.TransientModel):
                                         "pms_property_ids": [pms_property.id],
                                     }
                                 )
+                                items.append(pricelist_item.id)
                         else:
                             for avail_plan_id in record.availability_plan_id:
                                 vals = {}
@@ -556,8 +560,11 @@ class AvailabilityWizard(models.TransientModel):
                                         ]
                                     )
                                     overwrite.write(vals)
+                                    items.append(overwrite.id)
                                 else:
-                                    self.env["pms.availability.plan.rule"].create(
+                                    plan_rule = self.env[
+                                        "pms.availability.plan.rule"
+                                    ].create(
                                         {
                                             "availability_plan_id": avail_plan_id.id,
                                             "date": date,
@@ -574,23 +581,24 @@ class AvailabilityWizard(models.TransientModel):
                                             "pms_property_id": pms_property.id,
                                         }
                                     )
+                                    items.append(plan_rule.id)
+            action = {}
             if (
                 record.massive_changes_on == "pricelist"
                 and not record.pricelist_readonly
             ):
-                action = self.env.ref("product.product_pricelist_action2").read()[0]
-                action["views"] = [
-                    (self.env.ref("pms.product_pricelist_view_form").id, "form")
-                ]
-                action["res_id"] = record.pricelist_id[0].id
-                return action
+                action = {
+                    "view": self.env.ref("pms.product_pricelist_item_action2").read()[0]
+                }
+
             if (
                 record.massive_changes_on == "availability_plan"
                 and not record.avail_readonly
             ):
-                action = self.env.ref("pms.availability_action").read()[0]
-                action["views"] = [
-                    (self.env.ref("pms.availability_view_form").id, "form")
-                ]
-                action["res_id"] = record.availability_plan_id[0].id
-                return action
+                action = {
+                    "view": self.env.ref(
+                        "pms.availability_plan_rule_view_tree_action"
+                    ).read()[0]
+                }
+            action["view"]["domain"] = [("id", "in", items)]
+            return action["view"]
