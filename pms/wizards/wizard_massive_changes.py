@@ -353,9 +353,9 @@ class AvailabilityWizard(models.TransientModel):
                     room_type_ids = record.room_type_id.ids
                     product_ids = (
                         self.env["pms.room.type"]
-                            .search([("id", "in", room_type_ids)])
-                            .mapped("product_id")
-                            .ids
+                        .search([("id", "in", room_type_ids)])
+                        .mapped("product_id")
+                        .ids
                     )
                     domain.append(
                         (
